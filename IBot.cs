@@ -1,6 +1,8 @@
-﻿namespace Kozma.net;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace Kozma.net;
 
 public interface IBot
 {
-    Task StartAsync();
+    Task StartAsync(ServiceProvider provider);
 }

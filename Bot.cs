@@ -1,18 +1,24 @@
 ﻿using Discord;
+using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Handlers;
 using Kozma.net.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kozma.net;
 
 public class Bot : IBot
 {
     private readonly DiscordSocketClient _client;
-    private readonly IConfigFactory _configFactory;
+    private readonly IConfiguration _config;
+    private readonly ICommandHandler _commandHandler;
 
-    public Bot(IConfigFactory configFactory)
+    public Bot(IConfigFactory configFactory, ICommandHandler commandHandler)
     {
-        _configFactory = configFactory;
+        _config = configFactory.GetConfig();
+        _commandHandler = commandHandler;
 
         DiscordSocketConfig config = new()
         {
@@ -21,13 +27,12 @@ public class Bot : IBot
 
         _client = new DiscordSocketClient(config);
         _client.Log += Log;
+        _client.SlashCommandExecuted += _commandHandler.HandleCommandAsync;
     }
 
-    public async Task StartAsync()
+    public async Task StartAsync(ServiceProvider provider)
     {
-        var config = _configFactory.GetConfig();
-
-        await _client.LoginAsync(TokenType.Bot, config.GetValue<string>("botToken"));
+        await _client.LoginAsync(TokenType.Bot, _config.GetValue<string>("botToken"));
         await _client.StartAsync();
     }
 

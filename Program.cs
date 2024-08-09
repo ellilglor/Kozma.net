@@ -1,4 +1,5 @@
-﻿using Kozma.net.Services;
+﻿using Kozma.net.Handlers;
+using Kozma.net.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kozma.net;
@@ -10,24 +11,25 @@ public class Program
         var serviceProvider = new ServiceCollection()
                 .AddSingleton<IConfigFactory, ConfigFactory>()
                 .AddSingleton<IBot, Bot>()
+                .AddSingleton<ICommandHandler, CommandHandler>()
                 .BuildServiceProvider();
 
-        await StartBot(serviceProvider);
+        await StartBotAsync(serviceProvider);
     }
 
-    private static async Task StartBot(ServiceProvider serviceProvider)
+    private static async Task StartBotAsync(ServiceProvider serviceProvider)
     {
         try
         {
             var bot = serviceProvider.GetRequiredService<IBot>();
-            await bot.StartAsync();
+
+            await bot.StartAsync(serviceProvider);
+            await Task.Delay(-1);
         }
         catch (Exception exception)
         {
             Console.WriteLine(exception.Message);
             Environment.Exit(-1);
         }
-
-        await Task.Delay(-1);
     }
 }
