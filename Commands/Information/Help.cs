@@ -42,7 +42,15 @@ public class Help : InteractionModuleBase<SocketInteractionContext>, ICommand
             .WithFields(fields)
             .Build();
 
-        await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
+        var components = new ComponentBuilder()
+            .WithButton(label: "Github", url: _config.GetValue<string>("github"), style: ButtonStyle.Link)
+            .WithButton(label: "Discord server", url: _config.GetValue<string>("serverInvite"), style: ButtonStyle.Link)
+            .Build();
+
+        await ModifyOriginalResponseAsync(msg => {
+            msg.Embed = embed;
+            msg.Components = components;
+        });
     }
 
     private static EmbedFieldBuilder CreateField(string name, string value)
