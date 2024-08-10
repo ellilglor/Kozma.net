@@ -1,6 +1,9 @@
 ﻿using Kozma.net.Handlers;
-using Kozma.net.Services;
+using Kozma.net.Factories;
 using Microsoft.Extensions.DependencyInjection;
+using Discord.Interactions;
+using Discord.WebSocket;
+using Discord;
 
 namespace Kozma.net;
 
@@ -8,28 +11,35 @@ public class Program
 {
     public static async Task Main()
     {
-        var serviceProvider = new ServiceCollection()
+        DiscordSocketConfig config = new()
+        {
+            GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
+        };
+
+        var services = new ServiceCollection()
                 .AddSingleton<IConfigFactory, ConfigFactory>()
                 .AddSingleton<IBot, Bot>()
-                .AddSingleton<ICommandHandler, CommandHandler>()
+                .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
+                .AddSingleton<IEmbedFactory, EmbedFactory>()
+                .AddSingleton<IInteractionHandler, InteractionHandler>()
                 .BuildServiceProvider();
 
-        await StartBotAsync(serviceProvider);
+        await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
+        await StartBotAsync(services);
     }
 
-    private static async Task StartBotAsync(ServiceProvider serviceProvider)
+    private static async Task StartBotAsync(ServiceProvider services)
     {
         try
         {
-            var bot = serviceProvider.GetRequiredService<IBot>();
+            var bot = services.GetRequiredService<IBot>();
 
-            await bot.StartAsync(serviceProvider);
+            await bot.StartAsync(services);
             await Task.Delay(-1);
         }
         catch (Exception exception)
         {
             Console.WriteLine(exception.Message);
-            Environment.Exit(-1);
         }
     }
 }
