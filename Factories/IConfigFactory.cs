@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Kozma.net.Services;
+namespace Kozma.net.Factories;
 
 public interface IConfigFactory
 {

@@ -1,9 +1,6 @@
 ﻿using Discord;
-using Discord.Commands;
-using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Handlers;
-using Kozma.net.Services;
+using Kozma.net.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,12 +10,10 @@ public class Bot : IBot
 {
     private readonly DiscordSocketClient _client;
     private readonly IConfiguration _config;
-    private readonly ICommandHandler _commandHandler;
 
-    public Bot(IConfigFactory configFactory, ICommandHandler commandHandler)
+    public Bot(IConfigFactory configFactory)
     {
         _config = configFactory.GetConfig();
-        _commandHandler = commandHandler;
 
         DiscordSocketConfig config = new()
         {
@@ -27,13 +22,17 @@ public class Bot : IBot
 
         _client = new DiscordSocketClient(config);
         _client.Log += Log;
-        _client.SlashCommandExecuted += _commandHandler.HandleCommandAsync;
     }
 
     public async Task StartAsync(ServiceProvider provider)
     {
         await _client.LoginAsync(TokenType.Bot, _config.GetValue<string>("botToken"));
         await _client.StartAsync();
+    }
+
+    public DiscordSocketClient GetClient()
+    {
+        return _client;
     }
 
     private static Task Log(LogMessage msg)

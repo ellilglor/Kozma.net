@@ -1,17 +1,20 @@
-﻿using Discord.WebSocket;
+﻿using Discord.Interactions;
+using Kozma.net.Factories;
 
 namespace Kozma.net.Commands.Information;
 
-public class Help : ICommand
+public class Help : InteractionModuleBase<SocketInteractionContext>, ICommand
 {
+    private readonly IEmbedFactory _embedFactory;
 
-    public Help()
+    public Help(IEmbedFactory embedFactory)
     {
-
+        _embedFactory = embedFactory;
     }
 
-    public async Task ExecuteAsync(SocketSlashCommand command)
+    [SlashCommand("help", "Explains all commands.")]
+    public async Task ExecuteAsync()
     {
-        await command.ModifyOriginalResponseAsync(msg => msg.Content = $"You executed {command.Data.Name}");
+        await ModifyOriginalResponseAsync(msg => msg.Embed = _embedFactory.GetAndBuildEmbed("You executed help"));
     }
 }
