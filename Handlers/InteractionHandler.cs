@@ -65,11 +65,13 @@ public class InteractionHandler : IInteractionHandler
                         await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = _embedFactory.GetAndBuildEmbed($"It looks like this command is missing!"));
                         break;
                     default:
+                        Console.WriteLine(result.Error);
                         break;
                 }
             }
-        } catch
+        } catch (Exception ex) 
         {
+            Console.WriteLine(ex.ToString());
             // TODO: Let user know crash happened
         }
     }
