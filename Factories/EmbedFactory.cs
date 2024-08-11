@@ -30,4 +30,9 @@ public class EmbedFactory : IEmbedFactory
                 .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl())
         };
     }
+
+    public EmbedFieldBuilder CreateField(string name, string value, bool inline = true)
+    {
+        return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(inline);
+    }
 }

@@ -34,7 +34,7 @@ public class Program
         {
             var bot = services.GetRequiredService<IBot>();
 
-            await bot.StartAsync(services);
+            await bot.StartAsync();
             await Task.Delay(-1);
         }
         catch (Exception exception)

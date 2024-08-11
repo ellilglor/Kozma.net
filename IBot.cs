@@ -5,6 +5,6 @@ namespace Kozma.net;
 
 public interface IBot
 {
-    Task StartAsync(ServiceProvider provider);
+    Task StartAsync();
     DiscordSocketClient GetClient();
 }

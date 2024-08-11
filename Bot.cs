@@ -24,7 +24,7 @@ public class Bot : IBot
         _client.Log += Log;
     }
 
-    public async Task StartAsync(ServiceProvider provider)
+    public async Task StartAsync()
     {
         await _client.LoginAsync(TokenType.Bot, _config.GetValue<string>("botToken"));
         await _client.StartAsync();
