@@ -11,11 +11,6 @@ public class Program
 {
     public static async Task Main()
     {
-        DiscordSocketConfig config = new()
-        {
-            GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
-        };
-
         var services = new ServiceCollection()
                 .AddSingleton<IConfigFactory, ConfigFactory>()
                 .AddSingleton<IBot, Bot>()
