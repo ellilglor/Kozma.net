@@ -4,11 +4,11 @@ namespace Kozma.net.Factories;
 
 public class ConfigFactory : IConfigFactory
 {
-    private readonly IConfigurationRoot _config;
+    private readonly IConfigurationRoot config;
 
     public ConfigFactory()
     {
-        _config = new ConfigurationBuilder()
+        config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .AddUserSecrets<Program>()
             .Build();
@@ -16,6 +16,6 @@ public class ConfigFactory : IConfigFactory
 
     public IConfigurationRoot GetConfig()
     {
-        return _config;
+        return config;
     }
 }

@@ -3,16 +3,10 @@ using Discord.WebSocket;
 
 namespace Kozma.net.Factories;
 
-public class EmbedFactory : IEmbedFactory
+public class EmbedFactory(IBot bot) : IEmbedFactory
 {
-    private readonly DiscordSocketClient _client;
-    private readonly UInt32 _defaultColor;
-
-    public EmbedFactory(IBot bot)
-    {
-        _client = bot.GetClient();
-        _defaultColor = Convert.ToUInt32("29D0FF", 16);
-    }
+    private readonly DiscordSocketClient client = bot.GetClient();
+    private readonly UInt32 defaultColor = Convert.ToUInt32("29D0FF", 16);
 
     public Embed GetAndBuildEmbed(string title)
     {
@@ -24,10 +18,10 @@ public class EmbedFactory : IEmbedFactory
         return new EmbedBuilder
         {
             Title = title,
-            Color = _defaultColor,
+            Color = defaultColor,
             Footer = new EmbedFooterBuilder()
-                .WithText($"Thank you for using {_client.CurrentUser.Username} bot!")
-                .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl())
+                .WithText($"Thank you for using {client.CurrentUser.Username} bot!")
+                .WithIconUrl(client.CurrentUser.GetDisplayAvatarUrl())
         };
     }
 

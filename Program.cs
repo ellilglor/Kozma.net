@@ -2,8 +2,6 @@
 using Kozma.net.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Discord.Interactions;
-using Discord.WebSocket;
-using Discord;
 
 namespace Kozma.net;
 

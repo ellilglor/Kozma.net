@@ -6,30 +6,18 @@ using System.Reflection;
 
 namespace Kozma.net.Handlers;
 
-public class InteractionHandler : IInteractionHandler
+public class InteractionHandler(IBot bot, IConfigFactory configFactory, IEmbedFactory embedFactory, IServiceProvider services, InteractionService handler) : IInteractionHandler
 {
-    private readonly DiscordSocketClient _client;
-    private readonly IConfiguration _config;
-    private readonly IEmbedFactory _embedFactory;
-    private readonly IServiceProvider _services;
-    private readonly InteractionService _handler;
-
-    public InteractionHandler(IBot bot, IConfigFactory configFactory, IEmbedFactory embedFactory, IServiceProvider services, InteractionService handler)
-    {
-        _client = bot.GetClient();
-        _config = configFactory.GetConfig();
-        _embedFactory = embedFactory;
-        _services = services;
-        _handler = handler;
-    }
+    private readonly DiscordSocketClient client = bot.GetClient();
+    private readonly IConfiguration config = configFactory.GetConfig();
 
     public async Task InitializeAsync()
     {
-        _client.Ready += ReadyAsync;
+        client.Ready += ReadyAsync;
 
-        await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+        await handler.AddModulesAsync(Assembly.GetEntryAssembly(), services);
 
-        _client.InteractionCreated += HandleInteractionAsync;
+        client.InteractionCreated += HandleInteractionAsync;
     }
 
     private async Task ReadyAsync()
@@ -40,9 +28,9 @@ public class InteractionHandler : IInteractionHandler
 
     private async Task HandleInteractionAsync(SocketInteraction interaction)
     {
-        if (interaction.User.Id != _config.GetValue<ulong>("ids:ownerId"))
+        if (interaction.User.Id != config.GetValue<ulong>("ids:ownerId"))
         {
-            var maintenanceEmbed = _embedFactory.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later.");
+            var maintenanceEmbed = embedFactory.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later.");
             await interaction.RespondAsync(embed: maintenanceEmbed, ephemeral: true);
             return;
         }
@@ -53,16 +41,16 @@ public class InteractionHandler : IInteractionHandler
 
         try
         {
-            var context = new SocketInteractionContext(_client, interaction);
+            var context = new SocketInteractionContext(client, interaction);
 
-            var result = await _handler.ExecuteCommandAsync(context, _services);
+            var result = await handler.ExecuteCommandAsync(context, services);
 
             if (!result.IsSuccess)
             {
                 switch (result.Error)
                 {
                     case InteractionCommandError.UnknownCommand:
-                        await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = _embedFactory.GetAndBuildEmbed($"It looks like this command is missing!"));
+                        await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedFactory.GetAndBuildEmbed($"It looks like this command is missing!"));
                         break;
                     default:
                         Console.WriteLine(result.Error);
