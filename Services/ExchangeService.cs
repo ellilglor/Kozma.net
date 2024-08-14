@@ -1,12 +1,13 @@
 ﻿using Kozma.net.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kozma.net.Services;
 
 public class ExchangeService(KozmaDbContext dbContext) : IExchangeService
 {
-    public int GetExchangeRate()
+    public async Task<int> GetExchangeRateAsync()
     {
-        var exchange = GetExchange();
+        var exchange = await GetExchangeAsync();
 
         if (exchange != null)
         {
@@ -19,25 +20,25 @@ public class ExchangeService(KozmaDbContext dbContext) : IExchangeService
 
     }
 
-    public void UpdateExchange(int rate)
+    public async Task UpdateExchangeAsync(int rate)
     {
-        var exchange = GetExchange();
+        var exchange = await GetExchangeAsync();
 
         if (exchange != null)
         {
             exchange.Rate = rate;
 
             dbContext.Exchange.Update(exchange);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
         } else
         {
             // TODO: @me in logchannel
         }
     }
 
-    private Exchange? GetExchange()
+    private async Task<Exchange?> GetExchangeAsync()
     {
         // Should only have 1 entry so ID is not needed
-        return dbContext.Exchange.FirstOrDefault();
+        return await dbContext.Exchange.FirstOrDefaultAsync();
     }
 }
