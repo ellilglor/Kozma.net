@@ -28,7 +28,7 @@ public class ConvertCurrency(IEmbedFactory embedFactory, IExchangeService exchan
 
         if (currency == Currency.crowns)
         {
-            embed.WithColor(0xf9d49c);
+            embed.WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown));
         }
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());

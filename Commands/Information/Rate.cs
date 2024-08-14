@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Services;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +25,7 @@ public class Rate(IEmbedFactory embedFactory, IExchangeService exchangeService, 
                 embed.WithTitle($"The conversion rate has been changed to: {newRate}.");
             } else
             {
-                embed.WithColor(Convert.ToUInt32("e74c3c", 16));
+                embed.WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Error));
             }
         }
         else

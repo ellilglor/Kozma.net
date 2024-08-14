@@ -1,12 +1,12 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Enums;
 
 namespace Kozma.net.Factories;
 
 public class EmbedFactory(IBot bot) : IEmbedFactory
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
-    private readonly UInt32 _defaultColor = Convert.ToUInt32("29D0FF", 16);
 
     public Embed GetAndBuildEmbed(string title)
     {
@@ -18,7 +18,7 @@ public class EmbedFactory(IBot bot) : IEmbedFactory
         return new EmbedBuilder
         {
             Title = title,
-            Color = _defaultColor,
+            Color = ConvertEmbedColor(EmbedColor.Default),
             Footer = new EmbedFooterBuilder()
                 .WithText($"Thank you for using {_client.CurrentUser.Username} bot!")
                 .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl())
@@ -29,4 +29,9 @@ public class EmbedFactory(IBot bot) : IEmbedFactory
     {
         return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(inline);
     }
+
+    public uint ConvertEmbedColor(EmbedColor color)
+    {
+        return (uint)color;
+    } 
 }
