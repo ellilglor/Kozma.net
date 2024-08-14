@@ -5,10 +5,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Commands.Information;
 
-public class Help(IEmbedFactory embedFactory, IConfigFactory configFactory) : InteractionModuleBase<SocketInteractionContext>
+public class Help(IEmbedFactory embedFactory, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
-    private readonly IConfiguration config = configFactory.GetConfig();
-
     [SlashCommand("help", "Explains all commands.")]
     public async Task ExecuteAsync()
     {

@@ -4,10 +4,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Commands.Server;
 
-public class TradeEdit(IEmbedFactory embedFactory, IConfigFactory configFactory) : InteractionModuleBase<SocketInteractionContext>
+public class TradeEdit(IEmbedFactory embedFactory, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
-    private readonly IConfiguration config = configFactory.GetConfig();
-
     [SlashCommand("tradepostedit", "Gives you 2 minutes to edit your tradeposts.")]
     public async Task ExecuteAsync()
     {

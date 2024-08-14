@@ -6,18 +6,17 @@ using System.Reflection;
 
 namespace Kozma.net.Handlers;
 
-public class InteractionHandler(IBot bot, IConfigFactory configFactory, IEmbedFactory embedFactory, IServiceProvider services, InteractionService handler) : IInteractionHandler
+public class InteractionHandler(IBot bot, IConfiguration config, IEmbedFactory embedFactory, IServiceProvider services, InteractionService handler) : IInteractionHandler
 {
-    private readonly DiscordSocketClient client = bot.GetClient();
-    private readonly IConfiguration config = configFactory.GetConfig();
+    private readonly DiscordSocketClient _client = bot.GetClient();
 
     public async Task InitializeAsync()
     {
-        client.Ready += ReadyAsync;
+        _client.Ready += ReadyAsync;
 
         await handler.AddModulesAsync(Assembly.GetEntryAssembly(), services);
 
-        client.InteractionCreated += HandleInteractionAsync;
+        _client.InteractionCreated += HandleInteractionAsync;
     }
 
     private async Task ReadyAsync()
@@ -41,7 +40,7 @@ public class InteractionHandler(IBot bot, IConfigFactory configFactory, IEmbedFa
 
         try
         {
-            var context = new SocketInteractionContext(client, interaction);
+            var context = new SocketInteractionContext(_client, interaction);
 
             var result = await handler.ExecuteCommandAsync(context, services);
 
