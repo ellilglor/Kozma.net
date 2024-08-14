@@ -21,7 +21,7 @@ public class Rate(IEmbedFactory embedFactory, IExchangeService exchangeService, 
 
             if (user != null && user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:adminId") || r.Id == config.GetValue<ulong>("ids:modId")))
             {
-                exchangeService.UpdateExchange((int) newRate);
+                await exchangeService.UpdateExchangeAsync(newRate.Value);
                 embed.WithTitle($"The conversion rate has been changed to: {newRate}.");
             } else
             {
@@ -30,7 +30,7 @@ public class Rate(IEmbedFactory embedFactory, IExchangeService exchangeService, 
         }
         else
         {
-            var rate = exchangeService.GetExchangeRate();
+            var rate = await exchangeService.GetExchangeRateAsync();
 
             embed.WithTitle(rate == -1 ? "Something went wrong while fetching the data." : $"The current crowns per energy rate is: {rate}.");
         }

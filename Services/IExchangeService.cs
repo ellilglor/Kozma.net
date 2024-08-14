@@ -2,6 +2,6 @@
 
 public interface IExchangeService
 {
-    int GetExchangeRate();
-    void UpdateExchange(int rate);
+    Task<int> GetExchangeRateAsync();
+    Task UpdateExchangeAsync(int rate);
 }

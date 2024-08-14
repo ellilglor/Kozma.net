@@ -13,7 +13,7 @@ public class ConvertCurrency(IEmbedFactory embedFactory, IExchangeService exchan
         [Summary(description: "Amount you want to convert."), MinValue(1000)] int amount,
         [Summary(description: "Optional custom conversion rate."), MinValue(1)] int? rate = null)
     {
-        var exchange = rate ?? exchangeService.GetExchangeRate();
+        var exchange = rate ?? await exchangeService.GetExchangeRateAsync();
         var converted = currency == Currency.energy ? (amount * exchange) : (amount / exchange);
 
         var title = currency switch
