@@ -24,8 +24,7 @@ public class Rate(IEmbedFactory embedFactory, IExchangeService exchangeService, 
                 embed.WithTitle($"The conversion rate has been changed to: {newRate}.");
             } else
             {
-                embed.WithTitle("You don't have permission to set a new rate!")
-                    .WithColor(Convert.ToUInt32("e74c3c", 16));
+                embed.WithColor(Convert.ToUInt32("e74c3c", 16));
             }
         }
         else
