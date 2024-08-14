@@ -1,8 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Factories;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Kozma.net;
 
@@ -11,16 +9,16 @@ public class Bot : IBot
     private readonly DiscordSocketClient _client;
     private readonly IConfiguration _config;
 
-    public Bot(IConfigFactory configFactory)
+    public Bot(IConfiguration config)
     {
-        _config = configFactory.GetConfig();
+        _config = config;
 
-        DiscordSocketConfig config = new()
+        DiscordSocketConfig intents = new()
         {
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
         };
 
-        _client = new DiscordSocketClient(config);
+        _client = new DiscordSocketClient(intents);
         _client.Log += Log;
     }
 
