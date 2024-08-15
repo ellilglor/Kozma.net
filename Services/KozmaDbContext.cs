@@ -1,6 +1,5 @@
 ﻿using Kozma.net.Models;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
 
 namespace Kozma.net.Services;
 
