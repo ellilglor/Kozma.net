@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
+using System.Text.RegularExpressions;
 
 namespace Kozma.net.Commands.Information;
 
@@ -43,6 +44,14 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
         if (!string.IsNullOrEmpty(slimeCode))
         {
             embed.WithTitle(GetSlimeboxDescription(slimeCode) ?? $"I didn't find a match for __{slimeCode}__.");
+        }
+
+        if (!string.IsNullOrEmpty(item))
+        {
+            var desc = FindItem(item);
+
+            embed.WithTitle(!string.IsNullOrEmpty(desc) ? $"These lockboxes contain __{item}__:" : $"I didn't find a box containing __{item}__.")
+                .WithDescription(desc);
         }
 
         var components = new ComponentBuilder()
@@ -122,5 +131,39 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
             "qqq" => "The QQQ Slime lockbox contains **no special** themed box.",
             _ => null
         };
+    }
+
+    private string? FindItem(string item)
+    {
+        var pattern = "/['\"\\+\\[\\]()\\-{},]/g";
+
+        item = Regex.Replace(item, pattern, string.Empty);
+
+        var boxOdds = _lockboxes
+            .Where(box => Regex.Replace(box.Value, pattern, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase))
+            .Select(box =>
+            {
+                var boxContent = new System.Text.StringBuilder();
+                boxContent.Append($"\n\n__**{box.Key.ToString().ToUpper()} LOCKBOX:**__\n");
+
+                if (box.Key == LockboxOption.Iron)
+                {
+                    var pools = Regex.Replace(box.Value, pattern, string.Empty).ToLower().Split("80%");
+                    boxContent.Append(pools[0].Contains(item) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n"); // TODO: fix if item is in both pools => wings
+                }
+
+                var matchingLines = box.Value
+                    .Split('\n')
+                    .Where(line => Regex.Replace(line, pattern, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase));
+
+                foreach (var line in matchingLines)
+                {
+                    boxContent.Append($"{line.TrimStart()}\n");
+                }
+
+                return boxContent.ToString();
+            });
+
+        return string.Join("", boxOdds);
     }
 }
