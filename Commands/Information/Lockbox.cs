@@ -9,7 +9,6 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
 {
     private readonly IEmbedFactory _embedFactory = embedFactory;
     private readonly Dictionary<LockboxOption, string> _lockboxes = BuildLockboxes();
-    private readonly Dictionary<string, string> _slimeboxes = BuildSlimeboxes();
 
     [SlashCommand("lockbox", "Get the drops from a (slime) lockbox or find what box drops your item.")]
     public async Task ExecuteAsync(
@@ -20,6 +19,7 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
         var embed = _embedFactory.GetEmbed("Please select 1 of the given options.");
         var optionCount = (box.HasValue ? 1 : 0) + (!string.IsNullOrEmpty(slimeCode) ? 1 : 0) + (!string.IsNullOrEmpty(item) ? 1 : 0);
 
+        // Only 1 option should be selected
         if (optionCount != 1)
         {
             await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
@@ -38,6 +38,11 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
 
             embed.WithTitle($"{newTitle.ToUpper()}:")
                 .WithDescription(match);
+        }
+
+        if (!string.IsNullOrEmpty(slimeCode))
+        {
+            embed.WithTitle(GetSlimeboxDescription(slimeCode) ?? $"I didn't find a match for __{slimeCode}__.");
         }
 
         var components = new ComponentBuilder()
@@ -80,41 +85,42 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
         };
     }
 
-    private static Dictionary<string, string> BuildSlimeboxes()
+    private static string? GetSlimeboxDescription(string slimeCode)
     {
-        return new Dictionary<string, string>
+        return slimeCode switch
         {
-            {"000", "The 000 Slime lockbox contains **no special** themed box."},
-            {"001", "The 001 Slime lockbox contains **no special** themed box."},
-            {"002", "The 002 Slime lockbox contains **no special** themed box."},
-            {"003", "The 003 Slime lockbox contains **no special** themed box."},
-            {"004", "The 004 Slime lockbox contains **no special** themed box."},
-            {"005", "The 005 Slime lockbox contains **no special** themed box."},
-            {"006", "The 006 Slime lockbox contains **no special** themed box."},
-            {"007", "The 007 Slime lockbox contains **no special** themed box."},
-            {"008", "The 008 Slime lockbox contains **no special** themed box."},
-            {"009", "The 009 Slime lockbox contains **no special** themed box."},
-            {"40g", "The 40G Slime lockbox contains the **Hunter** themed box."},
-            {"41c", "The 41C Slime lockbox contains the **Dangerous** themed box."},
-            {"40n", "The 40N Slime lockbox contains the **Glacial** themed box."},
-            {"41d", "The 41D Slime lockbox contains the **Hazardous** themed box."},
-            {"50e", "The 50E Slime lockbox contains the **Wicked** themed box."},
-            {"509", "The 509 Slime lockbox contains the **Shadow** themed box."},
-            {"a1j", "The A1J Slime lockbox contains the **Pearl** themed box."},
-            {"a16", "The A16 Slime lockbox contains the **Opal** themed box."},
-            {"a1a", "The A1A Slime lockbox contains the **Amethyst** themed box."},
-            {"a18", "The A18 Slime lockbox contains the **Turquoise** themed box."},
-            {"a10", "The A10 Slime lockbox contains the **Ruby** themed box."},
-            {"a12", "The A12 Slime lockbox contains the **Peridot** themed box."},
-            {"a1b", "The A1B Slime lockbox contains **no special** themed box."},
-            {"403", "The 403 Slime lockbox contains **no special** themed box."},
-            {"b1b", "The B1B Slime lockbox contains the **Aquamarine** themed box."},
-            {"a17", "The A17 Slime lockbox contains the **Citrine** themed box."},
-            {"a19", "The A19 Slime lockbox contains the **Garnet** themed box."},
-            {"a14", "The A14 Slime lockbox contains the **Sapphire** themed box."},
-            {"a1i", "The A1I Slime lockbox contains the **Emerald** themed box."},
-            {"a1h", "The A1H Slime lockbox contains the **Diamond** themed box."},
-            {"qqq", "The QQQ Slime lockbox contains **no special** themed box."}
+            "000" => "The 000 Slime lockbox contains **no special** themed box.",
+            "001" => "The 001 Slime lockbox contains **no special** themed box.",
+            "002" => "The 002 Slime lockbox contains **no special** themed box.",
+            "003" => "The 003 Slime lockbox contains **no special** themed box.",
+            "004" => "The 004 Slime lockbox contains **no special** themed box.",
+            "005" => "The 005 Slime lockbox contains **no special** themed box.",
+            "006" => "The 006 Slime lockbox contains **no special** themed box.",
+            "007" => "The 007 Slime lockbox contains **no special** themed box.",
+            "008" => "The 008 Slime lockbox contains **no special** themed box.",
+            "009" => "The 009 Slime lockbox contains **no special** themed box.",
+            "40g" => "The 40G Slime lockbox contains the **Hunter** themed box.",
+            "41c" => "The 41C Slime lockbox contains the **Dangerous** themed box.",
+            "40n" => "The 40N Slime lockbox contains the **Glacial** themed box.",
+            "41d" => "The 41D Slime lockbox contains the **Hazardous** themed box.",
+            "50e" => "The 50E Slime lockbox contains the **Wicked** themed box.",
+            "509" => "The 509 Slime lockbox contains the **Shadow** themed box.",
+            "a1j" => "The A1J Slime lockbox contains the **Pearl** themed box.",
+            "a16" => "The A16 Slime lockbox contains the **Opal** themed box.",
+            "a1a" => "The A1A Slime lockbox contains the **Amethyst** themed box.",
+            "a18" => "The A18 Slime lockbox contains the **Turquoise** themed box.",
+            "a10" => "The A10 Slime lockbox contains the **Ruby** themed box.",
+            "a12" => "The A12 Slime lockbox contains the **Peridot** themed box.",
+            "a1b" => "The A1B Slime lockbox contains **no special** themed box.",
+            "403" => "The 403 Slime lockbox contains **no special** themed box.",
+            "b1b" => "The B1B Slime lockbox contains the **Aquamarine** themed box.",
+            "a17" => "The A17 Slime lockbox contains the **Citrine** themed box.",
+            "a19" => "The A19 Slime lockbox contains the **Garnet** themed box.",
+            "a14" => "The A14 Slime lockbox contains the **Sapphire** themed box.",
+            "a1i" => "The A1I Slime lockbox contains the **Emerald** themed box.",
+            "a1h" => "The A1H Slime lockbox contains the **Diamond** themed box.",
+            "qqq" => "The QQQ Slime lockbox contains **no special** themed box.",
+            _ => null
         };
     }
 }
