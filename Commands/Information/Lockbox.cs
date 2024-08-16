@@ -2,13 +2,13 @@
 using Discord.Interactions;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
+using Kozma.net.Helpers;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Commands.Information;
 
-public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketInteractionContext>
+public class Lockbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
 {
-    private readonly IEmbedFactory _embedFactory = embedFactory;
     private readonly Dictionary<LockboxOption, string> _lockboxes = BuildLockboxes();
 
     [SlashCommand("lockbox", "Get the drops from a (slime) lockbox or find what box drops your item.")]
@@ -17,7 +17,7 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
         [Summary(name: "slime", description: "Find where you can find a special themed box."), MinLength(3), MaxLength(69)] string? slimeCode = null,
         [Summary(description: "Find which lockbox drops your item."), MinLength(3), MaxLength(69)] string? item = null)
     {
-        var embed = _embedFactory.GetEmbed("Please select 1 of the given options.");
+        var embed = embedFactory.GetEmbed("Please select 1 of the given options.");
         var optionCount = (box.HasValue ? 1 : 0) + (!string.IsNullOrEmpty(slimeCode) ? 1 : 0) + (!string.IsNullOrEmpty(item) ? 1 : 0);
 
         // Only 1 option should be selected
@@ -33,7 +33,8 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
 
             if (box != LockboxOption.Colors)
             {
-                // TODO: set thumbnail
+                var boxEnum = boxHelper.ConvertLockboxOption(box.Value);
+                if (boxEnum.HasValue) embed.WithThumbnailUrl(boxHelper.GetBoxImage(boxEnum.Value));
                 newTitle = string.Concat(newTitle, " Lockbox");
             }
 
@@ -149,16 +150,24 @@ public class Lockbox(IEmbedFactory embedFactory) : InteractionModuleBase<SocketI
                 if (box.Key == LockboxOption.Iron)
                 {
                     var pools = Regex.Replace(box.Value, pattern, string.Empty).ToLower().Split("80%");
-                    boxContent.Append(pools[0].Contains(item) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n"); // TODO: fix if item is in both pools => wings
+                    boxContent.Append(pools[0].Contains(item) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n");
                 }
 
                 var matchingLines = box.Value
                     .Split('\n')
                     .Where(line => Regex.Replace(line, pattern, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase));
 
+                var lineCount = 0;
+
                 foreach (var line in matchingLines)
                 {
+                    if (box.Key == LockboxOption.Iron && lineCount == 1)
+                    {
+                        boxContent.Append("**Inside 80% pool:**\n");
+                    }
+
                     boxContent.Append($"{line.TrimStart()}\n");
+                    lineCount++;
                 }
 
                 return boxContent.ToString();

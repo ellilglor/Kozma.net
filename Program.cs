@@ -5,6 +5,7 @@ using Discord.Interactions;
 using Kozma.net.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Kozma.net.Helpers;
 
 namespace Kozma.net;
 
@@ -22,8 +23,9 @@ public class Program
                 .AddSingleton<IBot, Bot>()
                 .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
                 .AddSingleton<IEmbedFactory, EmbedFactory>()
-                .AddSingleton<IInteractionHandler, InteractionHandler>()   
-                .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken")  ?? string.Empty, config.GetValue<string>("database") ?? string.Empty))
+                .AddSingleton<IInteractionHandler, InteractionHandler>()
+                .AddSingleton<IboxHelper, BoxHelper>()
+                .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken") ?? string.Empty, config.GetValue<string>("database") ?? string.Empty))
                 .AddScoped<IExchangeService, ExchangeService>()
                 .BuildServiceProvider();
 
