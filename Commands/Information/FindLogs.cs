@@ -1,12 +1,11 @@
-﻿using Discord;
-using Discord.Interactions;
-using Kozma.net.Enums;
+﻿using Discord.Interactions;
 using Kozma.net.Factories;
+using Kozma.net.Helpers;
 using Kozma.net.Services;
 
 namespace Kozma.net.Commands.Information;
 
-public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
+public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogService, IContentHelper contentHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     // TODO? change choice options to bool
     [SlashCommand("findlogs", "Search the tradelog database for any item.")]
@@ -33,5 +32,13 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
             .Build();
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
+    }
+
+    private async Task SearchLogsAsync(string item, int months, bool checkVariants, bool checkClean, bool checkMixed)
+    {
+        var unedited = item;
+        var items = new List<string>() { item };
+        var reverse = new List<string>();
+        var stopHere = DateTime.Now;
     }
 }
