@@ -37,8 +37,8 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
     private async Task SearchLogsAsync(string item, int months, bool checkVariants, bool checkClean, bool checkMixed)
     {
         var unedited = item;
-        var items = new List<string>() { item };
+        var items = new List<string>() { contentHelper.FilterContent(item) };
         var reverse = new List<string>();
-        var stopHere = DateTime.Now;
+        var stopHere = DateTime.Now.AddMonths(-months);
     }
 }
