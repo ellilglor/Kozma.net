@@ -7,6 +7,8 @@ namespace Kozma.net.Commands.Information;
 
 public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogService, IContentHelper contentHelper) : InteractionModuleBase<SocketInteractionContext>
 {
+    private readonly ItemData _data = new();
+
     // TODO? change choice options to bool
     [SlashCommand("findlogs", "Search the tradelog database for any item.")]
     public async Task ExecuteAsync(
@@ -32,13 +34,51 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
             .Build();
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
+        await SearchLogsAsync(item, months, checkVariants, checkClean, checkMixed);
     }
 
     private async Task SearchLogsAsync(string item, int months, bool checkVariants, bool checkClean, bool checkMixed)
     {
-        var unedited = item;
+        var copy = item;
         var items = new List<string>() { contentHelper.FilterContent(item) };
         var reverse = new List<string>();
         var stopHere = DateTime.Now.AddMonths(-months);
+
+        AttachUvsToBack(items);
+    }
+
+    private void AttachUvsToBack(List<string> items)
+    {
+        var input = items[0].Split(" ");
+        for (var i = 0; i < input.Length; i++)
+        {
+            foreach (var type in _data.UVTerms.Types)
+            {
+                if (string.Equals(input[i], type, StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var grade in _data.UVTerms.Grades)
+                    {
+                        if (i + 1 < input.Length && string.Equals(input[i + 1], grade, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var uv = string.Equals(grade, "very") && (i + 2 < input.Length && string.Equals(input[i + 2], "high", StringComparison.OrdinalIgnoreCase)) ? type + " very high" : type + " " + grade;
+                            items[0] = (items[0].Replace(uv, "") + " " + uv).Replace("  ", " ").Trim();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private class ItemData
+    {
+        
+
+        public readonly UVTermsData UVTerms = new();
+
+        public class UVTermsData
+        {
+            public readonly List<string> Types = ["ctr", "asi", "normal", "shadow", "fire", "shock", "poison", "stun", "freeze", "elemental", "piercing"];
+            public readonly List<string> Grades = ["low", "med", "high", "very", "max"];
+        }
     }
 }
