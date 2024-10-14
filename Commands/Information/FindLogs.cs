@@ -51,6 +51,12 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         if (checkVariants) AddVariants(items);
         if (items[0].Contains("ctr") && items[0].Contains("asi")) items.ForEach(item => reverse.Add(SwapUvs(item)));
         if (checkClean) items.ForEach(item => _data.CleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
+        if (items[0].Contains("blaster") && !items[0].Contains("nog")) ignore.Add("nog blaster");
+        if (!items[0].Contains("recipe")) ignore.Add("recipe");
+
+        var skipSpecial = _data.CommonFeatured.Any(item => items[0].Contains(item));
+        var checkForMatch = string.Join(".*|", items.Concat(reverse)) + ".*";
+        var ignoreString = string.Join(".*|", ignore) + ".*";
     }
 
     private void AttachUvsToBack(List<string> items)
