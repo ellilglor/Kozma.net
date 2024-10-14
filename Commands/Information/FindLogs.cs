@@ -2,6 +2,8 @@
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
 using Kozma.net.Services;
+using System.Linq;
+using System.Text;
 
 namespace Kozma.net.Commands.Information;
 
@@ -46,6 +48,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
 
         AttachUvsToBack(items);
         if (checkVariants) AddVariants(items);
+        if (items[0].Contains("ctr") && items[0].Contains("asi")) items.ForEach(item => reverse.Add(SwapUvs(item)));
     }
 
     private void AttachUvsToBack(List<string> items)
@@ -112,6 +115,22 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
                 return;
             }
         }
+    }
+
+    private static string SwapUvs(string name)
+    {
+        var nameList = name.Split(' ');
+        int ctr = Array.IndexOf(nameList, "ctr");
+        int asi = Array.IndexOf(nameList, "asi");
+        int minIndex = Math.Min(ctr, asi);
+        int maxIndex = Math.Max(ctr, asi);
+        var swapped = new StringBuilder();
+
+        swapped.Append(string.Join(" ", nameList.Take(minIndex)) + " ");
+        swapped.Append(string.Join(" ", nameList.Skip(maxIndex)) + " ");
+        swapped.Append(string.Join(" ", nameList.Skip(minIndex).Take(maxIndex - minIndex)) + " ");
+
+        return swapped.ToString().Trim();
     }
 
     private class ItemData
