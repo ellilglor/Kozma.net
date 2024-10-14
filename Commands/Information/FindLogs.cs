@@ -44,11 +44,13 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         var copy = item;
         var items = new List<string>() { contentHelper.FilterContent(item) };
         var reverse = new List<string>();
+        var ignore = new List<string>();
         var stopHere = DateTime.Now.AddMonths(-months);
 
         AttachUvsToBack(items);
         if (checkVariants) AddVariants(items);
         if (items[0].Contains("ctr") && items[0].Contains("asi")) items.ForEach(item => reverse.Add(SwapUvs(item)));
+        if (checkClean) items.ForEach(item => _data.CleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
     }
 
     private void AttachUvsToBack(List<string> items)
