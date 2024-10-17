@@ -5,11 +5,12 @@ using Kozma.net.Factories;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
 using Kozma.net.Services;
+using Microsoft.Extensions.Configuration;
 using System.Text;
 
 namespace Kozma.net.Commands.Information;
 
-public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogService, IContentHelper contentHelper) : InteractionModuleBase<SocketInteractionContext>
+public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogService, IContentHelper contentHelper, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly ItemData _data = new();
 
@@ -60,40 +61,91 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         var matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
         var matchCount = matches.Sum(collection => collection.Messages.Count);
 
-        await SendMatchesAsync(matches);
+        var sentMatchesSuccesfully = await SendMatchesAsync(matches);
+        if (sentMatchesSuccesfully) await FinishInteractionAsync(items[0], copy, matchCount, months, checkVariants);
     }
 
-    private async Task SendMatchesAsync(IEnumerable<LogCollection> matches)
+    private async Task<bool> SendMatchesAsync(IEnumerable<LogCollection> matches)
     {
-        foreach (var channel in matches)
+        try
         {
-            var count = channel.Messages.Count;
-            var charCount = 0;
-            var embeds = new List<Embed>()
+            foreach (var channel in matches)
             {
-                embedFactory.GetBasicEmbed($"I found {count} post{(count != 1 ? "s" : "")} in {channel.Channel}:").WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown)).Build()
-            };
-
-            foreach (var message in channel.Messages)
-            {
-                if ((charCount + message.OriginalContent.Length > (int)DiscordCharLimit.EmbedTotal) || embeds.Count == (int)DiscordCharLimit.EmbedCount)
+                var count = channel.Messages.Count;
+                var charCount = 0;
+                var embeds = new List<Embed>()
                 {
-                    await Context.User.SendMessageAsync(embeds: [.. embeds]);
-                    embeds.Clear();
-                    charCount = 0;
+                    embedFactory.GetBasicEmbed($"I found {count} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown)).Build()
+                };
+
+                foreach (var message in channel.Messages)
+                {
+                    if ((charCount + message.OriginalContent.Length > (int)DiscordCharLimit.EmbedTotal) || embeds.Count == (int)DiscordCharLimit.EmbedCount)
+                    {
+                        await Context.User.SendMessageAsync(embeds: [.. embeds]);
+                        embeds.Clear();
+                        charCount = 0;
+                    }
+
+                    charCount += message.OriginalContent.Length;
+
+                    embeds.Add(embedFactory.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
+                        .WithUrl(message.MessageUrl)
+                        .WithImageUrl(message.Image)
+                        .WithDescription(message.OriginalContent.Length > (int)DiscordCharLimit.EmbedDesc ? message.OriginalContent.Substring(0, (int)DiscordCharLimit.EmbedDesc) : message.OriginalContent)
+                        .Build());
                 }
 
-                charCount += message.OriginalContent.Length;
-
-                embeds.Add(embedFactory.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
-                    .WithUrl(message.MessageUrl)
-                    .WithImageUrl(message.Image)
-                    .WithDescription(message.OriginalContent.Length > (int)DiscordCharLimit.EmbedDesc ? message.OriginalContent.Substring(0, (int)DiscordCharLimit.EmbedDesc) : message.OriginalContent)
-                    .Build());
+                if (embeds.Count > 0) await Context.User.SendMessageAsync(embeds: [.. embeds]);
             }
 
-            if (embeds.Count > 0) await Context.User.SendMessageAsync(embeds: [.. embeds]);
+            return true;
+        } catch
+        {
+            await SendErrorEmbedAsync();
+            return false;
         }
+    }
+
+    private async Task FinishInteractionAsync(string item, string copy, int matchCount, int months, bool checkVariants)
+    {
+        var embed = embedFactory.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing __{copy}__")
+            .WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown))
+            .WithDescription("By default I only look at tradelogs from the past **6 months**!\n" +
+                "If you want me to look past that use the `months` option.\n\n" +
+                "- Only want to see your item and no variants?\nSet `variants` to *NO*.\n" +
+                "- Want to filter out higher value UV's?\nSet `clean` to *YES*.\n" +
+                "- Not interested in item trades?\nSet `mixed` to *NO*.\n\n" +
+                $"If you notice a problem please contact <@{config.GetValue<ulong>("ids:ownerId")}>!\n" +
+                $"Did you know we have our own [**Discord server**]({config.GetValue<string>("serverInvite")} 'Kozma's Backpack Discord server')?");
+
+        if (_data.Spreadsheet.Any(equipment => item.Contains(equipment)))
+        {
+            embed.AddField("** **", $"__{copy}__ can be found on the [**merchant sheet**](https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#).");
+        }
+
+        var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: "clear-messages", style: ButtonStyle.Primary);
+        if (months < 24) components.WithButton(label: "Search all tradelogs", customId: $"research{(checkVariants ? "-var" : string.Empty)}", style: ButtonStyle.Primary);
+
+        try
+        {
+            await Context.User.SendMessageAsync(embed: embed.Build(), components: components.Build());
+        } catch
+        {
+            await SendErrorEmbedAsync();
+        }
+    }
+
+    // The server responded with error 50007: Cannot send messages to this user
+    private async Task SendErrorEmbedAsync()
+    {
+        var embed = embedFactory.GetEmbed("I can't send you any messages!")
+                .WithDescription("Make sure you have the following enabled:\n" +
+                "*Allow direct messages from server members* in User Settings > Privacy & Safety\n\nAnd don't block me!")
+                .WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Error))
+                .Build();
+
+        await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
     }
 
     private void AttachUvsToBack(List<string> items)
