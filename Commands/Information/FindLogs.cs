@@ -22,7 +22,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
     {
         var checkVariants = string.IsNullOrEmpty(variants) || variants == "variant-search";
         var checkClean = !string.IsNullOrEmpty(clean) && clean == "clean-search";
-        var checkMixed = !string.IsNullOrEmpty(mixed) && mixed == "mixed-search";
+        var checkMixed = string.IsNullOrEmpty(mixed) || mixed == "mixed-search";
 
         var embed = embedFactory.GetEmbed($"Searching for __{item}__, I will dm you what I can find.")
             .WithDescription("### Info & tips when searching:\n- **Slime boxes**:\ncombination followed by *slime lockbox*\nExample: QQQ Slime Lockbox\n" +
@@ -55,8 +55,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         if (!items[0].Contains("recipe")) ignore.Add("recipe");
 
         var skipSpecial = _data.CommonFeatured.Any(item => items[0].Contains(item));
-        var checkForMatch = string.Join(".*|", items.Concat(reverse)) + ".*";
-        var ignoreString = string.Join(".*|", ignore) + ".*";
+        var matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
     }
 
     private void AttachUvsToBack(List<string> items)

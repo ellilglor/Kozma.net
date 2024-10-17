@@ -4,5 +4,5 @@ namespace Kozma.net.Services;
 
 public interface ITradeLogService
 {
-    Task<IEnumerable<LogCollection>> GetLogsAsync(string item, DateTime date, bool checkMixed, bool skipSpecial, string? ignore);
+    Task<IEnumerable<LogCollection>> GetLogsAsync(List<string> items, DateTime date, bool checkMixed, bool skipSpecial, List<string> ignore);
 }

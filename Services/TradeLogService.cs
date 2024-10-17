@@ -1,32 +1,24 @@
 ﻿using Kozma.net.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Channels;
 
 namespace Kozma.net.Services;
 
 public class TradeLogService(KozmaDbContext dbContext) : ITradeLogService
 {
-    public async Task<IEnumerable<LogCollection>> GetLogsAsync(string item, DateTime date, bool checkMixed, bool skipSpecial, string? ignore)
+    public async Task<IEnumerable<LogCollection>> GetLogsAsync(List<string> items, DateTime date, bool checkMixed, bool skipSpecial, List<string> ignore)
     {
-        var query = dbContext.TradeLogs
-            .Where(l => l.Content.Contains(item) && l.Date > date);
+        var query = dbContext.TradeLogs.Where(log => items.Any(item => log.Content.Contains(item)) && log.Date > date);
+        if (!checkMixed) query = query.Where(log => log.Channel != "mixed-trades");
+        if (skipSpecial) query = query.Where(log => log.Channel != "special-listings");
+        if (ignore.Count > 0) query = query.Where(log => ignore.All(item => !log.Content.Contains(item)));
 
-        if (!checkMixed)
-        {
-            query = query.Where(l => l.Channel != "mixed-trades");
-        }
+        // Grouping isn't supported at this moment so have to query in 2 steps
+        var queried = await query
+            .OrderByDescending(log => log.Date)
+            .ToListAsync();
 
-        if (skipSpecial)
-        {
-            query = query.Where(l => l.Channel != "special-listings");
-        }
-
-        if (!string.IsNullOrEmpty(ignore) && ignore.Length > 2)
-        {
-            query = query.Where(l => !EF.Functions.Like(l.Content, $"%{ignore}%"));
-        }
-
-        var logs = await query
-            .OrderByDescending(l => l.Date)
+        var logs = queried
             .GroupBy(l => l.Channel)
             .Select(g => new LogCollection
             {
@@ -34,7 +26,7 @@ public class TradeLogService(KozmaDbContext dbContext) : ITradeLogService
                 Messages = g.OrderByDescending(l => l.Date).ToList()
             })
             .OrderByDescending(g => g.Channel)
-            .ToListAsync();
+            .ToList();
 
         return logs;
     }

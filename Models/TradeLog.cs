@@ -1,5 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.EntityFrameworkCore;
 
 namespace Kozma.net.Models;
@@ -8,7 +8,7 @@ namespace Kozma.net.Models;
 public class TradeLog
 {
     [BsonId]
-    public ObjectId Id { get; set; }
+    public required string Id { get; set; }
 
     [BsonElement("channel")]
     public required string Channel { get; set; }
