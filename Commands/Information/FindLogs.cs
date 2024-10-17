@@ -1,8 +1,10 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
+using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
+using Kozma.net.Models;
 using Kozma.net.Services;
-using System.Linq;
 using System.Text;
 
 namespace Kozma.net.Commands.Information;
@@ -56,6 +58,42 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
 
         var skipSpecial = _data.CommonFeatured.Any(item => items[0].Contains(item));
         var matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
+        var matchCount = matches.Sum(collection => collection.Messages.Count);
+
+        await SendMatchesAsync(matches);
+    }
+
+    private async Task SendMatchesAsync(IEnumerable<LogCollection> matches)
+    {
+        foreach (var channel in matches)
+        {
+            var count = channel.Messages.Count;
+            var charCount = 0;
+            var embeds = new List<Embed>()
+            {
+                embedFactory.GetBasicEmbed($"I found {count} post{(count != 1 ? "s" : "")} in {channel.Channel}:").WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown)).Build()
+            };
+
+            foreach (var message in channel.Messages)
+            {
+                if ((charCount + message.OriginalContent.Length > (int)DiscordCharLimit.EmbedTotal) || embeds.Count == (int)DiscordCharLimit.EmbedCount)
+                {
+                    await Context.User.SendMessageAsync(embeds: [.. embeds]);
+                    embeds.Clear();
+                    charCount = 0;
+                }
+
+                charCount += message.OriginalContent.Length;
+
+                embeds.Add(embedFactory.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
+                    .WithUrl(message.MessageUrl)
+                    .WithImageUrl(message.Image)
+                    .WithDescription(message.OriginalContent.Length > (int)DiscordCharLimit.EmbedDesc ? message.OriginalContent.Substring(0, (int)DiscordCharLimit.EmbedDesc) : message.OriginalContent)
+                    .Build());
+            }
+
+            if (embeds.Count > 0) await Context.User.SendMessageAsync(embeds: [.. embeds]);
+        }
     }
 
     private void AttachUvsToBack(List<string> items)

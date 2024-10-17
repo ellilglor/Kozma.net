@@ -8,21 +8,28 @@ public class EmbedFactory(IBot bot) : IEmbedFactory
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
-    public Embed GetAndBuildEmbed(string title)
+    public EmbedBuilder GetEmbed(string title)
     {
-        return GetEmbed(title).Build();
+        return GetBasicEmbed(title)
+            .WithFooter(
+                new EmbedFooterBuilder()
+                    .WithText($"Thank you for using {_client.CurrentUser.Username} bot!")
+                    .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl())
+            );
     }
 
-    public EmbedBuilder GetEmbed(string title)
+    public EmbedBuilder GetBasicEmbed(string title)
     {
         return new EmbedBuilder
         {
-            Title = title,
-            Color = ConvertEmbedColor(EmbedColor.Default),
-            Footer = new EmbedFooterBuilder()
-                .WithText($"Thank you for using {_client.CurrentUser.Username} bot!")
-                .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl())
+            Title = title.Length > (int)DiscordCharLimit.EmbedTitle ? title.Substring(0, (int)DiscordCharLimit.EmbedTitle) : title,
+            Color = ConvertEmbedColor(EmbedColor.Default)
         };
+    }
+
+    public Embed GetAndBuildEmbed(string title)
+    {
+        return GetEmbed(title).Build();
     }
 
     public EmbedFieldBuilder CreateField(string name, string value, bool inline = true)
@@ -33,5 +40,5 @@ public class EmbedFactory(IBot bot) : IEmbedFactory
     public uint ConvertEmbedColor(EmbedColor color)
     {
         return (uint)color;
-    } 
+    }
 }
