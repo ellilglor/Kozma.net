@@ -25,11 +25,12 @@ public class Clear(IEmbedFactory embedFactory) : InteractionModuleBase<SocketInt
         var channel = await user.CreateDMChannelAsync();
         var messages = await channel.GetMessagesAsync(int.MaxValue).FlattenAsync();
 
-        foreach (var msg in messages)
+        foreach (var msg in messages.Where(msg => msg.Author.IsBot))
         {
             try
             {
-                if (msg.Author.IsBot) await msg.DeleteAsync();
+                await msg.DeleteAsync();
+                await Task.Delay(700); // delay to prevent hitting Discord rate limit
             }
             catch { }
         }
