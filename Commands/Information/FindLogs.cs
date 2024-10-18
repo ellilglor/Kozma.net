@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
@@ -42,13 +43,14 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         await SearchLogsAsync(item, months, checkVariants, checkClean, checkMixed);
     }
 
-    private async Task SearchLogsAsync(string item, int months, bool checkVariants, bool checkClean, bool checkMixed)
+    public async Task SearchLogsAsync(string item, int months, bool checkVariants, bool checkClean, bool checkMixed, SocketUser? user = null)
     {
         var copy = item;
         var items = new List<string>() { contentHelper.FilterContent(item) };
         var reverse = new List<string>();
         var ignore = new List<string>();
         var stopHere = DateTime.Now.AddMonths(-months);
+        var cmdUser = user ?? Context.User;
 
         AttachUvsToBack(items);
         if (checkVariants) AddVariants(items);
@@ -61,11 +63,11 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         var matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
         var matchCount = matches.Sum(collection => collection.Messages.Count);
 
-        var sentMatchesSuccesfully = await SendMatchesAsync(matches);
-        if (sentMatchesSuccesfully) await FinishInteractionAsync(items[0], copy, matchCount, months, checkVariants);
+        var sentMatchesSuccesfully = await SendMatchesAsync(matches, cmdUser);
+        if (sentMatchesSuccesfully) await FinishInteractionAsync(items[0], copy, matchCount, months, checkVariants, cmdUser);
     }
 
-    private async Task<bool> SendMatchesAsync(IEnumerable<LogCollection> matches)
+    private async Task<bool> SendMatchesAsync(IEnumerable<LogCollection> matches, SocketUser user)
     {
         try
         {
@@ -82,7 +84,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
                 {
                     if ((charCount + message.OriginalContent.Length > (int)DiscordCharLimit.EmbedTotal) || embeds.Count == (int)DiscordCharLimit.EmbedCount)
                     {
-                        await Context.User.SendMessageAsync(embeds: [.. embeds]);
+                        await user.SendMessageAsync(embeds: [.. embeds]);
                         embeds.Clear();
                         charCount = 0;
                     }
@@ -96,7 +98,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
                         .Build());
                 }
 
-                if (embeds.Count > 0) await Context.User.SendMessageAsync(embeds: [.. embeds]);
+                if (embeds.Count > 0) await user.SendMessageAsync(embeds: [.. embeds]);
             }
 
             return true;
@@ -107,7 +109,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         }
     }
 
-    private async Task FinishInteractionAsync(string item, string copy, int matchCount, int months, bool checkVariants)
+    private async Task FinishInteractionAsync(string item, string copy, int matchCount, int months, bool checkVariants, SocketUser user)
     {
         var embed = embedFactory.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing __{copy}__")
             .WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown))
@@ -125,11 +127,11 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         }
 
         var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: "clear-messages", style: ButtonStyle.Primary);
-        if (months < 24) components.WithButton(label: "Search all tradelogs", customId: $"research{(checkVariants ? "-var" : string.Empty)}", style: ButtonStyle.Primary);
+        if (months < 24) components.WithButton(label: "Search all tradelogs", customId: $"research-{(checkVariants ? "var" : "single")}", style: ButtonStyle.Primary);
 
         try
         {
-            await Context.User.SendMessageAsync(embed: embed.Build(), components: components.Build());
+            await user.SendMessageAsync(embed: embed.Build(), components: components.Build());
         } catch
         {
             await SendErrorEmbedAsync();
