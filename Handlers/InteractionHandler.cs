@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Factories;
 using Microsoft.Extensions.Configuration;
@@ -37,11 +38,9 @@ public class InteractionHandler(IBot bot, IConfiguration config, IEmbedFactory e
         await interaction.DeferAsync(ephemeral: true);
 
         // TODO: check if banned from server
-
         try
         {
             var context = new SocketInteractionContext(_client, interaction);
-
             var result = await handler.ExecuteCommandAsync(context, services);
 
             if (!result.IsSuccess)
@@ -49,7 +48,10 @@ public class InteractionHandler(IBot bot, IConfiguration config, IEmbedFactory e
                 switch (result.Error)
                 {
                     case InteractionCommandError.UnknownCommand:
-                        await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedFactory.GetAndBuildEmbed($"It looks like this command is missing!"));
+                        await interaction.ModifyOriginalResponseAsync(msg => {
+                            msg.Embed = embedFactory.GetAndBuildEmbed($"It looks like this command is missing!");
+                            msg.Components = new ComponentBuilder().Build();
+                        });
                         break;
                     default:
                         Console.WriteLine(result.Error);
