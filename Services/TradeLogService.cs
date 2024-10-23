@@ -1,6 +1,6 @@
 ﻿using Kozma.net.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Channels;
+using MongoDB.Driver.Linq;
 
 namespace Kozma.net.Services;
 
@@ -29,5 +29,20 @@ public class TradeLogService(KozmaDbContext dbContext) : ITradeLogService
             .ToList();
 
         return logs;
+    }
+
+    public async Task UpdateLogsAsync(List<TradeLog> logs, bool reset = false, string? channel = null)
+    {
+        if (reset && !string.IsNullOrEmpty(channel)) await DeleteLogsAsync(channel);
+
+        await dbContext.TradeLogs.AddRangeAsync(logs);
+        await dbContext.SaveChangesAsync();
+    }
+
+    private async Task DeleteLogsAsync(string channel)
+    {
+        var toDelete = await dbContext.TradeLogs.Where(log => log.Channel == channel).ToListAsync();
+        dbContext.TradeLogs.RemoveRange(toDelete);
+        await dbContext.SaveChangesAsync();
     }
 }

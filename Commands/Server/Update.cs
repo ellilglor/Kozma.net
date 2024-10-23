@@ -5,10 +5,11 @@ using Discord.WebSocket;
 using Kozma.net.Models;
 using System.Text.RegularExpressions;
 using Kozma.net.Helpers;
+using Kozma.net.Services;
 
 namespace Kozma.net.Commands.Server;
 
-public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly Dictionary<string, ulong> Channels = new()
     {
@@ -47,8 +48,7 @@ public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper) : 
         {
             if (Context.Guild.GetChannel(id) is not SocketTextChannel channel) continue;
             var channelTime = System.Diagnostics.Stopwatch.StartNew();
-
-            var count = await UpdateLogsAsync(channel);
+            var count = await UpdateLogsAsync(channel, reset: true);
 
             channelTime.Stop();
             var elapsed = $"{channelTime.Elapsed.TotalSeconds:F2}";
@@ -61,7 +61,7 @@ public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper) : 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Update completed in {totalTime.Elapsed.TotalMinutes:F2} minutes").Build());
     }
 
-    private async Task<int> UpdateLogsAsync(SocketTextChannel channel)
+    private async Task<int> UpdateLogsAsync(SocketTextChannel channel, bool reset = false)
     {
         var messages = await channel.GetMessagesAsync(int.MaxValue).FlattenAsync();
         var logs = new List<TradeLog>();
@@ -72,7 +72,7 @@ public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper) : 
             logs.Add(ConvertMessage(message, channel.Name));
         }
 
-        // TODO: Add logs to DB
+        await tradeLogService.UpdateLogsAsync(logs, reset, channel.Name);
         return logs.Count;
     }
 
