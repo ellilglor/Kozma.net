@@ -1,21 +1,24 @@
-﻿namespace Kozma.net.Enums;
+﻿using Discord.Interactions;
+
+namespace Kozma.net.Enums;
 
 public enum Box
 {
-    Copper,
-    Steel,
-    Silver,
-    Platinum,
-    Gold,
-    Titanium,
-    Iron,
-    Mirrored,
-    Slime,
     Equinox,
     Confection,
     Spritely,
     Polar,
-    Lucky
+    Lucky,
+    [ChoiceDisplay("QQQ")]
+    Slime,
+    Mirrored,
+    Iron,
+    Copper,
+    Platinum,
+    Titanium,
+    Silver,
+    Steel,
+    Gold
 }
 
 public enum BoxCurrency

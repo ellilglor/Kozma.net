@@ -1,0 +1,407 @@
+[
+  {
+    "Name": "Cool Node Slime Mask",
+    "Chance": 4.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/2b/cool_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Regal Node Slime Mask",
+    "Chance": 4.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/f5/regal_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Military Node Slime Mask",
+    "Chance": 4.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/89/military_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Heavy Node Slime Mask",
+    "Chance": 4.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/aa/heavy_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Fancy Node Slime Mask",
+    "Chance": 4.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/e0/fancy_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Dusky Node Slime Mask",
+    "Chance": 4.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/35/dusky_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Toasty Node Slime Mask",
+    "Chance": 4.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/5/58/toasty_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Divine Node Slime Mask",
+    "Chance": 1.75,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/9c/divine_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Volcanic Node Slime Mask",
+    "Chance": 1.75,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/c9/volcanic_node_slime_mask-equipped.png"
+  },
+  {
+    "Name": "Cool Node Slime Guards",
+    "Chance": 3.857142857142857,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/6f/cool_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Regal Node Slime Guards",
+    "Chance": 3.857142857142857,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/2f/regal_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Military Node Slime Guards",
+    "Chance": 3.857142857142857,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/8a/military_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Heavy Node Slime Guards",
+    "Chance": 3.857142857142857,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a1/heavy_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Fancy Node Slime Guards",
+    "Chance": 3.857142857142857,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/31/fancy_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Dusky Node Slime Guards",
+    "Chance": 3.857142857142857,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/21/dusky_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Toasty Node Slime Guards",
+    "Chance": 3.857142857142857,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/d3/toasty_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Divine Node Slime Guards",
+    "Chance": 1.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a2/divine_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Volcanic Node Slime Guards",
+    "Chance": 1.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/71/volcanic_node_slime_guards-equipped.png"
+  },
+  {
+    "Name": "Cool Node Receiver",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/d8/cool_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Regal Node Receiver",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/1e/regal_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Military Node Receiver",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/98/military_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Heavy Node Receiver",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/c0/heavy_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Fancy Node Receiver",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/17/fancy_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Dusky Node Receiver",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/64/dusky_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Toasty Node Receiver",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/71/toasty_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Divine Node Receiver",
+    "Chance": 0.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/bb/divine_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Volcanic Node Receiver",
+    "Chance": 0.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/96/volcanic_node_receiver-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Node Receiver**",
+    "Chance": 0.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/df/prismatic_node_receiver-equipped.png"
+  },
+  {
+    "Name": "Cool Node Container",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/c8/cool_node_container-equipped.png"
+  },
+  {
+    "Name": "Regal Node Container",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/0/04/regal_node_container-equipped.png"
+  },
+  {
+    "Name": "Military Node Container",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/20/military_node_container-equipped.png"
+  },
+  {
+    "Name": "Heavy Node Container",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/5/56/heavy_node_container-equipped.png"
+  },
+  {
+    "Name": "Fancy Node Container",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/fd/fancy_node_container-equipped.png"
+  },
+  {
+    "Name": "Dusky Node Container",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/89/dusky_node_container-equipped.png"
+  },
+  {
+    "Name": "Toasty Node Container",
+    "Chance": 1.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/0/00/toasty_node_container-equipped.png"
+  },
+  {
+    "Name": "Divine Node Container",
+    "Chance": 0.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/e8/divine_node_container-equipped.png"
+  },
+  {
+    "Name": "Volcanic Node Container",
+    "Chance": 0.5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/fc/volcanic_node_container-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Node Container**",
+    "Chance": 0.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/f5/prismatic_node_container-equipped.png"
+  },
+  {
+    "Name": "Cool Node Slime Crusher",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/f0/cool_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Regal Node Slime Crusher",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/ad/regal_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Military Node Slime Crusher",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a0/military_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Heavy Node Slime Crusher",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/c0/heavy_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Fancy Node Slime Crusher",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/66/fancy_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Dusky Node Slime Crusher",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/16/dusky_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Toasty Node Slime Crusher",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/b3/toasty_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Divine Node Slime Crusher",
+    "Chance": 0.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/d1/divine_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Volcanic Node Slime Crusher",
+    "Chance": 0.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/b4/volcanic_node_slime_crusher-equipped.png"
+  },
+  {
+    "Name": "Cool Node Slime Wall",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/4/44/cool_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Regal Node Slime Wall",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/b5/regal_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Military Node Slime Wall",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/df/military_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Heavy Node Slime Wall",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/88/heavy_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Fancy Node Slime Wall",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/be/fancy_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Dusky Node Slime Wall",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/ac/dusky_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Toasty Node Slime Wall",
+    "Chance": 0.6428571428571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/34/toasty_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Divine Node Slime Wall",
+    "Chance": 0.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/35/divine_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Volcanic Node Slime Wall",
+    "Chance": 0.25,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/e2/volcanic_node_slime_wall-equipped.png"
+  },
+  {
+    "Name": "Cool Writhing Tendrils",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/91/cool_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Regal Writhing Tendrils",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/ab/regal_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Military Writhing Tendrils",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/f1/military_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Heavy Writhing Tendrils",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/da/heavy_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Fancy Writhing Tendrils",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/fe/fancy_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Dusky Writhing Tendrils",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/6d/dusky_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Toasty Writhing Tendrils",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/b4/toasty_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Divine Writhing Tendrils",
+    "Chance": 0.05,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/7e/divine_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Volcanic Writhing Tendrils",
+    "Chance": 0.05,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/cb/volcanic_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Writhing Tendrils**",
+    "Chance": 0.01,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/73/prismatic_writhing_tendrils-equipped.png"
+  },
+  {
+    "Name": "Cool Slimed Aura",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://cdn.discordapp.com/attachments/1069643121622777876/1073697779471372308/image.png"
+  },
+  {
+    "Name": "Regal Slimed Aura",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/3f/regal_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "Military Slimed Aura",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/cf/military_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "Heavy Slimed Aura",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/80/heavy_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "Fancy Slimed Aura",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/71/fancy_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "Dusky Slimed Aura",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/28/dusky_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "Toasty Slimed Aura",
+    "Chance": 0.1271428571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/d6/toasty_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "Divine Slimed Aura",
+    "Chance": 0.05,
+    "Url": "Https://cdn.discordapp.com/attachments/1069643121622777876/1073697779760762961/image.png"
+  },
+  {
+    "Name": "Volcanic Slimed Aura",
+    "Chance": 0.05,
+    "Url": "Https://media3.spiralknights.com/wiki-images/4/47/volcanic_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "**Shadow Slimed Aura**",
+    "Chance": 0.01,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/d1/shadow_slimed_aura-equipped.png"
+  },
+  {
+    "Name": "Early Riser Ring",
+    "Chance": 1.3,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/35/equipment-early_riser_ring_icon.png"
+  },
+  {
+    "Name": "Dawn Bracelet",
+    "Chance": 0.7,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/7e/equipment-dawn_bracelet_icon.png"
+  },
+  {
+    "Name": "**Daybreaker Band**",
+    "Chance": 0.3333333333333333,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a7/equipment-daybreaker_band_icon.png"
+  },
+  {
+    "Name": "**Node Field Aura**",
+    "Chance": 0.3333333333333333,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a8/node_field_aura-equipped.png"
+  },
+  {
+    "Name": "**Somnambulist's Totem**",
+    "Chance": 0.3333333333333333,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/db/equipment-somnambulist's_totem_icon.png"
+  }
+]

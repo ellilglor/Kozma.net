@@ -1,0 +1,42 @@
+[
+  {
+    "Name": "Pink Battle Chef Hat",
+    "Chance": 13.33333333333333,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/70/pink_battle_chef_hat-equipped.png"
+  },
+  {
+    "Name": "Pink Battle Chef Coat",
+    "Chance": 16.66666666666667,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/fb/pink_battle_chef_coat-equipped.png"
+  },
+  {
+    "Name": "Purple Battle Chef Hat",
+    "Chance": 13.33333333333333,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a6/purple_battle_chef_hat-equipped.png"
+  },
+  {
+    "Name": "Purple Battle Chef Coat",
+    "Chance": 16.66666666666667,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/6b/purple_battle_chef_coat-equipped.png"
+  },
+  {
+    "Name": "Yellow Battle Chef Hat",
+    "Chance": 13.33333333333333,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a8/yellow_battle_chef_hat-equipped.png"
+  },
+  {
+    "Name": "Yellow Battle Chef Coat",
+    "Chance": 16.66666666666667,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/ee/yellow_battle_chef_coat-equipped.png"
+  },
+  {
+    "Name": "**Overcharged Mixmaster**",
+    "Chance": 5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/fd/overcharged_mixmaster-equipped.png"
+  },
+  {
+    "Name": "**Power Mitt**",
+    "Chance": 5,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/23/power_mitt-equipped.png"
+  }
+]

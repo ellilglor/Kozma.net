@@ -1,0 +1,442 @@
+[
+  {
+    "Name": "Cool Helm Guards",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/4/46/cool_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Regal Helm Guards",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/fb/regal_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Military Helm Guards",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/62/military_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Heavy Helm Guards",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/73/heavy_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Fancy Helm Guards",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/84/fancy_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Dusky Helm Guards",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/34/dusky_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Toasty Helm Guards",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/5/55/toasty_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Divine Helm Guards",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/24/divine_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Volcanic Helm Guards",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/3b/volcanic_helm_guards-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Helm Guards**",
+    "Chance": 0.0357556782,
+    "Url": "Https://media3.spiralknights.com/wiki-images/0/0c/prismatic_helm_guards-equipped.png"
+  },
+  {
+    "Name": "Cool Munitions Pack",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/ef/cool_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Regal Munitions Pack",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/bd/regal_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Military Munitions Pack",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/21/military_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Heavy Munitions Pack",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/c6/heavy_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Fancy Munitions Pack",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/cd/fancy_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Dusky Munitions Pack",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/e9/dusky_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Toasty Munitions Pack",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/17/toasty_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Divine Munitions Pack",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/86/divine_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Volcanic Munitions Pack",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/82/volcanic_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Munitions Pack**",
+    "Chance": 0.0357556782,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/63/prismatic_munitions_pack-equipped.png"
+  },
+  {
+    "Name": "Cool Barrel Belly",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a5/cool_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Regal Barrel Belly",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/ce/regal_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Military Barrel Belly",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/28/military_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Heavy Barrel Belly",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/80/heavy_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Fancy Barrel Belly",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/2c/fancy_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Dusky Barrel Belly",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/dd/dusky_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Toasty Barrel Belly",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/3d/toasty_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Divine Barrel Belly",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/17/divine_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Volcanic Barrel Belly",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/8d/volcanic_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Barrel Belly**",
+    "Chance": 0.0357556782,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/d5/prismatic_barrel_belly-equipped.png"
+  },
+  {
+    "Name": "Cool Vented Visor",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/5/5c/cool_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Regal Vented Visor",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/27/regal_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Military Vented Visor",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a4/military_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Heavy Vented Visor",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/94/heavy_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Fancy Vented Visor",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/84/fancy_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Dusky Vented Visor",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/73/dusky_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Toasty Vented Visor",
+    "Chance": 2.630596324714286,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/e1/toasty_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Divine Vented Visor",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/86/divine_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Volcanic Vented Visor",
+    "Chance": 0.1844240244,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/89/volcanic_vented_visor-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Vented Visor**",
+    "Chance": 0.0357556782,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/ec/prismatic_vented_visor-equipped.png"
+  },
+  {
+    "Name": "Cool Headlamp",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/fa/cool_headlamp-equipped.png"
+  },
+  {
+    "Name": "Regal Headlamp",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/ef/regal_headlamp-equipped.png"
+  },
+  {
+    "Name": "Military Headlamp",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/5/5f/military_headlamp-equipped.png"
+  },
+  {
+    "Name": "Heavy Headlamp",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/e8/heavy_headlamp-equipped.png"
+  },
+  {
+    "Name": "Fancy Headlamp",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/8b/fancy_headlamp-equipped.png"
+  },
+  {
+    "Name": "Dusky Headlamp",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/5/53/dusky_headlamp-equipped.png"
+  },
+  {
+    "Name": "Toasty Headlamp",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/f/f1/toasty_headlamp-equipped.png"
+  },
+  {
+    "Name": "Divine Headlamp",
+    "Chance": 0.0921879924,
+    "Url": "Https://media3.spiralknights.com/wiki-images/4/4b/divine_headlamp-equipped.png"
+  },
+  {
+    "Name": "Volcanic Headlamp",
+    "Chance": 0.0921879924,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/2e/volcanic_headlamp-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Headlamp**",
+    "Chance": 0.0178731822,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/9c/prismatic_headlamp-equipped.png"
+  },
+  {
+    "Name": "Cool Side Blade",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/0/08/cool_side_blade-equipped.png"
+  },
+  {
+    "Name": "Regal Side Blade",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/0/0f/regal_side_blade-equipped.png"
+  },
+  {
+    "Name": "Military Side Blade",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/68/military_side_blade-equipped.png"
+  },
+  {
+    "Name": "Heavy Side Blade",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/38/heavy_side_blade-equipped.png"
+  },
+  {
+    "Name": "Fancy Side Blade",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/2d/fancy_side_blade-equipped.png"
+  },
+  {
+    "Name": "Dusky Side Blade",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/7/76/dusky_side_blade-equipped.png"
+  },
+  {
+    "Name": "Toasty Side Blade",
+    "Chance": 1.314955547571429,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/d8/toasty_side_blade-equipped.png"
+  },
+  {
+    "Name": "Divine Side Blade",
+    "Chance": 0.0921879924,
+    "Url": "Https://media3.spiralknights.com/wiki-images/b/bf/divine_side_blade-equipped.png"
+  },
+  {
+    "Name": "Volcanic Side Blade",
+    "Chance": 0.0921879924,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/32/volcanic_side_blade-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Side Blade**",
+    "Chance": 0.0178731822,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/8c/prismatic_side_blade-equipped.png"
+  },
+  {
+    "Name": "Cool Rebreather",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/24/cool_rebreather-equipped.png"
+  },
+  {
+    "Name": "Regal Rebreather",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/c6/regal_rebreather-equipped.png"
+  },
+  {
+    "Name": "Military Rebreather",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/90/military_rebreather-equipped.png"
+  },
+  {
+    "Name": "Heavy Rebreather",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/d/dc/heavy_rebreather-equipped.png"
+  },
+  {
+    "Name": "Fancy Rebreather",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/2e/fancy_rebreather-equipped.png"
+  },
+  {
+    "Name": "Dusky Rebreather",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/29/dusky_rebreather-equipped.png"
+  },
+  {
+    "Name": "Toasty Rebreather",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/8/83/toasty_rebreather-equipped.png"
+  },
+  {
+    "Name": "Divine Rebreather",
+    "Chance": 0.0184472064,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/a9/divine_rebreather-equipped.png"
+  },
+  {
+    "Name": "Volcanic Rebreather",
+    "Chance": 0.0184472064,
+    "Url": "Https://cdn.discordapp.com/attachments/1069643121622777876/1073695142348857407/image.png"
+  },
+  {
+    "Name": "**Prismatic Rebreather**",
+    "Chance": 0.0035764992,
+    "Url": "Https://cdn.discordapp.com/attachments/1069643121622777876/1073695142130765886/image.png"
+  },
+  {
+    "Name": "Cool Parrying Blade",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/c6/cool_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Regal Parrying Blade",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/4/48/regal_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Military Parrying Blade",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/ce/military_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Heavy Parrying Blade",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/cd/heavy_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Fancy Parrying Blade",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/ef/fancy_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Dusky Parrying Blade",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/1a/dusky_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Toasty Parrying Blade",
+    "Chance": 0.2631281554285714,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/1c/toasty_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Divine Parrying Blade",
+    "Chance": 0.0184472064,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/3b/divine_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "Volcanic Parrying Blade",
+    "Chance": 0.0184472064,
+    "Url": "Https://media3.spiralknights.com/wiki-images/0/0b/volcanic_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "**Prismatic Parrying Blade**",
+    "Chance": 0.0035764992,
+    "Url": "Https://media3.spiralknights.com/wiki-images/6/6f/prismatic_parrying_blade-equipped.png"
+  },
+  {
+    "Name": "**Curse Vial Bandolier**",
+    "Chance": 0.0266108571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/4/4c/curse_vial_bandolier-equipped.png"
+  },
+  {
+    "Name": "**Fire Vial Bandolier**",
+    "Chance": 0.0266108571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/1/14/fire_vial_bandolier-equipped.png"
+  },
+  {
+    "Name": "**Freeze Vial Bandolier**",
+    "Chance": 0.0266108571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/a/ae/freeze_vial_bandolier-equipped.png"
+  },
+  {
+    "Name": "**Poison Vial Bandolier**",
+    "Chance": 0.0266108571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/c/cc/poison_vial_bandolier-equipped.png"
+  },
+  {
+    "Name": "**Shock Vial Bandolier**",
+    "Chance": 0.0266108571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/9/99/shock_vial_bandolier-equipped.png"
+  },
+  {
+    "Name": "**Sleep Vial Bandolier**",
+    "Chance": 0.0266108571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/2/24/sleep_vial_bandolier-equipped.png"
+  },
+  {
+    "Name": "**Stun Vial Bandolier**",
+    "Chance": 0.0266108571428571,
+    "Url": "Https://media3.spiralknights.com/wiki-images/e/ec/stun_vial_bandolier-equipped.png"
+  },
+  {
+    "Name": "Shadow Key",
+    "Chance": 1.96,
+    "Url": "Https://media3.spiralknights.com/wiki-images/3/34/key-shadow_key_icon.png"
+  }
+]
