@@ -7,30 +7,35 @@ using Kozma.net.Models;
 
 namespace Kozma.net.Commands.Games;
 
-public class Punch(IEmbedFactory embedFactory, IboxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("unbox", "Simulate opening a Prize Box or Lockbox.")]
     public async Task ExecuteAsync(
         [Summary(name: "box", description: "Select the box you want to open.")] Box box)
     {
-        await UnboxAsync(box);
+        await UnboxAsync(Context, box);
     }
 
-    public async Task UnboxAsync(Box box)
+    public async Task UnboxAsync(SocketInteractionContext context, Box box, int opened = 1)
     {
         var boxData = boxHelper.GetBox(box)!;
         var author = new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url);
-        var finalEmbed = embedFactory.GetEmbed("You unboxed:").WithAuthor(author);
+        var fields = new List<EmbedFieldBuilder>
+        {
+            embedFactory.CreateField("Opened:", opened.ToString()),
+            //embedFactory.CreateField("Spent", ""),
+        };
+        var finalEmbed = embedFactory.GetEmbed("You unboxed:").WithAuthor(author).WithFields(fields);
         var unboxed = await OpenAsync(box);
         
         if (unboxed.Count == 0)
         {
-            await ModifyOriginalResponseAsync(msg => msg.Embed = finalEmbed.WithDescription("Something went wrong while trying to open the box.").Build());
+            await context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = finalEmbed.WithDescription("Something went wrong while trying to open the box.").Build());
             // TODO: log in case this happens?
             return;
         }
 
-        await SendOpeningAnimationAsync(author, boxData.Gif);
+        await SendOpeningAnimationAsync(context, author, boxData.Gif);
 
         var url = unboxed.First().Url;
         var description = string.Join(" & ", unboxed.Select(item => item.Name));
@@ -38,20 +43,20 @@ public class Punch(IEmbedFactory embedFactory, IboxHelper boxHelper) : Interacti
             .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Secondary);
 
-        await ModifyOriginalResponseAsync(msg => {
+        await context.Interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = finalEmbed.WithDescription($"*{description}*").WithImageUrl(url).Build();
             msg.Components = components.Build();
         });
     }
 
-    private async Task SendOpeningAnimationAsync(EmbedAuthorBuilder author, string url)
+    private async Task SendOpeningAnimationAsync(SocketInteractionContext context, EmbedAuthorBuilder author, string url)
     {
         var embed = embedFactory.GetEmbed(string.Empty)
             .WithAuthor(author)
             .WithImageUrl(url)
             .Build();
 
-        await ModifyOriginalResponseAsync(msg => {
+        await context.Interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed;
             msg.Components = new ComponentBuilder().Build();
         });
