@@ -44,8 +44,7 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracke
             unboxTracker.AddEntry(context.User.Id, box, item.Name);
         }
 
-        var url = unboxed.First().Url;
-        var description = string.Join(" & ", unboxed.Select(item => item.Name));
+        embed.WithDescription($"*{string.Join(" & ", unboxed.Select(item => item.Name))}*").WithImageUrl(unboxed.First().Url);
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Secondary, disabled: opened == 1);
@@ -54,7 +53,7 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracke
         await SendOpeningAnimationAsync(context, author, boxData.Gif);
 
         await context.Interaction.ModifyOriginalResponseAsync(msg => {
-            msg.Embed = embed.WithDescription($"*{description}*").WithImageUrl(url).Build();
+            msg.Embed = embed.Build();
             msg.Components = components.Build();
         });
     }

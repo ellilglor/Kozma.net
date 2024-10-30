@@ -24,7 +24,6 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracke
             else
             {
                 var boxData = boxHelper.GetBox(box)!;
-                var description = unboxTracker.GetData(Context.User.Id, box);
                 var fields = new List<EmbedFieldBuilder>
                 {
                     embedFactory.CreateField(embed.Fields[0].Name, embed.Fields[0].Value),
