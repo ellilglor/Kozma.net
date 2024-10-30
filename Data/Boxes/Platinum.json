@@ -1,0 +1,417 @@
+[
+  {
+    "Name": "Cool Com Unit",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/72/Cool_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Regal Com Unit",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/5/5e/Regal_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Military Com Unit",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/d/de/Military_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Heavy Com Unit",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/f/fa/Heavy_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Fancy Com Unit",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/28/Fancy_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Dusky Com Unit",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/a/a2/Dusky_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Toasty Com Unit",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/ee/Toasty_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Divine Com Unit",
+    "Chance": 0.2458686992,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/8c/Divine_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Com Unit",
+    "Chance": 0.2458686992,
+    "Url": "https://media3.spiralknights.com/wiki-images/0/03/Volcanic_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Com Unit**",
+    "Chance": 0.0476742376,
+    "Url": "https://media3.spiralknights.com/wiki-images/5/54/Prismatic_Com_Unit-Equipped.png"
+  },
+  {
+    "Name": "Cool Knight Vision Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/34/Cool_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Regal Knight Vision Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/23/Regal_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Military Knight Vision Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/83/Military_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Heavy Knight Vision Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/2a/Heavy_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Fancy Knight Vision Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/d/d3/Fancy_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Dusky Knight Vision Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/1/14/Dusky_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Toasty Knight Vision Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/ce/Toasty_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Divine Knight Vision Goggles",
+    "Chance": 0.2458686992,
+    "Url": "https://media3.spiralknights.com/wiki-images/4/4e/Divine_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Knight Vision Goggles",
+    "Chance": 0.2458686992,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/84/Volcanic_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Knight Vision Goggles**",
+    "Chance": 0.0476742376,
+    "Url": "https://media3.spiralknights.com/wiki-images/f/f3/Prismatic_Knight_Vision_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Cool Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/5/57/Cool_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Regal Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/ec/Regal_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Military Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/6/6f/Military_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Heavy Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/6/6b/Heavy_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Fancy Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/6/67/Fancy_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Dusky Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/3b/Dusky_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Toasty Goggles",
+    "Chance": 3.507461766285714,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/e1/Toasty_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Divine Goggles",
+    "Chance": 0.2458686992,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/3f/Divine_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Goggles",
+    "Chance": 0.2458686992,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/30/Volcanic_Goggles-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Goggles**",
+    "Chance": 0.0476742376,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/84/Prismatic_Goggles-Equipped.png"
+  },
+  {
+    "Name": "Cool Sensor Unit",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/c6/Cool_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Regal Sensor Unit",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/82/Regal_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Military Sensor Unit",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/e1/Military_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Heavy Sensor Unit",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/9/9e/Heavy_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Fancy Sensor Unit",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/cb/Fancy_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Dusky Sensor Unit",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/d/da/Dusky_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Toasty Sensor Unit",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/7a/Toasty_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Divine Sensor Unit",
+    "Chance": 0.0921879924,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/7d/Divine_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Sensor Unit",
+    "Chance": 0.0921879924,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/82/Volcanic_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Sensor Unit**",
+    "Chance": 0.0178731822,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/2e/Prismatic_Sensor_Unit-Equipped.png"
+  },
+  {
+    "Name": "Cool Bomb Bandolier",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/d/df/Cool_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Regal Bomb Bandolier",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/7a/Regal_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Military Bomb Bandolier",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/5/55/Military_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Heavy Bomb Bandolier",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/e3/Heavy_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Fancy Bomb Bandolier",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/5/5e/Fancy_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Dusky Bomb Bandolier",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/ca/Dusky_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Toasty Bomb Bandolier",
+    "Chance": 1.314955547571429,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/82/Toasty_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Divine Bomb Bandolier",
+    "Chance": 0.0921879924,
+    "Url": "https://media3.spiralknights.com/wiki-images/f/f2/Divine_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Bomb Bandolier",
+    "Chance": 0.0921879924,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/ea/Volcanic_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Bomb Bandolier**",
+    "Chance": 0.0178731822,
+    "Url": "https://media3.spiralknights.com/wiki-images/9/9d/Prismatic_Bomb_Bandolier-Equipped.png"
+  },
+  {
+    "Name": "Cool Mohawk",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/6/68/Cool_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Regal Mohawk",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/eb/Regal_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Military Mohawk",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/77/Military_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Heavy Mohawk",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/e1/Heavy_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Fancy Mohawk",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/87/Fancy_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Dusky Mohawk",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/a/aa/Dusky_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Toasty Mohawk",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/39/Toasty_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Divine Mohawk",
+    "Chance": 0.0122981376,
+    "Url": "https://media3.spiralknights.com/wiki-images/9/97/Divine_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Mohawk",
+    "Chance": 0.0122981376,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/ce/Volcanic_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Mohawk**",
+    "Chance": 0.0023843328,
+    "Url": "https://media3.spiralknights.com/wiki-images/a/aa/Prismatic_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Cool Devious Horns",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/1/19/Cool_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Regal Devious Horns",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/8b/Regal_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Military Devious Horns",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/d/d4/Military_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Heavy Devious Horns",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/4/4b/Heavy_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Fancy Devious Horns",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/88/Fancy_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Dusky Devious Horns",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/4/49/Dusky_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Toasty Devious Horns",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/86/Toasty_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Divine Devious Horns",
+    "Chance": 0.0122981376,
+    "Url": "https://media3.spiralknights.com/wiki-images/8/8d/Divine_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Devious Horns",
+    "Chance": 0.0122981376,
+    "Url": "https://media3.spiralknights.com/wiki-images/b/bc/Volcanic_Devious_Horns-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Devious Horns**",
+    "Chance": 0.0023843328,
+    "Url": "https://cdn.discordapp.com/attachments/1069643121622777876/1073697780595425320/image.png"
+  },
+  {
+    "Name": "Cool Scarf",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/27/Cool_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Regal Scarf",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/0/03/Regal_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Military Scarf",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/0/00/Military_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Heavy Scarf",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/9/90/Heavy_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Fancy Scarf",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/36/Fancy_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Dusky Scarf",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/70/Dusky_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Toasty Scarf",
+    "Chance": 0.1754187702857143,
+    "Url": "https://media3.spiralknights.com/wiki-images/b/b3/Toasty_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Divine Scarf",
+    "Chance": 0.0122981376,
+    "Url": "https://media3.spiralknights.com/wiki-images/1/14/Divine_Scarf-Equipped.png"
+  },
+  {
+    "Name": "Volcanic Scarf",
+    "Chance": 0.0122981376,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/34/Volcanic_Scarf-Equipped.png"
+  },
+  {
+    "Name": "**Prismatic Scarf**",
+    "Chance": 0.0023843328,
+    "Url": "https://media3.spiralknights.com/wiki-images/a/a8/Prismatic_Scarf-Equipped.png"
+  },
+  {
+    "Name": "**Unclean Aura**",
+    "Chance": 0.093138,
+    "Url": "https://media3.spiralknights.com/wiki-images/f/f9/Unclean_Aura-Equipped.png"
+  },
+  {
+    "Name": "**Ghostly Aura**",
+    "Chance": 0.093138,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/26/Ghostly_Aura-Equipped.png"
+  },
+  {
+    "Name": "Shadow Key",
+    "Chance": 1.96,
+    "Url": "https://media3.spiralknights.com/wiki-images/3/34/Key-Shadow_Key_icon.png"
+  }
+]

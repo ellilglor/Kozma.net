@@ -3,7 +3,7 @@ using Kozma.net.Models;
 
 namespace Kozma.net.Helpers;
 
-public class BoxHelper : IboxHelper
+public class BoxHelper(IFileReader jsonFileReader) : IboxHelper
 {
     public BoxData? GetBox(Box box)
     {
@@ -89,5 +89,16 @@ public class BoxHelper : IboxHelper
             LockboxOption.Slime => Box.Slime,
             _ => null
         };
+    }
+
+    public async Task<List<ItemData>> GetItemDataAsync(Box box)
+    {
+        var projectRoot = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName;
+        if (projectRoot == null) return [];
+
+        var directory = Path.Combine(projectRoot, "Data", "Boxes", $"{box}.json");
+        var items = await jsonFileReader.ReadAsync<List<ItemData>>(directory);
+
+        return items ?? [];
     }
 }

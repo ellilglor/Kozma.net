@@ -1,0 +1,122 @@
+[
+  {
+    "Name": "1 Variant Ticket",
+    "Chance": 46,
+    "Url": "https://media3.spiralknights.com/wiki-images/9/9f/Ticket-1_Variant_Ticket_icon.png"
+  },
+  {
+    "Name": "2 Variant Ticket",
+    "Chance": 23,
+    "Url": "https://media3.spiralknights.com/wiki-images/d/de/Ticket-2_Variant_Ticket_icon.png"
+  },
+  {
+    "Name": "3 Variant Ticket",
+    "Chance": 10,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/7a/Ticket-3_Variant_Ticket_icon.png"
+  },
+  {
+    "Name": "Stellar Sentinel Helm",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/4/4a/Stellar_Sentinel_Helm-Equipped.png"
+  },
+  {
+    "Name": "Stellar Sentinel Suit",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/f/f3/Stellar_Sentinel_Suit-Equipped.png"
+  },
+  {
+    "Name": "Celestial Nav Helm",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/cd/Celestial_Nav_Helm-Equipped.png"
+  },
+  {
+    "Name": "Celestial Nav Suit",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/c4/Celestial_Nav_Suit-Equipped.png"
+  },
+  {
+    "Name": "Galactic Guardian Helm",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/e/e6/Galactic_Guardian_Helm-Equipped.png"
+  },
+  {
+    "Name": "Galactic Guardian Vest",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/4/44/Galactic_Guardian_Vest-Equipped.png"
+  },
+  {
+    "Name": "Celestial Cat Tail",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/2e/Celestial_Cat_Tail-Equipped.png"
+  },
+  {
+    "Name": "Celestial Wolver Tail",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/d/d5/Celestial_Wolver_Tail-Equipped.png"
+  },
+  {
+    "Name": "Celestial Plume",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/cc/Celestial_Plume-Equipped.png"
+  },
+  {
+    "Name": "Celestial Mech'tennas",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/1/1a/Celestial_Mech'tennas-Equipped.png"
+  },
+  {
+    "Name": "Celestial Spike Mohawk",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/a/ad/Celestial_Spike_Mohawk-Equipped.png"
+  },
+  {
+    "Name": "Celestial Bolted Vee",
+    "Chance": 1.5,
+    "Url": "https://media3.spiralknights.com/wiki-images/1/18/Celestial_Bolted_Vee-Equipped.png"
+  },
+  {
+    "Name": "Solar Plasma Wings",
+    "Chance": 0.4,
+    "Url": "https://media3.spiralknights.com/wiki-images/6/6a/Solar_Plasma_Wings-Equipped.png"
+  },
+  {
+    "Name": "Cosmic Plasma Wings",
+    "Chance": 0.4,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/c0/Cosmic_Plasma_Wings-Equipped.png"
+  },
+  {
+    "Name": "Celestial Dragon Wings",
+    "Chance": 0.4,
+    "Url": "https://media3.spiralknights.com/wiki-images/c/c6/Celestial_Dragon_Wings-Equipped.png"
+  },
+  {
+    "Name": "Celestial Valkyrie Wings",
+    "Chance": 0.4,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/71/Celestial_Valkyrie_Wings-Equipped.png"
+  },
+  {
+    "Name": "Orbit Aura",
+    "Chance": 0.4,
+    "Url": "https://media3.spiralknights.com/wiki-images/2/24/Orbit_Aura-Equipped.png"
+  },
+  {
+    "Name": "**Celestial Orbitgun**",
+    "Chance": 0.25,
+    "Url": "https://media3.spiralknights.com/wiki-images/f/f5/Celestial_Orbitgun-Equipped.png"
+  },
+  {
+    "Name": "**Celestial Vortex**",
+    "Chance": 0.25,
+    "Url": "https://media3.spiralknights.com/wiki-images/6/6b/Celestial_Vortex-Equipped.png"
+  },
+  {
+    "Name": "**Celestial Saber**",
+    "Chance": 0.25,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/74/Celestial_Saber-Equipped.png"
+  },
+  {
+    "Name": "**Celestial Shield**",
+    "Chance": 0.25,
+    "Url": "https://media3.spiralknights.com/wiki-images/7/71/Celestial_Shield-Equipped.png"
+  }
+]
