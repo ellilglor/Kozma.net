@@ -9,6 +9,8 @@ namespace Kozma.net.Commands.Games;
 
 public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
+    private static readonly Random _random = new();
+
     [SlashCommand("unbox", "Simulate opening a Prize Box or Lockbox.")]
     public async Task ExecuteAsync(
         [Summary(name: "box", description: "Select the box you want to open.")] Box box)
@@ -95,7 +97,7 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracke
         var bonusBoxes = new List<Box>() { Box.Confection, Box.Lucky };
         var unboxed = new List<ItemData>();
         var prevOdds = 0.00;
-        var roll = new Random().NextDouble() * 100;
+        var roll = _random.NextDouble() * 100;
 
         foreach (var item in items)
         {
@@ -103,14 +105,11 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracke
             {
                 unboxed.Add(item);
 
-                /*if (bonusBoxes.Contains(box))
+                if (bonusBoxes.Contains(box))
                 {
-                    var bonusItem = BonusRoll(box, content, roll, item.Name);
-                    if (bonusItem != null)
-                    {
-                        unboxed.Add(bonusItem);
-                    }
-                }*/
+                    var bonusItem = BonusRoll(box, items, item.Name, roll);
+                    if (bonusItem != null) unboxed.Add(bonusItem);
+                }
 
                 return unboxed;
             }
@@ -119,5 +118,31 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracke
         }
 
         return unboxed;
+    }
+
+    private static ItemData? BonusRoll(Box box, List<ItemData> items, string unboxed, double roll)
+    {
+        switch (box)
+        {
+            case Box.Confection: return _random.NextDouble() * 100 <= 1 ? new ItemData("Sprinkle Aura", 0.00, string.Empty) : null;
+            case Box.Lucky when roll <= 32:
+                while (true)
+                {
+                    var bonusRoll = _random.NextDouble() * 32;
+                    var prevOdds = 0.00;
+
+                    foreach (var item in items)
+                    {
+                        if ((prevOdds <= bonusRoll) && (bonusRoll < prevOdds + item.Chance))
+                        {
+                            if (item.Name == unboxed) break;
+                            return item;
+                        }
+
+                        prevOdds += item.Chance;
+                    }
+                }
+            default: return null;
+        }
     }
 }
