@@ -4,32 +4,53 @@ using Discord.WebSocket;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
-
 namespace Kozma.net.Components.Buttons.UnboxCmd;
 
-public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("unbox-*")]
     public async Task ExecuteAsync(string action)
     {
-        if (string.Equals(action, "again"))
-        {
-            var context = (SocketMessageComponent)Context.Interaction;
-            var command = new Commands.Games.Unbox(embedFactory, boxHelper);
-            var embed = context.Message.Embeds.First();
-            var amount = int.Parse(embed.Fields[0].Value) + 1;
+        var context = (SocketMessageComponent)Context.Interaction;
+        var embed = context.Message.Embeds.First();
 
-            if (Enum.TryParse(embed.Author!.Value.Name, out Box box))
+        if (Enum.TryParse(embed.Author!.Value.Name, out Box box))
+        {
+            if (string.Equals(action, "again"))
             {
+                var command = new Commands.Games.Unbox(embedFactory, boxHelper, unboxTracker);
+                var amount = int.Parse(embed.Fields[0].Value) + 1;
                 await command.UnboxAsync(Context, box, amount);
             }
             else
             {
-                await ModifyOriginalResponseAsync(msg => {
-                    msg.Embed = embedFactory.GetAndBuildEmbed($"Something went wrong while trying to get the box from {box}"); ;
-                    msg.Components = new ComponentBuilder().Build();
-                });
+                var boxData = boxHelper.GetBox(box)!;
+                var description = unboxTracker.GetData(Context.User.Id, box);
+                var fields = new List<EmbedFieldBuilder>
+                {
+                    embedFactory.CreateField(embed.Fields[0].Name, embed.Fields[0].Value),
+                    embedFactory.CreateField(embed.Fields[1].Name, embed.Fields[1].Value),
+                    embedFactory.CreateField("\u200b", "\u200b"),
+                    embedFactory.CreateField("Unique", $"{unboxTracker.GetItemCount(Context.User.Id, box)}"),
+                    embedFactory.CreateField("Info", $"[Link]({boxData.Page} 'page with distribution of probabilities')"),
+                    embedFactory.CreateField("\u200b", "\u200b")
+                };
+
+                var statEmbed = embedFactory.GetEmbed("In this session you opened:")
+                    .WithAuthor(new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url))
+                    .WithDescription(unboxTracker.GetData(Context.User.Id, box))
+                    .WithFields(fields)
+                    .Build();
+
+                await ModifyOriginalResponseAsync(msg => msg.Embed = statEmbed);
             }
+        } 
+        else
+        {
+            await ModifyOriginalResponseAsync(msg => {
+                msg.Embed = embedFactory.GetAndBuildEmbed($"Something went wrong while trying to get the box from {box}"); ;
+                msg.Components = new ComponentBuilder().Build();
+            });
         }
     }
 }

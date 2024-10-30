@@ -7,12 +7,13 @@ using Kozma.net.Models;
 
 namespace Kozma.net.Commands.Games;
 
-public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("unbox", "Simulate opening a Prize Box or Lockbox.")]
     public async Task ExecuteAsync(
         [Summary(name: "box", description: "Select the box you want to open.")] Box box)
     {
+        unboxTracker.SetPlayer(Context.User.Id, box);
         await UnboxAsync(Context, box);
     }
 
@@ -23,8 +24,8 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : Interacti
         var cost = CalculateCost(opened, boxData);
         var fields = new List<EmbedFieldBuilder>
         {
-            embedFactory.CreateField("Opened:", opened.ToString()),
-            embedFactory.CreateField("Spent", boxData.Currency.Equals(BoxCurrency.Dollar) ? $"${cost:N2}" : $"{cost:N0} Energy"),
+            embedFactory.CreateField("Opened", opened.ToString()),
+            embedFactory.CreateField("Spent", boxData.Currency.Equals(BoxCurrency.Dollar) ? $"${cost:N2}" : $"{cost:N0} Energy")
         };
         var embed = embedFactory.GetEmbed("You unboxed:").WithAuthor(author).WithFields(fields);
         var unboxed = await OpenAsync(box);
@@ -36,14 +37,19 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : Interacti
             return;
         }
 
-        await SendOpeningAnimationAsync(context, author, boxData.Gif);
+        foreach (var item in unboxed)
+        {
+            unboxTracker.AddEntry(context.User.Id, box, item.Name);
+        }
 
         var url = unboxed.First().Url;
         var description = string.Join(" & ", unboxed.Select(item => item.Name));
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Secondary);
+            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Secondary, disabled: opened == 1);
         if (opened == 69) components.WithButton(emote: new Emoji("\U0001F4B0"), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
+
+        await SendOpeningAnimationAsync(context, author, boxData.Gif);
 
         await context.Interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.WithDescription($"*{description}*").WithImageUrl(url).Build();
@@ -71,17 +77,13 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : Interacti
         {
             case BoxCurrency.Energy: return amount * box.Price;
             case BoxCurrency.Dollar:
-                var cost = 0.00;
+                var cost = (amount / 14) * 49.95;
+                amount %= 14;
 
-                var amount14Batches = amount / 14;
-                cost += amount14Batches * 49.95;
+                cost += (amount / 5) * 19.95;
+                amount %= 5;
 
-                var amount5Batches = (amount - 14 * amount14Batches) / 5;
-                cost += amount5Batches * 19.95;
-
-                var extra = amount - 14 * amount14Batches - 5 * amount5Batches;
-                cost += extra * 4.95;
-
+                cost += amount * 4.95;
                 return Math.Round(cost, 2);
             default: return box.Price;
         }
