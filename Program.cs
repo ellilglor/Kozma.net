@@ -25,6 +25,7 @@ public class Program
                 .AddSingleton<IEmbedFactory, EmbedFactory>()
                 .AddSingleton<IInteractionHandler, InteractionHandler>()
                 .AddSingleton<IboxHelper, BoxHelper>()
+                .AddSingleton<IPunchHelper, PunchHelper>()
                 .AddSingleton<IContentHelper, ContentHelper>()
                 .AddSingleton<IFileReader, JsonFileReader>()
                 .AddSingleton<IGameTracker, UnboxTracker>()
