@@ -23,5 +23,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\Boxes\" />
+    <Folder Include="Data\Punch\" />
   </ItemGroup>
 </Project>

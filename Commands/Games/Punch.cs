@@ -10,16 +10,28 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
 {
     private static readonly Random _random = new();
 
+    // TODO: make item enum
     [SlashCommand("punch", "Craft and roll on an item for Unique Variants.")]
     public async Task ExecuteAsync(
-        [Summary(name: "item", description: "Select the item you want to craft.")] PunchOption item)
+        [Summary(name: "item", description: "Select the item you want to craft."),
+            Choice("Brandish", "Brandish"),
+            Choice("Overcharged Mixmaster", "Overcharged Mixmaster"),
+            Choice("Blast Bomb", "Blast Bomb"),
+            Choice("Swiftstrike Buckler", "Swiftstrike Buckler"),
+            Choice("Black Kat Cowl", "Black Kat Cowl")] string item)
     {
-        await CraftItemAsync(Context, item);
+        await CraftItemAsync(Context, punchHelper.ConvertToPunchOption(item));
     }
 
-    public async Task CraftItemAsync(SocketInteractionContext context, PunchOption item, int counter = 1)
+    public async Task CraftItemAsync(SocketInteractionContext context, PunchOption? item, int counter = 1)
     {
-        var itemData = punchHelper.GetItem(item)!;
+        if (item is null)
+        {
+            await context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedFactory.GetAndBuildEmbed("Something went wrong while crafting"));
+            return;
+        }
+
+        var itemData = punchHelper.GetItem((PunchOption)item)!;
         var craftUvs = CraftItem(itemData.Type);
         var fields = new List<EmbedFieldBuilder>();
 
@@ -29,7 +41,7 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
         }
         fields.Add(embedFactory.CreateField("Crafted", counter.ToString(), inline: false));
 
-        var embed = embedFactory.GetEmbed($"You crafted: {item}")
+        var embed = embedFactory.GetEmbed($"You crafted: {itemData.Name}")
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
             .WithFields(fields);

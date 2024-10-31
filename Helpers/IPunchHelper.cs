@@ -8,5 +8,6 @@ public interface IPunchHelper
 {
     public EmbedAuthorBuilder GetAuthor();
     public PunchItem? GetItem(PunchOption item);
+    public PunchOption? ConvertToPunchOption(string item);
     public string RollUv(ItemType type, List<string> uvs, bool crafting = false);
 }

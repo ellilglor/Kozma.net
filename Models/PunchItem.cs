@@ -2,4 +2,4 @@
 
 namespace Kozma.net.Models;
 
-public record PunchItem(ItemType Type, string Image, string Gif);
+public record PunchItem(string Name, ItemType Type, string Image, string Gif);

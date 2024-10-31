@@ -1,6 +1,6 @@
 ﻿namespace Kozma.net.Enums;
 
-public enum Punch
+public enum PunchPrices
 {
     Single = 20000,
     Double = 75000,
