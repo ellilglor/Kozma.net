@@ -49,26 +49,12 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
             .WithButton(label: "Recraft", customId: "recraft", style: ButtonStyle.Primary)
             .WithButton(label: "Start Rolling Uvs", customId: "start-punching", style: ButtonStyle.Primary);
 
-        await SendWaitingAnimationAsync(context, "https://cdn.discordapp.com/attachments/1069643121622777876/1069643186978430996/crafting.gif", 2500);
+        await punchHelper.SendWaitingAnimationAsync(embedFactory.GetEmbed(string.Empty), context, "https://cdn.discordapp.com/attachments/1069643121622777876/1069643186978430996/crafting.gif", 2500);
 
         await context.Interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
             msg.Components = components.Build();
         });
-    }
-
-    private async Task SendWaitingAnimationAsync(SocketInteractionContext context, string url, int delay)
-    {
-        var embed = embedFactory.GetEmbed(string.Empty)
-            .WithAuthor(punchHelper.GetAuthor())
-            .WithImageUrl(url)
-            .Build();
-
-        await context.Interaction.ModifyOriginalResponseAsync(msg => {
-            msg.Embed = embed;
-            msg.Components = new ComponentBuilder().Build();
-        });
-        await Task.Delay(delay); // Give the gif time to play
     }
 
     private List<string> CraftItem(ItemType type)

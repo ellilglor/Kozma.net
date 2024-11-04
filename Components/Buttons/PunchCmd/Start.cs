@@ -28,21 +28,10 @@ public class Start(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
             .WithFields(fields);
-        var components = new ComponentBuilder()
-            .WithButton(emote: new Emoji("\U0001F512"), customId: "punch-info-lock", style: ButtonStyle.Primary)
-            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-lock-1", style: ButtonStyle.Secondary, disabled: craftedUvs.Count < 1)
-            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-lock-2", style: ButtonStyle.Secondary, disabled: craftedUvs.Count < 2)
-            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-lock-3", style: ButtonStyle.Secondary, disabled: craftedUvs.Count < 3)
-            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "punch-info-stats", style: ButtonStyle.Primary)
-            .WithButton(emote: new Emoji("\U0001F3B2"), customId: "punch-info-gamble", style: ButtonStyle.Primary, row: 2)
-            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-gamble-1", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-gamble-2", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-gamble-3", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("❔"), customId: "punch-info-odds", style: ButtonStyle.Primary);
 
         await ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
-            msg.Components = components.Build();
+            msg.Components = punchHelper.GetComponents(craftedUvs.Count < 1, craftedUvs.Count < 2, craftedUvs.Count < 3);
         });
     }
 }
