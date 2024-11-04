@@ -33,12 +33,9 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
 
         var itemData = punchHelper.GetItem((PunchOption)item)!;
         var craftUvs = CraftItem(itemData.Type);
-        var fields = new List<EmbedFieldBuilder>();
-
-        for (int i = 0; i < craftUvs.Count; i++)
-        {
-            fields.Add(embedFactory.CreateField($"UV #{i + 1}", craftUvs[i]));
-        }
+        var fields = craftUvs
+            .Select((uv, index) => embedFactory.CreateField($"UV #{index + 1}", uv))
+            .ToList();
         fields.Add(embedFactory.CreateField("Crafted", counter.ToString(), inline: false));
 
         var embed = embedFactory.GetEmbed($"You crafted: {itemData.Name}")

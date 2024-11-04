@@ -6,10 +6,11 @@ using Kozma.net.Factories;
 using Kozma.net.Helpers;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Kozma.net.Components.Buttons.PunchCmd;
 
-public class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
+public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("punch-gamble-*")]
     public async Task ExecuteAsync(string number)
@@ -18,9 +19,11 @@ public class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Intera
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
         var itemData = punchHelper.GetItem((PunchOption)punchHelper.ConvertToPunchOption(oldEmbed.Title)!)!;
+        var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV")).ToList();
+        var lockCount = uvFields.Count(f => f.Name.Contains("\U0001f512"));
         var fields = new List<EmbedFieldBuilder>();
 
-        var uvs = RollForUvs(count, oldEmbed.Fields.Where(f => f.Name.Contains("UV")).ToList(), itemData.Type);
+        var uvs = RollForUvs(count, uvFields, itemData.Type);
         foreach (var uv in uvs)
         {
             var index = uv.IndexOf(':');
@@ -41,23 +44,20 @@ public class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Intera
 
         await ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
-            msg.Components = punchHelper.GetComponents(count < 1, count < 2, count < 3);
+            msg.Components = punchHelper.GetComponents(count < 1, count < 2, count < 3, lockCount > 0, lockCount > 1, lockCount > 2);
         });
     }
 
     private List<string> RollForUvs(int count, List<EmbedField> uvFields, ItemType type)
     {
-        var uvs = new List<string>();
-        for (int i = 0; i < count; i++)
+        var uvs = uvFields
+            .Where(f => f.Name.Contains("\U0001f512"))
+            .Select((uv, index) => $"{uv.Name.Replace(NumRegex().Match(uv.Name).Value, (index + 1).ToString())}:{uv.Value}")
+            .ToList();
+
+        for (int i = uvs.Count; i < count; i++)
         {
-            if (uvFields.Count > i && uvFields[i].Name.Contains("\U0001f512"))
-            {
-                uvs.Add($"{uvFields[i].Name}:{uvFields[i].Value}");
-            }
-            else
-            {
-                uvs.Add($"\U0001f513 UV #{i + 1}:{punchHelper.RollUv(type, uvs)}");
-            }
+            uvs.Add($"\U0001f513 UV #{i + 1}:{punchHelper.RollUv(type, uvs)}");
         }
 
         return uvs;
@@ -88,4 +88,7 @@ public class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Intera
                 break;
         }
     }
+
+    [GeneratedRegex(@"\d+")]
+    private static partial Regex NumRegex();
 }

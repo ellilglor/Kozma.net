@@ -16,12 +16,9 @@ public class Start(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
         var item = punchHelper.ConvertToPunchOption(context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty))!;
         var itemData = punchHelper.GetItem((PunchOption)item)!;
         var craftedUvs = context.Message.Embeds.First().Fields.Where(f => f.Name.Contains("UV")).ToList();
-        var fields = new List<EmbedFieldBuilder>();
+        var disableRollBtn = false;
 
-        foreach (var field in craftedUvs)
-        {
-            fields.Add(embedFactory.CreateField($"\U0001f513 {field.Name}", field.Value));
-        }
+        var fields = craftedUvs.Select(field => embedFactory.CreateField($"\U0001f513 {field.Name}", field.Value)).ToList();
         fields.Add(embedFactory.CreateField("Crowns Spent", "0", inline: false));
 
         var embed = embedFactory.GetEmbed(itemData.Name)
@@ -31,7 +28,7 @@ public class Start(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
 
         await ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
-            msg.Components = punchHelper.GetComponents(craftedUvs.Count < 1, craftedUvs.Count < 2, craftedUvs.Count < 3);
+            msg.Components = punchHelper.GetComponents(craftedUvs.Count < 1, craftedUvs.Count < 2, craftedUvs.Count < 3, disableRollBtn, disableRollBtn, disableRollBtn);
         });
     }
 }
