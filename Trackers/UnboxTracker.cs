@@ -1,12 +1,12 @@
 ﻿using Kozma.net.Enums;
+using Kozma.net.Models;
 using System.Text;
 
-namespace Kozma.net.Helpers;
+namespace Kozma.net.Trackers;
 
-public class UnboxTracker : IGameTracker
+public class UnboxTracker : IUnboxTracker
 {
-    private record Item(string Name, int Count);
-    private readonly Dictionary<ulong, Dictionary<Box, List<Item>>> _items = [];
+    private readonly Dictionary<ulong, Dictionary<Box, List<TrackerItem>>> _items = [];
 
     public void SetPlayer(ulong id, Box key)
     {
@@ -21,7 +21,7 @@ public class UnboxTracker : IGameTracker
 
         if (item is null)
         {
-            _items[id][key].Add(new Item(value, 1));
+            _items[id][key].Add(new TrackerItem(value, 1));
         }
         else
         {
@@ -32,14 +32,14 @@ public class UnboxTracker : IGameTracker
     public string GetData(ulong id, Box key)
     {
         CheckIfIdIsPresent(id);
-        
-        if (_items[id][key] is null || _items[id][key].Count == 0)
+
+        if (!_items[id].TryGetValue(key, out List<TrackerItem>? unboxed) || unboxed.Count == 0)
         {
             return "The bot has restarted and this data is lost!";
         }
 
         var data = new StringBuilder();
-        var items = _items[id][key].OrderByDescending(i => i.Count);
+        var items = unboxed.OrderByDescending(i => i.Count);
 
         foreach (var item in items)
         {
@@ -49,7 +49,7 @@ public class UnboxTracker : IGameTracker
                 break;
             }
 
-            data.AppendLine($"{item.Name} : {item.Count}");
+            data.AppendLine($"{item.Name}: {item.Count}");
         }
 
         return data.ToString();

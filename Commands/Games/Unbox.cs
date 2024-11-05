@@ -4,10 +4,11 @@ using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
+using Kozma.net.Trackers;
 
 namespace Kozma.net.Commands.Games;
 
-public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -47,7 +48,7 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracke
         embed.WithDescription($"*{string.Join(" & ", unboxed.Select(item => item.Name))}*").WithImageUrl(unboxed.First().Url);
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Secondary, disabled: opened == 1);
+            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Secondary, disabled: opened == 1); //TODO: make primary?
         if (opened == 69) components.WithButton(emote: new Emoji("\U0001F4B0"), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
 
         await SendOpeningAnimationAsync(context, author, boxData.Gif);

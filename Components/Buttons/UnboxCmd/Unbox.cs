@@ -4,9 +4,10 @@ using Discord.WebSocket;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
+using Kozma.net.Trackers;
 namespace Kozma.net.Components.Buttons.UnboxCmd;
 
-public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("unbox-*")]
     public async Task ExecuteAsync(string action)
