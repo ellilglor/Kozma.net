@@ -3,10 +3,12 @@ using Discord.Interactions;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
+using Kozma.net.Models;
+using Kozma.net.Trackers;
 
 namespace Kozma.net.Commands.Games;
 
-public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchTracker punchTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -20,6 +22,7 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
             Choice("Swiftstrike Buckler", "Swiftstrike Buckler"),
             Choice("Black Kat Cowl", "Black Kat Cowl")] string item)
     {
+        punchTracker.SetPlayer(Context.User.Id, item);
         await CraftItemAsync(Context, punchHelper.ConvertToPunchOption(item));
     }
 
@@ -32,10 +35,8 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
         }
 
         var itemData = punchHelper.GetItem((PunchOption)item)!;
-        var craftUvs = CraftItem(itemData.Type);
-        var fields = craftUvs
-            .Select((uv, index) => embedFactory.CreateField($"UV #{index + 1}", uv))
-            .ToList();
+        var craftUvs = CraftItem(context.User.Id, itemData);
+        var fields = craftUvs.Select((uv, index) => embedFactory.CreateField($"UV #{index + 1}", uv)).ToList();
         fields.Add(embedFactory.CreateField("Crafted", counter.ToString(), inline: false));
 
         var embed = embedFactory.GetEmbed($"You crafted: {itemData.Name}")
@@ -54,28 +55,28 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
         });
     }
 
-    private List<string> CraftItem(ItemType type)
+    private List<string> CraftItem(ulong id, PunchItem item)
     {
-        int craftRoll = new Random().Next(1, 1001);
+        int craftRoll = _random.Next(1, 1001);
         var uvs = new List<string>();
 
         if (craftRoll == 1) // 1/1000
         {
             for (int i = 0; i < 3; i++)
             {
-                uvs.Add(punchHelper.RollUv(type, uvs, crafting: true));
+                uvs.Add(punchHelper.RollUv(id, item, uvs, crafting: true));
             }
         }
         else if (craftRoll <= 11) // 1/100
         {
             for (int i = 0; i < 2; i++)
             {
-                uvs.Add(punchHelper.RollUv(type, uvs, crafting: true));
+                uvs.Add(punchHelper.RollUv(id, item, uvs, crafting: true));
             }
         }
         else if (craftRoll <= 111) // 1/10
         {
-            uvs.Add(punchHelper.RollUv(type, uvs, crafting: true));
+            uvs.Add(punchHelper.RollUv(id, item, uvs, crafting: true));
         }
 
         return uvs;

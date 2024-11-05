@@ -2,10 +2,11 @@
 using Discord.Interactions;
 using Kozma.net.Enums;
 using Kozma.net.Models;
+using Kozma.net.Trackers;
 
 namespace Kozma.net.Helpers;
 
-public class PunchHelper : IPunchHelper
+public class PunchHelper(IPunchTracker punchTracker) : IPunchHelper
 {
     private static readonly Random _random = new();
 
@@ -75,15 +76,17 @@ public class PunchHelper : IPunchHelper
             .Build();
     }
 
-    public string RollUv(ItemType type, List<string> uvs, bool crafting = false)
+    public string RollUv(ulong id, PunchItem item, List<string> uvs, bool crafting = false)
     {
-        var uvGrade = GetUvGrade(type);
-        var uvType = GetUvType(type, crafting);
+        var uvGrade = GetUvGrade(item.Type);
+        var uvType = GetUvType(item.Type, crafting);
 
         while (uvs.Any(uv => uv.Contains(uvType)))
         {
-            uvType = GetUvType(type, crafting);
+            uvType = GetUvType(item.Type, crafting);
         }
+
+        punchTracker.AddEntry(id, item.Name, uvType, uvGrade);
 
         return $"{uvType}:\n{uvGrade}";
     }

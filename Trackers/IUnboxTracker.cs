@@ -1,8 +1,8 @@
 ﻿using Kozma.net.Enums;
 
-namespace Kozma.net.Helpers;
+namespace Kozma.net.Trackers;
 
-public interface IGameTracker
+public interface IUnboxTracker
 {
     public void SetPlayer(ulong id, Box key);
     public void AddEntry(ulong id, Box key, string value);

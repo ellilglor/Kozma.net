@@ -12,5 +12,5 @@ public interface IPunchHelper
     public PunchOption? ConvertToPunchOption(string item);
     public Task SendWaitingAnimationAsync(EmbedBuilder embed, SocketInteractionContext context, string url, int delay);
     public MessageComponent GetComponents(bool lock1, bool lock2, bool lock3, bool gamble1, bool gamble2, bool gamble3);
-    public string RollUv(ItemType type, List<string> uvs, bool crafting = false);
+    public string RollUv(ulong id, PunchItem item, List<string> uvs, bool crafting = false);
 }

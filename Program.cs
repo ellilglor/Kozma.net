@@ -6,6 +6,7 @@ using Kozma.net.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Kozma.net.Helpers;
+using Kozma.net.Trackers;
 
 namespace Kozma.net;
 
@@ -28,7 +29,8 @@ public class Program
                 .AddSingleton<IPunchHelper, PunchHelper>()
                 .AddSingleton<IContentHelper, ContentHelper>()
                 .AddSingleton<IFileReader, JsonFileReader>()
-                .AddSingleton<IGameTracker, UnboxTracker>()
+                .AddSingleton<IUnboxTracker, UnboxTracker>()
+                .AddSingleton<IPunchTracker, PunchTracker>()
                 .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken") ?? string.Empty, config.GetValue<string>("database") ?? string.Empty))
                 .AddScoped<ITradeLogService, TradeLogService>()
                 .AddScoped<IExchangeService, ExchangeService>()

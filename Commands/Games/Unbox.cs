@@ -4,10 +4,11 @@ using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
+using Kozma.net.Trackers;
 
 namespace Kozma.net.Commands.Games;
 
-public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IGameTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 

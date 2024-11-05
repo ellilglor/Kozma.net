@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
+using Kozma.net.Models;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -23,7 +24,7 @@ public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) 
         var lockCount = uvFields.Count(f => f.Name.Contains("\U0001f512"));
         var fields = new List<EmbedFieldBuilder>();
 
-        var uvs = RollForUvs(count, uvFields, itemData.Type);
+        var uvs = RollForUvs(count, uvFields, itemData, Context.User.Id);
         foreach (var uv in uvs)
         {
             var index = uv.IndexOf(':');
@@ -48,7 +49,7 @@ public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) 
         });
     }
 
-    private List<string> RollForUvs(int count, List<EmbedField> uvFields, ItemType type)
+    private List<string> RollForUvs(int count, List<EmbedField> uvFields, PunchItem item, ulong id)
     {
         var uvs = uvFields
             .Where(f => f.Name.Contains("\U0001f512"))
@@ -57,7 +58,7 @@ public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) 
 
         for (int i = uvs.Count; i < count; i++)
         {
-            uvs.Add($"\U0001f513 UV #{i + 1}:{punchHelper.RollUv(type, uvs)}");
+            uvs.Add($"\U0001f513 UV #{i + 1}:{punchHelper.RollUv(id, item, uvs)}");
         }
 
         return uvs;
