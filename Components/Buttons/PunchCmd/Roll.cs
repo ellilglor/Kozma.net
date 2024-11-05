@@ -36,9 +36,12 @@ public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) 
         fields.Add(embedFactory.CreateField("Crowns Spent", $"{spent + (int)cost:N0}", inline: false));
         UpdateRollCounter(oldEmbed.Fields, count, fields);
 
+        var (desc, image) = await punchHelper.CheckForGmAsync(itemData.Type, uvs);
         var embed = embedFactory.GetEmbed(itemData.Name)
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
+            .WithDescription(desc)
+            .WithImageUrl(image)
             .WithFields(fields);
 
         await punchHelper.SendWaitingAnimationAsync(embedFactory.GetEmbed(string.Empty), Context, itemData.Gif, 1500);

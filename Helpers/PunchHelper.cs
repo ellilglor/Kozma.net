@@ -6,7 +6,7 @@ using Kozma.net.Trackers;
 
 namespace Kozma.net.Helpers;
 
-public class PunchHelper(IPunchTracker punchTracker) : IPunchHelper
+public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader) : IPunchHelper
 {
     private static readonly Random _random = new();
 
@@ -95,22 +95,15 @@ public class PunchHelper(IPunchTracker punchTracker) : IPunchHelper
     {
         var gradeRoll = _random.Next(1, 10001);
 
-        if (gradeRoll <= 245) // 2.45% chance
+        var grades = new[]
         {
-            return type == ItemType.Weapon || type == ItemType.Bomb ? "Very High" : "Maximum";
-        }
-        else if (gradeRoll <= 732) // 4.87% chance
-        {
-            return "High";
-        }
-        else if (gradeRoll <= 2683) // 19.51% chance
-        {
-            return "Medium";
-        }
-        else // 73.17% chance
-        {
-            return "Low";
-        }
+            (245, type == ItemType.Weapon || type == ItemType.Bomb ? "Very High" : "Maximum"), // 2.45% chance
+            (732, "High"), // 4.87% chance
+            (2683, "Medium"), // 19.51% chance
+            (10000, "Low")  // 73.17% chance
+        };
+
+        return grades.FirstOrDefault(g => gradeRoll <= g.Item1).Item2;
     }
 
     private static string GetUvType(ItemType type, bool crafting)
@@ -152,5 +145,28 @@ public class PunchHelper(IPunchTracker punchTracker) : IPunchHelper
                 _ => "Increased Sleep Resistance"
             };
         }
+    }
+
+    private record PunchReward(string Author, string Url);
+
+    public async Task<(string desc, string image)> CheckForGmAsync(ItemType type, List<string> uvs)
+    {
+        var won = type switch
+        {
+            ItemType.Weapon => uvs.Count(uv => uv.Contains("Very High") && (uv.Contains("Charge") || uv.Contains("Attack"))) >= 2,
+            ItemType.Armor => uvs.Count(uv => uv.Contains("Max") && (uv.Contains("Shadow") || uv.Contains("Normal") || uv.Contains("Fire"))) >= 3,
+            _ => false
+        };
+
+        if (!won) return (string.Empty, string.Empty);
+
+        var projectRoot = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName;
+        if (projectRoot == null) return ("Failed to get list of rewards.", string.Empty);
+
+        var directory = Path.Combine(projectRoot, "Data", "Punch", "Rewards.json");
+        var rewards = await jsonFileReader.ReadAsync<List<PunchReward>>(directory);
+        var reward = rewards![_random.Next(rewards.Count)];
+
+        return ($"Congratulations! You created a GM item.\nAs a reward you get a random Spiral Knights meme.\nAuthor: **{reward.Author}**", reward.Url);
     }
 }

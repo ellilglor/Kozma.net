@@ -39,9 +39,12 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchT
         var fields = craftUvs.Select((uv, index) => embedFactory.CreateField($"UV #{index + 1}", uv)).ToList();
         fields.Add(embedFactory.CreateField("Crafted", counter.ToString(), inline: false));
 
+        var (desc, image) = await punchHelper.CheckForGmAsync(itemData.Type, craftUvs);
         var embed = embedFactory.GetEmbed($"You crafted: {itemData.Name}")
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
+            .WithDescription(desc)
+            .WithImageUrl(image)
             .WithFields(fields);
         var components = new ComponentBuilder()
             .WithButton(label: "Recraft", customId: "recraft", style: ButtonStyle.Primary)
@@ -55,26 +58,19 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchT
         });
     }
 
+    /*
+     * Chances:
+     * 1/1000 for 3 UVs
+     * 1/100 for 2 Uvs
+     * 1/10 for 1 UV
+     * */
     private List<string> CraftItem(ulong id, PunchItem item)
     {
         int craftRoll = _random.Next(1, 1001);
+        var limit = craftRoll == 1 ? 3 : craftRoll <= 11 ? 2 : craftRoll <= 111 ? 1 : 0;
         var uvs = new List<string>();
 
-        if (craftRoll == 1) // 1/1000
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                uvs.Add(punchHelper.RollUv(id, item, uvs, crafting: true));
-            }
-        }
-        else if (craftRoll <= 11) // 1/100
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                uvs.Add(punchHelper.RollUv(id, item, uvs, crafting: true));
-            }
-        }
-        else if (craftRoll <= 111) // 1/10
+        for (int i = 0; i < limit; i++)
         {
             uvs.Add(punchHelper.RollUv(id, item, uvs, crafting: true));
         }
