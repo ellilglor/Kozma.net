@@ -31,6 +31,7 @@ public class Program
                 .AddSingleton<IFileReader, JsonFileReader>()
                 .AddSingleton<IUnboxTracker, UnboxTracker>()
                 .AddSingleton<IPunchTracker, PunchTracker>()
+                .AddSingleton<IStatPageTracker, StatPageTracker>()
                 .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken") ?? string.Empty, config.GetValue<string>("database") ?? string.Empty))
                 .AddScoped<ITradeLogService, TradeLogService>()
                 .AddScoped<IExchangeService, ExchangeService>()
