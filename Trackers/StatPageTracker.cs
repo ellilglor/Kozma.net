@@ -8,6 +8,7 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory) : IStatPageTr
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
     private List<Embed> _pages = [];
+    private readonly Dictionary<ulong, int> _users = [];
 
     public async Task BuildPagesAsync()
     {
@@ -24,17 +25,46 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory) : IStatPageTr
         }
     }
 
-    public Embed GetPage()
+    public Embed GetPage(ulong id, string action = "")
     {
-        return _pages[0];
+        CheckIfIdIsPresent(id);
+
+        switch (action)
+        {
+            case "first": _users[id] = 0; break;
+            case "prev": _users[id]--; break;
+            case "next": _users[id]++; break;
+            case "last": _users[id] = _pages.Count - 1; break;
+            default: _users[id] = 0; break;
+        }
+
+        return _pages[_users[id]];
+    }
+
+    public MessageComponent GetComponents(ulong id)
+    {
+        CheckIfIdIsPresent(id);
+
+        var page = _users[id];
+        return new ComponentBuilder()
+            .WithButton(label: "◀◀", customId: "stats-first", style: ButtonStyle.Primary, disabled: page == 0)
+            .WithButton(label: "◀", customId: "stats-prev", style: ButtonStyle.Primary, disabled: page == 0)
+            .WithButton(label: "▶", customId: "stats-next", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
+            .WithButton(label: "▶▶", customId: "stats-last", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
+            .Build();
+    }
+
+    private void CheckIfIdIsPresent(ulong id)
+    {
+        if (!_users.ContainsKey(id)) _users[id] = 0;
     }
 
     private async Task<int> GetUserCountAsync()
     {
-        /*foreach (var guild in _client.Guilds)
+        foreach (var guild in _client.Guilds)
         {
             await guild.DownloadUsersAsync();
-        }*/
+        }
 
         return _client.Guilds
             .SelectMany(guild => guild.Users)
@@ -47,6 +77,7 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory) : IStatPageTr
     private List<EmbedBuilder> BuildServerPages(int userCount)
     {
         var pages = new List<EmbedBuilder>();
+        var emptyField = embedFactory.CreateField("\u200B", "\u200B");
 
         var serverPages = _client.Guilds
             .OrderByDescending(g => g.MemberCount)
@@ -58,7 +89,7 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory) : IStatPageTr
 
         var basicFields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("\u200B", "\u200B"),
+            emptyField,
             embedFactory.CreateField("Total", $"{_client.Guilds.Count:N0}"),
             embedFactory.CreateField("Unique Users", $"{userCount:N0}")
         };
@@ -71,7 +102,7 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory) : IStatPageTr
                 embedFactory.CreateField("\u200B", serverPages[i]),
             };
 
-            if (i + 1 < serverPages.Count) fields.Add(embedFactory.CreateField("\u200B", serverPages[i + 1]));
+            fields.Add(i + 1 < serverPages.Count ? embedFactory.CreateField("\u200B", serverPages[i + 1]) : emptyField);
             fields.AddRange(basicFields);
 
             pages.Add(embed.WithFields(fields));

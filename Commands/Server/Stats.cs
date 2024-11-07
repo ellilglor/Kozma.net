@@ -12,6 +12,13 @@ public class Stats(IStatPageTracker pageTracker) : InteractionModuleBase<SocketI
     {
         await pageTracker.BuildPagesAsync();
 
-        await ModifyOriginalResponseAsync(msg => msg.Embed = pageTracker.GetPage());
+        var embed = pageTracker.GetPage(Context.User.Id);
+        var components = pageTracker.GetComponents(Context.User.Id);
+
+        await ModifyOriginalResponseAsync(msg =>
+        {
+            msg.Embed = embed;
+            msg.Components = components;
+        });
     }
 }
