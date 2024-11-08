@@ -35,7 +35,8 @@ public class Program
                 .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken") ?? string.Empty, config.GetValue<string>("database") ?? string.Empty))
                 .AddScoped<ITradeLogService, TradeLogService>()
                 .AddScoped<IExchangeService, ExchangeService>()
-                .AddScoped<IStatService, StatService>()
+                .AddScoped<ICommandService, CommandService>()
+                .AddScoped<IUserService, UserService>()
                 .BuildServiceProvider();
 
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();

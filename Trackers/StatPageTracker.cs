@@ -6,7 +6,10 @@ using System.Text;
 
 namespace Kozma.net.Trackers;
 
-public class StatPageTracker(IBot bot, IEmbedFactory embedFactory, IStatService statService) : IStatPageTracker
+public class StatPageTracker(IBot bot,
+    IEmbedFactory embedFactory,
+    ICommandService commandService,
+    IUserService userService) : IStatPageTracker
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
     private List<Embed> _pages = [];
@@ -18,11 +21,13 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory, IStatService 
         var pages = new List<EmbedBuilder>();
         
         var userCount = await GetUserCountAsync();
-        var commandUsage = await statService.GetCommandUsageAsync(isGame: false);
+        var commandUsage = await commandService.GetCommandUsageAsync(isGame: false);
+        var cmdUserCount = await userService.GetTotalUsersCountAsync();
 
         pages.AddRange(BuildServerPages(userCount));
         pages.Add(await BuildCommandPageAsync(games: false, commandUsage));
-        pages.Add(await BuildCommandPageAsync(games: true, await statService.GetCommandUsageAsync(isGame: true)));
+        pages.Add(await BuildCommandPageAsync(games: true, await commandService.GetCommandUsageAsync(isGame: true)));
+        pages.Add(await BuilduserPageAsync(commandUsage, cmdUserCount));
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -80,7 +85,7 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory, IStatService 
             .Count();
     }
 
-    private IEnumerable<EmbedBuilder> BuildServerPages(int userCount)
+    private List<EmbedBuilder> BuildServerPages(int userCount)
     {
         var pages = new List<EmbedBuilder>();
         var emptyField = embedFactory.CreateField("\u200B", "\u200B");
@@ -113,7 +118,7 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory, IStatService 
 
     private async Task<EmbedBuilder> BuildCommandPageAsync(bool games, int total)
     {
-        var data = await statService.GetCommandsAsync(games, total);
+        var data = await commandService.GetCommandsAsync(games, total);
 
         var names = new StringBuilder();
         var amounts = new StringBuilder();
@@ -124,7 +129,7 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory, IStatService 
         {
             names.AppendLine($"{index} **{cmd.Command.Name}**");
             amounts.AppendLine($"{cmd.Command.Count:N0}");
-            percentages.AppendLine($"{cmd.Percentage}%");
+            percentages.AppendLine($"{cmd.Percentage:N2}%");
             index++;
         }
 
@@ -137,5 +142,35 @@ public class StatPageTracker(IBot bot, IEmbedFactory embedFactory, IStatService 
         };
 
         return embedFactory.GetEmbed(games ? "Games Played" : "Command Usage").WithFields(fields);
+    }
+
+    private async Task<EmbedBuilder> BuilduserPageAsync(int commandsUsed, int totalUsers)
+    {
+        var limit = 20;
+        var data = await userService.GetUsersAsync(limit, commandsUsed);
+
+        var names = new StringBuilder();
+        var amounts = new StringBuilder();
+        var percentages = new StringBuilder();
+
+        var index = 1;
+        foreach (var user in data)
+        {
+            names.AppendLine($"{index} **{user.User.Name}**");
+            amounts.AppendLine($"{user.User.Count:N0}");
+            percentages.AppendLine($"{user.Percentage:N2}%");
+            index++;
+        }
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField("User", names.ToString()),
+            embedFactory.CreateField("Commands", amounts.ToString()),
+            embedFactory.CreateField("Percentage", percentages.ToString()),
+            embedFactory.CreateField("Unique Users", $"{totalUsers:N0}"),
+            embedFactory.CreateField("Total", $"{commandsUsed:N0}"),
+        };
+
+        return embedFactory.GetEmbed($"Top {limit} bot users").WithFields(fields);
     }
 }

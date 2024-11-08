@@ -8,6 +8,7 @@ public class KozmaDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Exchange> Exchange { get; set; }
     public DbSet<TradeLog> TradeLogs { get; set; }
     public DbSet<Command> Commands { get; set; }
+    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -16,5 +17,6 @@ public class KozmaDbContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<Exchange>();
         modelBuilder.Entity<TradeLog>();
         modelBuilder.Entity<Command>();
+        modelBuilder.Entity<User>();
     }
 }

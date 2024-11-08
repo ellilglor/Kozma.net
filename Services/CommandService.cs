@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Kozma.net.Services;
 
-public class StatService(KozmaDbContext dbContext) : IStatService
+public class CommandService(KozmaDbContext dbContext) : ICommandService
 {
     public async Task<int> GetCommandUsageAsync(bool isGame)
     {
