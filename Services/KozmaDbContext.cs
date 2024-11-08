@@ -9,6 +9,7 @@ public class KozmaDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<TradeLog> TradeLogs { get; set; }
     public DbSet<Command> Commands { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<BoxDb> Boxes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -18,5 +19,6 @@ public class KozmaDbContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<TradeLog>();
         modelBuilder.Entity<Command>();
         modelBuilder.Entity<User>();
+        modelBuilder.Entity<BoxDb>();
     }
 }

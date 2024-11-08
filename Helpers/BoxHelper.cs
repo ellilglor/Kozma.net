@@ -3,7 +3,7 @@ using Kozma.net.Models;
 
 namespace Kozma.net.Helpers;
 
-public class BoxHelper(IFileReader jsonFileReader) : IboxHelper
+public class BoxHelper(IFileReader jsonFileReader) : IBoxHelper
 {
     public BoxData? GetBox(Box box)
     {
@@ -89,6 +89,24 @@ public class BoxHelper(IFileReader jsonFileReader) : IboxHelper
             LockboxOption.Slime => Box.Slime,
             _ => null
         };
+    }
+
+    public double CalculateCost(int amount, BoxData box)
+    {
+        switch (box.Currency)
+        {
+            case BoxCurrency.Energy: return amount * box.Price;
+            case BoxCurrency.Dollar:
+                var cost = (amount / 14) * 49.95;
+                amount %= 14;
+
+                cost += (amount / 5) * 19.95;
+                amount %= 5;
+
+                cost += amount * 4.95;
+                return Math.Round(cost, 2);
+            default: return box.Price;
+        }
     }
 
     public async Task<List<ItemData>> GetItemDataAsync(Box box)

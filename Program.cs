@@ -25,7 +25,7 @@ public class Program
                 .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
                 .AddSingleton<IEmbedFactory, EmbedFactory>()
                 .AddSingleton<IInteractionHandler, InteractionHandler>()
-                .AddSingleton<IboxHelper, BoxHelper>()
+                .AddSingleton<IBoxHelper, BoxHelper>()
                 .AddSingleton<IPunchHelper, PunchHelper>()
                 .AddSingleton<IContentHelper, ContentHelper>()
                 .AddSingleton<IFileReader, JsonFileReader>()
@@ -37,6 +37,7 @@ public class Program
                 .AddScoped<IExchangeService, ExchangeService>()
                 .AddScoped<ICommandService, CommandService>()
                 .AddScoped<IUserService, UserService>()
+                .AddScoped<IUnboxService, UnboxService>()
                 .BuildServiceProvider();
 
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();

@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Kozma.net.Commands.Information;
 
-public class Lockbox(IEmbedFactory embedFactory, IboxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Lockbox(IEmbedFactory embedFactory, IBoxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly Dictionary<LockboxOption, string> _lockboxes = BuildLockboxes();
 

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Kozma.net.Factories;
+using Kozma.net.Helpers;
 using Kozma.net.Services;
 using System.Text;
 
@@ -8,8 +9,10 @@ namespace Kozma.net.Trackers;
 
 public class StatPageTracker(IBot bot,
     IEmbedFactory embedFactory,
+    IBoxHelper boxHelper,
     ICommandService commandService,
-    IUserService userService) : IStatPageTracker
+    IUserService userService,
+    IUnboxService unboxService) : IStatPageTracker
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
     private List<Embed> _pages = [];
@@ -23,11 +26,13 @@ public class StatPageTracker(IBot bot,
         var userCount = await GetUserCountAsync();
         var commandUsage = await commandService.GetCommandUsageAsync(isGame: false);
         var cmdUserCount = await userService.GetTotalUsersCountAsync();
+        var unboxedCount = await unboxService.GetBoxOpenedCountAsync();
 
         pages.AddRange(BuildServerPages(userCount));
         pages.Add(await BuildCommandPageAsync(games: false, commandUsage));
         pages.Add(await BuildCommandPageAsync(games: true, await commandService.GetCommandUsageAsync(isGame: true)));
-        pages.Add(await BuilduserPageAsync(commandUsage, cmdUserCount));
+        pages.Add(await BuildUserPageAsync(commandUsage, cmdUserCount));
+        pages.Add(await BuildUnboxPageAsync(unboxedCount));
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -144,7 +149,7 @@ public class StatPageTracker(IBot bot,
         return embedFactory.GetEmbed(games ? "Games Played" : "Command Usage").WithFields(fields);
     }
 
-    private async Task<EmbedBuilder> BuilduserPageAsync(int commandsUsed, int totalUsers)
+    private async Task<EmbedBuilder> BuildUserPageAsync(int commandsUsed, int totalUsers)
     {
         var limit = 20;
         var data = await userService.GetUsersAsync(limit, commandsUsed);
@@ -172,5 +177,45 @@ public class StatPageTracker(IBot bot,
         };
 
         return embedFactory.GetEmbed($"Top {limit} bot users").WithFields(fields);
+    }
+
+    private async Task<EmbedBuilder> BuildUnboxPageAsync(int total)
+    {
+        var data = await unboxService.GetBoxesAsync(total);
+
+        var boxes = new StringBuilder();
+        var opened = new StringBuilder();
+        var percentages = new StringBuilder();
+        var energy = 0.0;
+        var dollars = 0.0;
+
+        var index = 1;
+        foreach (var box in data)
+        {
+            var boxData = boxHelper.GetBox(box.Box.Name)!;
+
+            switch (boxData.Currency)
+            {
+                case Enums.BoxCurrency.Energy: energy += boxData.Price; break;
+                case Enums.BoxCurrency.Dollar: dollars += boxHelper.CalculateCost(box.Box.Count, boxData); break;
+            }
+
+            boxes.AppendLine($"{index} **{box.Box.Name}**");
+            opened.AppendLine($"{box.Box.Count:N0}");
+            percentages.AppendLine($"{box.Percentage:N2}%");
+            index++;
+        }
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField("User", boxes.ToString()),
+            embedFactory.CreateField("Commands", opened.ToString()),
+            embedFactory.CreateField("Percentage", percentages.ToString()),
+            embedFactory.CreateField("Total", $"{total:N0}"),
+            embedFactory.CreateField("Energy", $"{energy:N0}"),
+            embedFactory.CreateField("Dollars", $"${dollars:N2}"),
+        };
+
+        return embedFactory.GetEmbed($"Unbox command").WithFields(fields);
     }
 }
