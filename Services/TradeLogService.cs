@@ -1,5 +1,4 @@
-﻿using Kozma.net.Enums;
-using Kozma.net.Models;
+﻿using Kozma.net.Models;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver.Linq;
 
@@ -61,5 +60,19 @@ public class TradeLogService(KozmaDbContext dbContext) : ITradeLogService
         var toDelete = await dbContext.TradeLogs.Where(log => log.Channel == channel).ToListAsync();
         dbContext.TradeLogs.RemoveRange(toDelete);
         await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<int> GetTotalSearchCountAsync()
+    {
+        return await dbContext.SearchedLogs.CountAsync();
+    }
+
+    public async Task<IEnumerable<SearchedLog>> GetSearchedLogsAsync(int limit)
+    {
+        return await dbContext.SearchedLogs
+            .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Item)
+            .Take(limit)
+            .ToListAsync();
     }
 }

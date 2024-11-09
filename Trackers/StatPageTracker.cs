@@ -41,6 +41,7 @@ public class StatPageTracker(IBot bot,
         pages.Add(await BuildGamblerPageAsync(gameUsage - unboxedCount));
         pages.Add(await BuildLogsPageAsync(logCount, authors: true));
         pages.Add(await BuildLogsPageAsync(logCount, authors: false));
+        pages.Add(await BuildFindLogsPageAsync());
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -284,5 +285,32 @@ public class StatPageTracker(IBot bot,
         };
 
         return embedFactory.GetEmbed(authors ? "All loggers" : "Tradelog channels").WithFields(fields);
+    }
+
+    private async Task<EmbedBuilder> BuildFindLogsPageAsync()
+    {
+        var limit = 20;
+        var totalSearched = await tradeLogService.GetTotalSearchCountAsync();
+        var data = await tradeLogService.GetSearchedLogsAsync(limit);
+
+        var names = new StringBuilder();
+        var searches = new StringBuilder();
+
+        var index = 1;
+        foreach (var item in data)
+        {
+            names.AppendLine($"{index} **{item.Item}**");
+            searches.AppendLine($"{item.Count:N0}");
+            index++;
+        }
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField("Item", names.ToString()),
+            embedFactory.CreateField("Searches", searches.ToString()),
+            embedFactory.CreateField("Unique Searches", $"{totalSearched:N0}", inline: false),
+        };
+
+        return embedFactory.GetEmbed($"Top {limit} searched items").WithFields(fields);
     }
 }
