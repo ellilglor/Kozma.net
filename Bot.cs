@@ -8,6 +8,7 @@ public class Bot : IBot
 {
     private readonly DiscordSocketClient _client;
     private readonly IConfiguration _config;
+    private readonly DateTime _ready;
 
     public Bot(IConfiguration config)
     {
@@ -20,6 +21,7 @@ public class Bot : IBot
 
         _client = new DiscordSocketClient(intents);
         _client.Log += Log;
+        _ready = DateTime.UtcNow;
     }
 
     public async Task StartAsync()
@@ -31,6 +33,11 @@ public class Bot : IBot
     public DiscordSocketClient GetClient()
     {
         return _client;
+    }
+
+    public long GetReadyTimestamp()
+    {
+        return new DateTimeOffset(_ready).ToUnixTimeSeconds();
     }
 
     private static Task Log(LogMessage msg)

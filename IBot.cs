@@ -7,4 +7,5 @@ public interface IBot
 {
     Task StartAsync();
     DiscordSocketClient GetClient();
+    long GetReadyTimestamp();
 }

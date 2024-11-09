@@ -3,11 +3,13 @@ using Discord.WebSocket;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
 using Kozma.net.Services;
+using Microsoft.Extensions.Configuration;
 using System.Text;
 
 namespace Kozma.net.Trackers;
 
 public class StatPageTracker(IBot bot,
+    IConfiguration config,
     IEmbedFactory embedFactory,
     IBoxHelper boxHelper,
     ICommandService commandService,
@@ -24,13 +26,15 @@ public class StatPageTracker(IBot bot,
     {
         _pages = [];
         var pages = new List<EmbedBuilder>();
-        
+
         var userCount = await GetUserCountAsync();
         var commandUsage = await commandService.GetCommandUsageAsync(isGame: false);
         var gameUsage = await commandService.GetCommandUsageAsync(isGame: true);
         var cmdUserCount = await userService.GetTotalUsersCountAsync();
         var unboxedCount = await unboxService.GetBoxOpenedCountAsync();
         var logCount = await tradeLogService.GetTotalLogCountAsync();
+        var totalSearched = await tradeLogService.GetTotalSearchCountAsync();
+        var kozmaGuild = _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:serverId")));
 
         pages.AddRange(BuildServerPages(userCount));
         pages.Add(await BuildCommandPageAsync(games: false, commandUsage));
@@ -41,7 +45,25 @@ public class StatPageTracker(IBot bot,
         pages.Add(await BuildGamblerPageAsync(gameUsage - unboxedCount));
         pages.Add(await BuildLogsPageAsync(logCount, authors: true));
         pages.Add(await BuildLogsPageAsync(logCount, authors: false));
-        pages.Add(await BuildFindLogsPageAsync());
+        pages.Add(await BuildFindLogsPageAsync(totalSearched));
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField("Bot Tag", _client.CurrentUser.Username),
+            embedFactory.CreateField("Bot Id", _client.CurrentUser.Id.ToString()),
+            embedFactory.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
+            embedFactory.CreateField("Running Since", $"<t:{bot.GetReadyTimestamp()}:f>"),
+            embedFactory.CreateField("Commands Used", $"{commandUsage:N0}"),
+            embedFactory.CreateField("Unique Bot Users", $"{cmdUserCount:N0}"),
+            embedFactory.CreateField("Servers", $"{_client.Guilds.Count:N0}"),
+            embedFactory.CreateField("Unique Users", $"{userCount:N0}"),
+            embedFactory.CreateField("\u200B", "\u200B"),
+            embedFactory.CreateField("Tradelogs", $"{logCount:N0}"),
+            embedFactory.CreateField("Items Searched", $"{totalSearched:N0}"),
+            embedFactory.CreateField("Server Members", $"{kozmaGuild!.MemberCount:N0}"),
+        };
+
+        pages.Insert(0, embedFactory.GetEmbed("General info").WithFields(fields));
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -57,8 +79,8 @@ public class StatPageTracker(IBot bot,
         switch (action)
         {
             case "first": _users[id] = 0; break;
-            case "prev": _users[id]--; break;
-            case "next": _users[id]++; break;
+            case "prev" when _users[id] > 0: _users[id]--; break;
+            case "next" when _users[id] < _pages.Count - 1: _users[id]++; break;
             case "last": _users[id] = _pages.Count - 1; break;
             default: _users[id] = 0; break;
         }
@@ -86,10 +108,10 @@ public class StatPageTracker(IBot bot,
 
     private async Task<int> GetUserCountAsync()
     {
-        /*foreach (var guild in _client.Guilds)
+        foreach (var guild in _client.Guilds)
         {
-            await guild.DownloadUsersAsync();
-        }*/
+            if (!guild.HasAllMembers) await guild.DownloadUsersAsync();
+        }
 
         return _client.Guilds
             .SelectMany(guild => guild.Users)
@@ -287,10 +309,9 @@ public class StatPageTracker(IBot bot,
         return embedFactory.GetEmbed(authors ? "All loggers" : "Tradelog channels").WithFields(fields);
     }
 
-    private async Task<EmbedBuilder> BuildFindLogsPageAsync()
+    private async Task<EmbedBuilder> BuildFindLogsPageAsync(int totalSearched)
     {
         var limit = 20;
-        var totalSearched = await tradeLogService.GetTotalSearchCountAsync();
         var data = await tradeLogService.GetSearchedLogsAsync(limit);
 
         var names = new StringBuilder();
