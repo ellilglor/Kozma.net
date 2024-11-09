@@ -19,6 +19,6 @@ public class UnboxService(KozmaDbContext dbContext) : IUnboxService
             .ThenBy(box => box.Name)
             .ToListAsync();
 
-        return query.Select(box => new BoxStats(box, Math.Round((box.Count / (double)total) * 100, 2)));
+        return query.Select(box => new BoxStats(box, Math.Round(box.Count / (double)total * 100, 2)));
     }
 }

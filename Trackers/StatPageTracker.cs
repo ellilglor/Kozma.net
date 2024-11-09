@@ -31,8 +31,9 @@ public class StatPageTracker(IBot bot,
         pages.AddRange(BuildServerPages(userCount));
         pages.Add(await BuildCommandPageAsync(games: false, commandUsage));
         pages.Add(await BuildCommandPageAsync(games: true, await commandService.GetCommandUsageAsync(isGame: true)));
-        pages.Add(await BuildUserPageAsync(commandUsage, cmdUserCount));
+        pages.Add(await BuildUserPageAsync(commandUsage, forUnboxed: false, cmdUserCount));
         pages.Add(await BuildUnboxPageAsync(unboxedCount));
+        pages.Add(await BuildUserPageAsync(unboxedCount, forUnboxed: true));
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -149,10 +150,10 @@ public class StatPageTracker(IBot bot,
         return embedFactory.GetEmbed(games ? "Games Played" : "Command Usage").WithFields(fields);
     }
 
-    private async Task<EmbedBuilder> BuildUserPageAsync(int commandsUsed, int totalUsers)
+    private async Task<EmbedBuilder> BuildUserPageAsync(int totalUsed, bool forUnboxed, int totalUsers = 0)
     {
         var limit = 20;
-        var data = await userService.GetUsersAsync(limit, commandsUsed);
+        var data = await userService.GetUsersAsync(limit, totalUsed, forUnboxed);
 
         var names = new StringBuilder();
         var amounts = new StringBuilder();
@@ -162,7 +163,7 @@ public class StatPageTracker(IBot bot,
         foreach (var user in data)
         {
             names.AppendLine($"{index} **{user.User.Name}**");
-            amounts.AppendLine($"{user.User.Count:N0}");
+            amounts.AppendLine(forUnboxed ? $"{user.User.Unboxed:N0}" : $"{user.User.Count:N0}");
             percentages.AppendLine($"{user.Percentage:N2}%");
             index++;
         }
@@ -170,13 +171,13 @@ public class StatPageTracker(IBot bot,
         var fields = new List<EmbedFieldBuilder>()
         {
             embedFactory.CreateField("User", names.ToString()),
-            embedFactory.CreateField("Commands", amounts.ToString()),
-            embedFactory.CreateField("Percentage", percentages.ToString()),
-            embedFactory.CreateField("Unique Users", $"{totalUsers:N0}"),
-            embedFactory.CreateField("Total", $"{commandsUsed:N0}"),
+            embedFactory.CreateField(forUnboxed ? "Opened" : "Commands", amounts.ToString()),
+            embedFactory.CreateField("Percentage", percentages.ToString())
         };
+        if (totalUsers > 0) embedFactory.CreateField("Unique Users", $"{totalUsers:N0}");
+        fields.Add(embedFactory.CreateField("Total", $"{totalUsed:N0}"));
 
-        return embedFactory.GetEmbed($"Top {limit} bot users").WithFields(fields);
+        return embedFactory.GetEmbed($"Top {limit} {(forUnboxed ? "unboxers" : "bot users")}").WithFields(fields);
     }
 
     private async Task<EmbedBuilder> BuildUnboxPageAsync(int total)
