@@ -12,7 +12,8 @@ public class StatPageTracker(IBot bot,
     IBoxHelper boxHelper,
     ICommandService commandService,
     IUserService userService,
-    IUnboxService unboxService) : IStatPageTracker
+    IUnboxService unboxService,
+    IPunchService punchService) : IStatPageTracker
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
     private List<Embed> _pages = [];
@@ -25,15 +26,17 @@ public class StatPageTracker(IBot bot,
         
         var userCount = await GetUserCountAsync();
         var commandUsage = await commandService.GetCommandUsageAsync(isGame: false);
+        var gameUsage = await commandService.GetCommandUsageAsync(isGame: true);
         var cmdUserCount = await userService.GetTotalUsersCountAsync();
         var unboxedCount = await unboxService.GetBoxOpenedCountAsync();
 
         pages.AddRange(BuildServerPages(userCount));
         pages.Add(await BuildCommandPageAsync(games: false, commandUsage));
-        pages.Add(await BuildCommandPageAsync(games: true, await commandService.GetCommandUsageAsync(isGame: true)));
+        pages.Add(await BuildCommandPageAsync(games: true, gameUsage));
         pages.Add(await BuildUserPageAsync(commandUsage, forUnboxed: false, cmdUserCount));
         pages.Add(await BuildUnboxPageAsync(unboxedCount));
         pages.Add(await BuildUserPageAsync(unboxedCount, forUnboxed: true));
+        pages.Add(await BuildGamblerPageAsync(gameUsage - unboxedCount));
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -218,5 +221,36 @@ public class StatPageTracker(IBot bot,
         };
 
         return embedFactory.GetEmbed($"Unbox command").WithFields(fields);
+    }
+
+    private async Task<EmbedBuilder> BuildGamblerPageAsync(int sessions)
+    {
+        var limit = 20;
+        var totalSpent = await punchService.GetTotalSpentAsync();
+        var data = await punchService.GetGamblersAsync(limit, totalSpent);
+
+        var names = new StringBuilder();
+        var spent = new StringBuilder();
+        var percentages = new StringBuilder();
+
+        var index = 1;
+        foreach (var user in data)
+        {
+            names.AppendLine($"{index} **{user.Gambler.Name}**");
+            spent.AppendLine($"{user.Gambler.Total:N0}");
+            percentages.AppendLine($"{user.Percentage:N2}%");
+            index++;
+        }
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField("User", names.ToString()),
+            embedFactory.CreateField("Crowns spent", spent.ToString()),
+            embedFactory.CreateField("Percentage", percentages.ToString()),
+            embedFactory.CreateField("Total", $"{totalSpent:N0}"),
+            embedFactory.CreateField("Sessions", $"{sessions:N0}")
+        };
+
+        return embedFactory.GetEmbed($"Top {limit} highest spenders at Punch").WithFields(fields);
     }
 }

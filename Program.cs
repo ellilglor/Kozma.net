@@ -38,6 +38,7 @@ public class Program
                 .AddScoped<ICommandService, CommandService>()
                 .AddScoped<IUserService, UserService>()
                 .AddScoped<IUnboxService, UnboxService>()
+                .AddScoped<IPunchService, PunchService>()
                 .BuildServiceProvider();
 
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
