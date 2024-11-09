@@ -1,4 +1,5 @@
-﻿using Kozma.net.Models;
+﻿using Kozma.net.Enums;
+using Kozma.net.Models;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver.Linq;
 
@@ -6,6 +7,22 @@ namespace Kozma.net.Services;
 
 public class TradeLogService(KozmaDbContext dbContext) : ITradeLogService
 {
+    public async Task<int> GetTotalLogCountAsync()
+    {
+        return await dbContext.TradeLogs.CountAsync();
+    }
+
+    public async Task<IEnumerable<TradeLogStats>> GetLogStatsAsync(bool authors, int total)
+    {
+        var query = await dbContext.TradeLogs.ToListAsync();
+
+        return query
+            .GroupBy(l => authors ? l.Author : l.Channel)
+            .Select(g => new TradeLogStats(g.Key, g.Count(), Math.Round(g.Count() / (double)total * 100, 2)))
+            .OrderByDescending(g => g.Count)
+            .ToList();
+    }
+
     public async Task<IEnumerable<LogCollection>> GetLogsAsync(List<string> items, DateTime date, bool checkMixed, bool skipSpecial, List<string> ignore)
     {
         var query = dbContext.TradeLogs.Where(log => items.Any(item => log.Content.Contains(item)) && log.Date > date);

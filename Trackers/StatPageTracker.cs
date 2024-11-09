@@ -13,7 +13,8 @@ public class StatPageTracker(IBot bot,
     ICommandService commandService,
     IUserService userService,
     IUnboxService unboxService,
-    IPunchService punchService) : IStatPageTracker
+    IPunchService punchService,
+    ITradeLogService tradeLogService) : IStatPageTracker
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
     private List<Embed> _pages = [];
@@ -29,6 +30,7 @@ public class StatPageTracker(IBot bot,
         var gameUsage = await commandService.GetCommandUsageAsync(isGame: true);
         var cmdUserCount = await userService.GetTotalUsersCountAsync();
         var unboxedCount = await unboxService.GetBoxOpenedCountAsync();
+        var logCount = await tradeLogService.GetTotalLogCountAsync();
 
         pages.AddRange(BuildServerPages(userCount));
         pages.Add(await BuildCommandPageAsync(games: false, commandUsage));
@@ -37,6 +39,8 @@ public class StatPageTracker(IBot bot,
         pages.Add(await BuildUnboxPageAsync(unboxedCount));
         pages.Add(await BuildUserPageAsync(unboxedCount, forUnboxed: true));
         pages.Add(await BuildGamblerPageAsync(gameUsage - unboxedCount));
+        pages.Add(await BuildLogsPageAsync(logCount, authors: true));
+        pages.Add(await BuildLogsPageAsync(logCount, authors: false));
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -252,5 +256,33 @@ public class StatPageTracker(IBot bot,
         };
 
         return embedFactory.GetEmbed($"Top {limit} highest spenders at Punch").WithFields(fields);
+    }
+
+    private async Task<EmbedBuilder> BuildLogsPageAsync(int total, bool authors)
+    {
+        var data = await tradeLogService.GetLogStatsAsync(authors, total);
+
+        var names = new StringBuilder();
+        var posts = new StringBuilder();
+        var percentages = new StringBuilder();
+
+        var index = 1;
+        foreach (var group in data)
+        {
+            names.AppendLine($"{index} **{group.Name}**");
+            posts.AppendLine($"{group.Count:N0}");
+            percentages.AppendLine($"{group.Percentage:N2}%");
+            index++;
+        }
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField(authors ? "User" : "Channel", names.ToString()),
+            embedFactory.CreateField("Posts", posts.ToString()),
+            embedFactory.CreateField("Percentage", percentages.ToString()),
+            embedFactory.CreateField("Total", $"{total:N0}"),
+        };
+
+        return embedFactory.GetEmbed(authors ? "All loggers" : "Tradelog channels").WithFields(fields);
     }
 }

@@ -37,3 +37,5 @@ public class LogCollection
     public required string Channel { get; set; }
     public required List<TradeLog> Messages { get; set; }
 }
+
+public record TradeLogStats(string Name, int Count, double Percentage);
