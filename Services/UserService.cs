@@ -10,7 +10,7 @@ public class UserService(KozmaDbContext dbContext) : IUserService
         return await dbContext.Users.CountAsync();
     }
 
-    public async Task<IEnumerable<UserStats>> GetUsersAsync(int limit, int total, bool forUnboxed)
+    public async Task<IEnumerable<DbStat>> GetUsersAsync(int limit, int total, bool forUnboxed)
     {
         var query = await dbContext.Users
             .OrderByDescending(u => forUnboxed ? u.Unboxed : u.Count)
@@ -18,6 +18,6 @@ public class UserService(KozmaDbContext dbContext) : IUserService
             .Take(limit)
             .ToListAsync();
 
-        return query.Select(u => new UserStats(u, Math.Round((forUnboxed ? u.Unboxed : u.Count) / (double)total * 100, 2)));
+        return query.Select(u => new DbStat(u.Name, forUnboxed ? u.Unboxed : u.Count, Math.Round((forUnboxed ? u.Unboxed : u.Count) / (double)total * 100, 2)));
     }
 }

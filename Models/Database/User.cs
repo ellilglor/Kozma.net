@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.EntityFrameworkCore;
 
-namespace Kozma.net.Models;
+namespace Kozma.net.Models.Database;
 
 [Collection("users")]
 public class User
@@ -22,5 +22,3 @@ public class User
     [BsonElement("punched")]
     public int Punched { get; set; }
 }
-
-public record UserStats(User User, double Percentage);

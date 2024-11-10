@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
+using Kozma.net.Models;
 using Kozma.net.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text;
@@ -49,8 +50,8 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("Bot Tag", _client.CurrentUser.Username),
             embedFactory.CreateField("Bot Id", _client.CurrentUser.Id.ToString()),
+            embedFactory.CreateField("Bot Name", _client.CurrentUser.Username),
             embedFactory.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
             embedFactory.CreateField("Running Since", $"<t:{bot.GetReadyTimestamp()}:f>"),
             embedFactory.CreateField("Commands Used", $"{commandUsage:N0}"),
@@ -158,24 +159,13 @@ public class StatPageTracker(IBot bot,
     private async Task<EmbedBuilder> BuildCommandPageAsync(bool games, int total)
     {
         var data = await commandService.GetCommandsAsync(games, total);
-        var names = new StringBuilder();
-        var amounts = new StringBuilder();
-        var percentages = new StringBuilder();
-
-        var index = 1;
-        foreach (var cmd in data)
-        {
-            names.AppendLine($"{index} **{cmd.Command.Name}**");
-            amounts.AppendLine($"{cmd.Command.Count:N0}");
-            percentages.AppendLine($"{cmd.Percentage:N2}%");
-            index++;
-        }
+        var (names, counts, percentages) = GetBasicFieldValues(data);
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField(games ? "Game" : "Command", names.ToString()),
-            embedFactory.CreateField("Used", amounts.ToString()),
-            embedFactory.CreateField("Percentage", percentages.ToString()),
+            embedFactory.CreateField(games ? "Game" : "Command", names),
+            embedFactory.CreateField("Used", counts),
+            embedFactory.CreateField("Percentage", percentages),
             embedFactory.CreateField("Total", $"{total:N0}"),
         };
 
@@ -186,24 +176,13 @@ public class StatPageTracker(IBot bot,
     {
         var limit = 20;
         var data = await userService.GetUsersAsync(limit, totalUsed, forUnboxed);
-        var names = new StringBuilder();
-        var amounts = new StringBuilder();
-        var percentages = new StringBuilder();
-
-        var index = 1;
-        foreach (var user in data)
-        {
-            names.AppendLine($"{index} **{user.User.Name}**");
-            amounts.AppendLine(forUnboxed ? $"{user.User.Unboxed:N0}" : $"{user.User.Count:N0}");
-            percentages.AppendLine($"{user.Percentage:N2}%");
-            index++;
-        }
+        var (names, counts, percentages) = GetBasicFieldValues(data);
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("User", names.ToString()),
-            embedFactory.CreateField(forUnboxed ? "Opened" : "Commands", amounts.ToString()),
-            embedFactory.CreateField("Percentage", percentages.ToString())
+            embedFactory.CreateField("User", names),
+            embedFactory.CreateField(forUnboxed ? "Opened" : "Commands", counts),
+            embedFactory.CreateField("Percentage", percentages)
         };
         if (totalUsers > 0) embedFactory.CreateField("Unique Users", $"{totalUsers:N0}");
         fields.Add(embedFactory.CreateField("Total", $"{totalUsed:N0}"));
@@ -223,16 +202,16 @@ public class StatPageTracker(IBot bot,
         var index = 1;
         foreach (var box in data)
         {
-            var boxData = boxHelper.GetBox(box.Box.Name)!;
+            var boxData = boxHelper.GetBox(box.Name)!;
 
             switch (boxData.Currency)
             {
                 case Enums.BoxCurrency.Energy: energy += boxData.Price; break;
-                case Enums.BoxCurrency.Dollar: dollars += boxHelper.CalculateCost(box.Box.Count, boxData); break;
+                case Enums.BoxCurrency.Dollar: dollars += boxHelper.CalculateCost(box.Count, boxData); break;
             }
 
-            boxes.AppendLine($"{index} **{box.Box.Name}**");
-            opened.AppendLine($"{box.Box.Count:N0}");
+            boxes.AppendLine($"{index} **{box.Name}**");
+            opened.AppendLine($"{box.Count:N0}");
             percentages.AppendLine($"{box.Percentage:N2}%");
             index++;
         }
@@ -255,24 +234,13 @@ public class StatPageTracker(IBot bot,
         var limit = 20;
         var totalSpent = await punchService.GetTotalSpentAsync();
         var data = await punchService.GetGamblersAsync(limit, totalSpent);
-        var names = new StringBuilder();
-        var spent = new StringBuilder();
-        var percentages = new StringBuilder();
-
-        var index = 1;
-        foreach (var user in data)
-        {
-            names.AppendLine($"{index} **{user.Gambler.Name}**");
-            spent.AppendLine($"{user.Gambler.Total:N0}");
-            percentages.AppendLine($"{user.Percentage:N2}%");
-            index++;
-        }
+        var (names, counts, percentages) = GetBasicFieldValues(data);
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("User", names.ToString()),
-            embedFactory.CreateField("Crowns Spent", spent.ToString()),
-            embedFactory.CreateField("Percentage", percentages.ToString()),
+            embedFactory.CreateField("User", names),
+            embedFactory.CreateField("Crowns Spent", counts),
+            embedFactory.CreateField("Percentage", percentages),
             embedFactory.CreateField("Total", $"{totalSpent:N0}"),
             embedFactory.CreateField("Sessions", $"{sessions:N0}")
         };
@@ -283,24 +251,13 @@ public class StatPageTracker(IBot bot,
     private async Task<EmbedBuilder> BuildLogsPageAsync(int total, bool authors)
     {
         var data = await tradeLogService.GetLogStatsAsync(authors, total);
-        var names = new StringBuilder();
-        var posts = new StringBuilder();
-        var percentages = new StringBuilder();
-
-        var index = 1;
-        foreach (var group in data)
-        {
-            names.AppendLine($"{index} **{group.Name}**");
-            posts.AppendLine($"{group.Count:N0}");
-            percentages.AppendLine($"{group.Percentage:N2}%");
-            index++;
-        }
+        var (names, counts, percentages) = GetBasicFieldValues(data);
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField(authors ? "User" : "Channel", names.ToString()),
-            embedFactory.CreateField("Posts", posts.ToString()),
-            embedFactory.CreateField("Percentage", percentages.ToString()),
+            embedFactory.CreateField(authors ? "User" : "Channel", names),
+            embedFactory.CreateField("Posts", counts),
+            embedFactory.CreateField("Percentage", percentages),
             embedFactory.CreateField("Total", $"{total:N0}"),
         };
 
@@ -330,5 +287,23 @@ public class StatPageTracker(IBot bot,
         };
 
         return embedFactory.GetBasicEmbed($"Top {limit} searched items").WithFields(fields);
+    }
+
+    private static (string names, string counts, string percentages) GetBasicFieldValues(IEnumerable<DbStat> data)
+    {
+        var names = new StringBuilder();
+        var counts = new StringBuilder();
+        var percentages = new StringBuilder();
+
+        var index = 1;
+        foreach (var item in data)
+        {
+            names.AppendLine($"{index} **{item.Name}**");
+            counts.AppendLine($"{item.Count:N0}");
+            percentages.AppendLine($"{item.Percentage:N2}%");
+            index++;
+        }
+
+        return (names.ToString(), counts.ToString(), percentages.ToString());
     }
 }

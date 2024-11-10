@@ -2,7 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.EntityFrameworkCore;
 
-namespace Kozma.net.Models;
+namespace Kozma.net.Models.Database;
 
 [Collection("commands")]
 public class Command
@@ -19,5 +19,3 @@ public class Command
     [BsonElement("game")]
     public bool IsGame { get; set; }
 }
-
-public record CommandStats(Command Command, double Percentage);

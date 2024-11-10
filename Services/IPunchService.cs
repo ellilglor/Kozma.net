@@ -5,5 +5,5 @@ namespace Kozma.net.Services;
 public interface IPunchService
 {
     public Task<long> GetTotalSpentAsync();
-    public Task<IEnumerable<GamblerStats>> GetGamblersAsync(int limit, long total);
+    public Task<IEnumerable<DbStat>> GetGamblersAsync(int limit, long total);
 }

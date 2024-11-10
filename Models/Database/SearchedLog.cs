@@ -1,21 +1,18 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using MongoDB.EntityFrameworkCore;
-using Kozma.net.Enums;
 
-namespace Kozma.net.Models;
+namespace Kozma.net.Models.Database;
 
-[Collection("boxes")]
-public class BoxDb
+[Collection("findlogs")]
+public class SearchedLog
 {
     [BsonId]
     public ObjectId Id { get; set; }
 
-    [BsonElement("box")]
-    public Box Name { get; set; }
+    [BsonElement("item")]
+    public required string Item { get; set; }
 
     [BsonElement("amount")]
     public int Count { get; set; }
 }
-
-public record BoxStats(BoxDb Box, double Percentage);

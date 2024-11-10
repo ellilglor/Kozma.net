@@ -6,6 +6,7 @@ using Kozma.net.Models;
 using System.Text.RegularExpressions;
 using Kozma.net.Helpers;
 using Kozma.net.Services;
+using Kozma.net.Models.Database;
 
 namespace Kozma.net.Commands.Server;
 

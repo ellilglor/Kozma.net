@@ -14,7 +14,7 @@ public class CommandService(KozmaDbContext dbContext) : ICommandService
         return query.Sum(cmd => cmd.Count);
     }
 
-    public async Task<IEnumerable<CommandStats>> GetCommandsAsync(bool isGame, int total)
+    public async Task<IEnumerable<DbStat>> GetCommandsAsync(bool isGame, int total)
     {
         var query = await dbContext.Commands
             .Where(cmd => cmd.IsGame == isGame)
@@ -22,6 +22,6 @@ public class CommandService(KozmaDbContext dbContext) : ICommandService
             .ThenBy(cmd => cmd.Name)
             .ToListAsync();
 
-        return query.Select(cmd => new CommandStats(cmd, Math.Round(cmd.Count / (double)total * 100, 2)));
+        return query.Select(cmd => new DbStat(cmd.Name, cmd.Count, Math.Round(cmd.Count / (double)total * 100, 2)));
     }
 }

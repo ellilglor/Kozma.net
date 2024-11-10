@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.EntityFrameworkCore;
 
-namespace Kozma.net.Models;
+namespace Kozma.net.Models.Database;
 
 [Collection("gamblers")]
 public class Gambler
@@ -24,5 +24,3 @@ public class Gambler
     [BsonElement("total")]
     public int Total { get; set; }
 }
-
-public record GamblerStats(Gambler Gambler, double Percentage);

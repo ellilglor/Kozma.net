@@ -12,7 +12,7 @@ public class PunchService(KozmaDbContext dbContext) : IPunchService
         return query.Sum(g => (long)g.Total);
     }
 
-    public async Task<IEnumerable<GamblerStats>> GetGamblersAsync(int limit, long total)
+    public async Task<IEnumerable<DbStat>> GetGamblersAsync(int limit, long total)
     {
         var query = await dbContext.Gamblers
             .OrderByDescending(g => g.Total)
@@ -20,6 +20,6 @@ public class PunchService(KozmaDbContext dbContext) : IPunchService
             .Take(limit)
             .ToListAsync();
 
-        return query.Select(g => new GamblerStats(g, Math.Round(g.Total / (double)total * 100, 2)));
+        return query.Select(g => new DbStat(g.Name, g.Total, Math.Round(g.Total / (double)total * 100, 2)));
     }
 }

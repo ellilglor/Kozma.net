@@ -2,7 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.EntityFrameworkCore;
 
-namespace Kozma.net.Models;
+namespace Kozma.net.Models.Database;
 
 [Collection("tradelogs")]
 public class TradeLog
@@ -37,5 +37,3 @@ public class LogCollection
     public required string Channel { get; set; }
     public required List<TradeLog> Messages { get; set; }
 }
-
-public record TradeLogStats(string Name, int Count, double Percentage);

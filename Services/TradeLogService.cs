@@ -1,4 +1,5 @@
 ﻿using Kozma.net.Models;
+using Kozma.net.Models.Database;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver.Linq;
 
@@ -11,13 +12,13 @@ public class TradeLogService(KozmaDbContext dbContext) : ITradeLogService
         return await dbContext.TradeLogs.CountAsync();
     }
 
-    public async Task<IEnumerable<TradeLogStats>> GetLogStatsAsync(bool authors, int total)
+    public async Task<IEnumerable<DbStat>> GetLogStatsAsync(bool authors, int total)
     {
         var query = await dbContext.TradeLogs.ToListAsync();
 
         return query
             .GroupBy(l => authors ? l.Author : l.Channel)
-            .Select(g => new TradeLogStats(g.Key, g.Count(), Math.Round(g.Count() / (double)total * 100, 2)))
+            .Select(g => new DbStat(g.Key, g.Count(), Math.Round(g.Count() / (double)total * 100, 2)))
             .OrderByDescending(g => g.Count)
             .ToList();
     }
