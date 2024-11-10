@@ -49,6 +49,8 @@ public class StatPageTracker(IBot bot,
         pages.Add(await BuildGamblerPageAsync(gameUsage - unboxedCount));
         pages.Add(await BuildLogsPageAsync(logCount, authors: true));
         pages.Add(await BuildLogsPageAsync(logCount, authors: false));
+        pages.Add(await BuildItemCountPageAsync(authors: true));
+        pages.Add(await BuildItemCountPageAsync(authors: false));
         pages.Add(await BuildFindLogsPageAsync(totalSearched));
         timer.Stop();
 
@@ -294,6 +296,22 @@ public class StatPageTracker(IBot bot,
         };
 
         return embedFactory.GetBasicEmbed($"Top {limit} searched items").WithFields(fields);
+    }
+
+    private async Task<EmbedBuilder> BuildItemCountPageAsync(bool authors)
+    {
+        var (data, total) = await tradeLogService.GetItemCountAsync(authors);
+        var (names, counts, percentages) = GetBasicFieldValues(data);
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField(authors ? "User" : "Channel", names),
+            embedFactory.CreateField("Items", counts),
+            embedFactory.CreateField("Percentage", percentages),
+            embedFactory.CreateField("Total", $"{total:N0}"),
+        };
+
+        return embedFactory.GetBasicEmbed("Estimated logged items").WithFields(fields);
     }
 
     private static (string names, string counts, string percentages) GetBasicFieldValues(IEnumerable<DbStat> data)

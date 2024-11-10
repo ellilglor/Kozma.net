@@ -11,4 +11,5 @@ public interface ITradeLogService
     Task UpdateLogsAsync(List<TradeLog> logs, bool reset = false, string? channel = null);
     Task<int> GetTotalSearchCountAsync();
     Task<IEnumerable<SearchedLog>> GetSearchedLogsAsync(int limit);
+    Task<(IEnumerable<DbStat> Stats, int Total)> GetItemCountAsync(bool authors);
 }
