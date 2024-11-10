@@ -22,12 +22,14 @@ public class StatPageTracker(IBot bot,
     private readonly DiscordSocketClient _client = bot.GetClient();
     private List<Embed> _pages = [];
     private readonly Dictionary<ulong, int> _users = [];
+    private bool _buildingInProgess = false;
 
     public async Task BuildPagesAsync()
     {
         var timer = System.Diagnostics.Stopwatch.StartNew();
-        _pages = [];
         var pages = new List<EmbedBuilder>();
+        _buildingInProgess = true;
+        _pages = [];
 
         var userCount = await GetUserCountAsync();
         var commandUsage = await commandService.GetCommandUsageAsync(isGame: false);
@@ -77,10 +79,13 @@ public class StatPageTracker(IBot bot,
             
             _pages.Add(pages[i].Build());
         }
+
+        _buildingInProgess = false;
     }
 
     public Embed GetPage(ulong id, string action = "")
     {
+        if (_buildingInProgess) return embedFactory.GetAndBuildEmbed("Pages are being built, please try again later.");
         CheckIfIdIsPresent(id);
 
         switch (action)
