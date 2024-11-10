@@ -25,6 +25,7 @@ public class StatPageTracker(IBot bot,
 
     public async Task BuildPagesAsync()
     {
+        var timer = System.Diagnostics.Stopwatch.StartNew();
         _pages = [];
         var pages = new List<EmbedBuilder>();
 
@@ -47,18 +48,19 @@ public class StatPageTracker(IBot bot,
         pages.Add(await BuildLogsPageAsync(logCount, authors: true));
         pages.Add(await BuildLogsPageAsync(logCount, authors: false));
         pages.Add(await BuildFindLogsPageAsync(totalSearched));
+        timer.Stop();
 
         var fields = new List<EmbedFieldBuilder>()
         {
             embedFactory.CreateField("Bot Id", _client.CurrentUser.Id.ToString()),
             embedFactory.CreateField("Bot Name", _client.CurrentUser.Username),
-            embedFactory.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
+            embedFactory.CreateField("Execution Time", $"{timer.Elapsed.TotalSeconds:F2}s"),
             embedFactory.CreateField("Running Since", $"<t:{bot.GetReadyTimestamp()}:f>"),
+            embedFactory.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
             embedFactory.CreateField("Commands Used", $"{commandUsage:N0}"),
             embedFactory.CreateField("Unique Bot Users", $"{cmdUserCount:N0}"),
             embedFactory.CreateField("Servers", $"{_client.Guilds.Count:N0}"),
             embedFactory.CreateField("Unique Users", $"{userCount:N0}"),
-            embedFactory.CreateField("\u200B", "\u200B"),
             embedFactory.CreateField("Tradelogs", $"{logCount:N0}"),
             embedFactory.CreateField("Items Searched", $"{totalSearched:N0}"),
             embedFactory.CreateField("Server Members", $"{kozmaGuild!.MemberCount:N0}"),
