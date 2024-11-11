@@ -67,12 +67,19 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
     public async Task<(IEnumerable<DbStat> Stats, int Total)> GetItemCountAsync(bool authors)
     {
-        var fileNames = new List<string>() { "Equipments", "Costumes", "HelmTops", "HelmFronts", "HelmBacks", "HelmSides", "ArmorFronts", "ArmorBacks", "ArmorRears", "ArmorAnkles", "Auras", "Miscellaneous" };
         var ignore = new List<string>() { "special-listings", "2023-flash-sales", "2022-flash-sales", "2021-flash-sales", "2020-flash-sales" };
         var query = await dbContext.TradeLogs.Where(l => !ignore.Contains(l.Channel)).ToListAsync();
         var channels = query.GroupBy(l => authors ? l.Author : l.Channel).ToList();
+        var regexCache = new Dictionary<string, Regex>();
         var counts = new Dictionary<string, int>();
         var totalCount = 0;
+
+        var folder = Directory.GetFiles(Path.Combine(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName!, "Data", "Items"));
+        foreach (var file in folder)
+        {
+            var items = await jsonFileReader.ReadAsync<List<string>>(file);
+            regexCache[Path.GetFileName(file)] = new Regex(string.Join("|", items!.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        }
 
         foreach (var group in channels)
         {
@@ -80,13 +87,14 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
             if (authors || group.Key == "mixed-trades")
             {
-                foreach (var name in fileNames)
+                foreach (var pair in regexCache)
                 {
-                    itemCount += await CountItemsAsync(name, group);
+                    itemCount += CountItems(pair.Value, group);
                 }
-            } else
+            }
+            else
             {
-                itemCount = await CountItemsAsync(ConvertToFileName(group.Key), group);
+                itemCount = CountItems(regexCache[ConvertToFileName(group.Key)], group);
             }
 
             totalCount += itemCount;
@@ -119,48 +127,26 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
     {
         return channel switch
         {
-            "equipment" => "Equipments",
-            "costumes" => "Costumes",
-            "helm-top" => "HelmTops",
-            "helm-front" => "HelmFronts",
-            "helm-back" => "HelmBacks",
-            "helm-side" => "HelmSides",
-            "armor-front" => "ArmorFronts",
-            "armor-back" => "ArmorBacks",
-            "armor-rear" => "ArmorRears",
-            "armor-ankle" => "ArmorAnkles",
-            "armor-aura" => "Auras",
-            "miscellaneous" => "Miscellaneous",
-            "Sprite Food" => "Miscellaneous",
-            "Materials" => "Miscellaneous",
+            "equipment" => "Equipments.json",
+            "costumes" => "Costumes.json",
+            "helm-top" => "HelmTops.json",
+            "helm-front" => "HelmFronts.json",
+            "helm-back" => "HelmBacks.json",
+            "helm-side" => "HelmSides.json",
+            "armor-front" => "ArmorFronts.json",
+            "armor-back" => "ArmorBacks.json",
+            "armor-rear" => "ArmorRears.json",
+            "armor-ankle" => "ArmorAnkles.json",
+            "armor-aura" => "Auras.json",
+            "miscellaneous" => "Miscellaneous.json",
+            "Sprite Food" => "Miscellaneous.json",
+            "Materials" => "Miscellaneous.json",
             _ => string.Empty
         };
     }
 
-    private async Task<int> CountItemsAsync(string fileName, IGrouping<string, TradeLog> group)
+    private static int CountItems(Regex regex, IGrouping<string, TradeLog> group)
     {
-        var items = await GetItemListAsync(fileName);
-        var itemCount = 0;
-
-        foreach (var message in group)
-        {
-            foreach (var item in items)
-            {
-                itemCount += Regex.Matches(message.OriginalContent, Regex.Escape(item), RegexOptions.IgnoreCase).Count;
-            }
-        }
-
-        return itemCount;
-    }
-
-    private async Task<List<string>> GetItemListAsync(string channel)
-    {
-        var projectRoot = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName;
-        if (projectRoot == null) return [];
-
-        var directory = Path.Combine(projectRoot, "Data", "Items", $"{channel}.json");
-        var items = await jsonFileReader.ReadAsync<List<string>>(directory);
-
-        return items ?? [];
+        return group.AsParallel().Sum(message => regex.Matches(message.OriginalContent).Count);
     }
 }
