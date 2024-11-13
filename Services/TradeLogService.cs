@@ -67,7 +67,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
     public async Task<(IEnumerable<DbStat> Stats, int Total)> GetItemCountAsync(bool authors)
     {
-        var ignore = new List<string>() { "special-listings", "2023-flash-sales", "2022-flash-sales", "2021-flash-sales", "2020-flash-sales" };
+        var ignore = new List<string>() { "special-listings", "2024-flash-sales", "2023-flash-sales", "2022-flash-sales", "2021-flash-sales", "2020-flash-sales" };
         var query = await dbContext.TradeLogs.Where(l => !ignore.Contains(l.Channel)).ToListAsync();
         var channels = query.GroupBy(l => authors ? l.Author : l.Channel).ToList();
         var regexCache = new Dictionary<string, Regex>();
@@ -87,14 +87,14 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
             if (authors || group.Key == "mixed-trades")
             {
-                foreach (var pair in regexCache)
+                foreach (var regex in regexCache)
                 {
-                    itemCount += CountItems(pair.Value, group);
+                    itemCount += group.AsParallel().Sum(message => regex.Value.Matches(message.OriginalContent).Count);
                 }
             }
             else
             {
-                itemCount = CountItems(regexCache[ConvertToFileName(group.Key)], group);
+                itemCount = group.AsParallel().Sum(message => regexCache[ConvertToFileName(group.Key)].Matches(message.OriginalContent).Count);
             }
 
             totalCount += itemCount;
@@ -106,6 +106,25 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
             .OrderByDescending(x => x.Count)
             .ToList();
 
+        return (data, totalCount);
+    }
+
+    public async Task<(IOrderedEnumerable<KeyValuePair<string, int>>, int Total)> CountOccurencesAsync(List<string> channels, List<string> terms)
+    {
+        var messages = await dbContext.TradeLogs.Where(l => channels.Count == 0 || channels.Contains(l.Channel)).ToListAsync();
+        var counts = new Dictionary<string, int>();
+        var totalCount = 0;
+
+        foreach (var term in terms)
+        {
+            var regex = new Regex(Regex.Escape(term), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var count = messages.AsParallel().Sum(msg => regex.Matches(msg.Content).Count);
+
+            totalCount += count;
+            counts[term] = count;
+        }
+
+        var data = counts.OrderByDescending(x => x.Value);
         return (data, totalCount);
     }
 
@@ -143,10 +162,5 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
             "Materials" => "Miscellaneous.json",
             _ => string.Empty
         };
-    }
-
-    private static int CountItems(Regex regex, IGrouping<string, TradeLog> group)
-    {
-        return group.AsParallel().Sum(message => regex.Matches(message.OriginalContent).Count);
     }
 }

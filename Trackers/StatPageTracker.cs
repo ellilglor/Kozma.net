@@ -51,6 +51,15 @@ public class StatPageTracker(IBot bot,
         pages.Add(await BuildLogsPageAsync(logCount, authors: false));
         pages.Add(await BuildItemCountPageAsync(authors: true));
         pages.Add(await BuildItemCountPageAsync(authors: false));
+        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "equipment"], [
+            "Overcharged Mixmaster", "Celestial Orbitgun", "Somnambulists Totem", "Daybreaker Band", "Asi Very High Ctr Very High", "Black Kat Cowl", "Black Kat Raiment", "Black Kat Cloak",
+            "Brandish", "Combuster", "Voltedge", "Autogun", "Blitz Needle", "Electron Vortex", "Spiral Soaker", "Caladbolg"]));
+        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "equipment"], ["Celestial Shield", "Celestial Saber", "Celestial Vortex", "Celestial Orbitgun"]));
+        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "equipment"], ["ctr very high", "ctr high", "asi very high", "asi high", "fire max", "normal max"]));
+        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Iron Lockbox", "Mirrored Lockbox", " Titanium Lockbox", "Silver Lockbox", "Steel Lockbox", "Platinum Lockbox", "Copper Lockbox", "Gold Lockbox", "Slime Lockbox"]));
+        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Gun Pup", "Spiraltail", "Piggy", "Spiralhorn", "Snarblepup", "Love Puppy"]));
+        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Extra Short Height Modifier", "Extra Tall Height Modifier", "Book of Dark Rituals", "Silver Personal Color"]));
+        pages.Add(await BuildTermOccurencePageAsync([], ["Cool", "Dusky", "Fancy", "Heavy", "Military", "Regal", "Toasty"]));
         pages.Add(await BuildFindLogsPageAsync(totalSearched));
         timer.Stop();
 
@@ -309,6 +318,30 @@ public class StatPageTracker(IBot bot,
             embedFactory.CreateField("Items", counts),
             embedFactory.CreateField("Percentage", percentages),
             embedFactory.CreateField("Total", $"{total:N0}"),
+        };
+
+        return embedFactory.GetBasicEmbed("Estimated logged items").WithFields(fields);
+    }
+
+    private async Task<EmbedBuilder> BuildTermOccurencePageAsync(List<string> channels, List<string> terms)
+    {
+        var (data, total) = await tradeLogService.CountOccurencesAsync(channels, terms);
+        var names = new StringBuilder();
+        var searches = new StringBuilder();
+
+        var index = 1;
+        foreach (var term in data)
+        {
+            names.AppendLine($"{index} **{term.Key}**");
+            searches.AppendLine($"{term.Value:N0}");
+            index++;
+        }
+
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField("Logged", names.ToString()),
+            embedFactory.CreateField("Count", searches.ToString()),
+            embedFactory.CreateField("Total", $"{total:N0}", inline: false),
         };
 
         return embedFactory.GetBasicEmbed("Estimated logged items").WithFields(fields);
