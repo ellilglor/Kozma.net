@@ -41,14 +41,14 @@ public class StatPageTracker(IBot bot,
         var kozmaGuild = _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:serverId")));
 
         pages.AddRange(BuildServerPages(userCount));
-        pages.Add(await BuildCommandPageAsync(games: false, commandUsage));
-        pages.Add(await BuildCommandPageAsync(games: true, gameUsage));
+        pages.Add(BuildStatEmbed("Command usage", "Command", "Used", await commandService.GetCommandsAsync(isGame: false, commandUsage), commandUsage));
+        pages.Add(BuildStatEmbed("Games played", "Game", "Played", await commandService.GetCommandsAsync(isGame: true, commandUsage), commandUsage));
         pages.Add(await BuildUserPageAsync(commandUsage, forUnboxed: false, cmdUserCount));
         pages.Add(await BuildUnboxPageAsync(unboxedCount));
         pages.Add(await BuildUserPageAsync(unboxedCount, forUnboxed: true));
         pages.Add(await BuildGamblerPageAsync(gameUsage - unboxedCount));
-        pages.Add(await BuildLogsPageAsync(logCount, authors: true));
-        pages.Add(await BuildLogsPageAsync(logCount, authors: false));
+        pages.Add(BuildStatEmbed("All loggers", "User", "Posts", await tradeLogService.GetLogStatsAsync(authors: true, logCount), logCount));
+        pages.Add(BuildStatEmbed("Tradelog channels", "Channel", "Posts", await tradeLogService.GetLogStatsAsync(authors: false, logCount), logCount));
         pages.Add(await BuildItemCountPageAsync(authors: true));
         pages.Add(await BuildItemCountPageAsync(authors: false));
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "equipment"], [
@@ -174,22 +174,6 @@ public class StatPageTracker(IBot bot,
         return pages;
     }
 
-    private async Task<EmbedBuilder> BuildCommandPageAsync(bool games, int total)
-    {
-        var data = await commandService.GetCommandsAsync(games, total);
-        var (names, counts, percentages) = GetBasicFieldValues(data);
-
-        var fields = new List<EmbedFieldBuilder>()
-        {
-            embedFactory.CreateField(games ? "Game" : "Command", names),
-            embedFactory.CreateField("Used", counts),
-            embedFactory.CreateField("Percentage", percentages),
-            embedFactory.CreateField("Total", $"{total:N0}"),
-        };
-
-        return embedFactory.GetBasicEmbed(games ? "Games played" : "Command usage").WithFields(fields);
-    }
-
     private async Task<EmbedBuilder> BuildUserPageAsync(int totalUsed, bool forUnboxed, int totalUsers = 0)
     {
         var limit = 20;
@@ -266,22 +250,6 @@ public class StatPageTracker(IBot bot,
         return embedFactory.GetBasicEmbed($"Top {limit} highest spenders at Punch").WithFields(fields);
     }
 
-    private async Task<EmbedBuilder> BuildLogsPageAsync(int total, bool authors)
-    {
-        var data = await tradeLogService.GetLogStatsAsync(authors, total);
-        var (names, counts, percentages) = GetBasicFieldValues(data);
-
-        var fields = new List<EmbedFieldBuilder>()
-        {
-            embedFactory.CreateField(authors ? "User" : "Channel", names),
-            embedFactory.CreateField("Posts", counts),
-            embedFactory.CreateField("Percentage", percentages),
-            embedFactory.CreateField("Total", $"{total:N0}"),
-        };
-
-        return embedFactory.GetBasicEmbed(authors ? "All loggers" : "Tradelog channels").WithFields(fields);
-    }
-
     private async Task<EmbedBuilder> BuildFindLogsPageAsync(int totalSearched)
     {
         var limit = 20;
@@ -310,17 +278,8 @@ public class StatPageTracker(IBot bot,
     private async Task<EmbedBuilder> BuildItemCountPageAsync(bool authors)
     {
         var (data, total) = await tradeLogService.GetItemCountAsync(authors);
-        var (names, counts, percentages) = GetBasicFieldValues(data);
 
-        var fields = new List<EmbedFieldBuilder>()
-        {
-            embedFactory.CreateField(authors ? "User" : "Channel", names),
-            embedFactory.CreateField("Items", counts),
-            embedFactory.CreateField("Percentage", percentages),
-            embedFactory.CreateField("Total", $"{total:N0}"),
-        };
-
-        return embedFactory.GetBasicEmbed("Estimated logged items").WithFields(fields);
+        return BuildStatEmbed("Estimated logged items", authors ? "User" : "Channel", "Items", data, total);
     }
 
     private async Task<EmbedBuilder> BuildTermOccurencePageAsync(List<string> channels, List<string> terms)
@@ -345,6 +304,20 @@ public class StatPageTracker(IBot bot,
         };
 
         return embedFactory.GetBasicEmbed("Estimated logged items").WithFields(fields);
+    }
+
+    private EmbedBuilder BuildStatEmbed(string title, string field1, string field2, IEnumerable<DbStat> data, int total)
+    {
+        var (names, counts, percentages) = GetBasicFieldValues(data);
+        var fields = new List<EmbedFieldBuilder>()
+        {
+            embedFactory.CreateField(field1, names),
+            embedFactory.CreateField(field2, counts),
+            embedFactory.CreateField("Percentage", percentages),
+            embedFactory.CreateField("Total", $"{total:N0}"),
+        };
+
+        return embedFactory.GetBasicEmbed(title).WithFields(fields);
     }
 
     private static (string names, string counts, string percentages) GetBasicFieldValues(IEnumerable<DbStat> data)
