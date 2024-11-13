@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Kozma.net.Enums;
 using Kozma.net.Factories;
 using Kozma.net.Helpers;
-using Kozma.net.Models;
+using Kozma.net.Models.Database;
 using Kozma.net.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text;

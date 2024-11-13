@@ -2,7 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.EntityFrameworkCore;
 
-namespace Kozma.net.Models;
+namespace Kozma.net.Models.Database;
 
 [Collection("exchange")]
 public class Exchange

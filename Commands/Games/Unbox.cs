@@ -8,7 +8,7 @@ using Kozma.net.Trackers;
 
 namespace Kozma.net.Commands.Games;
 
-public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedFactory embedFactory, IBoxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -24,7 +24,7 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IUnboxTrack
     {
         var boxData = boxHelper.GetBox(box)!;
         var author = new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url);
-        var cost = CalculateCost(opened, boxData);
+        var cost = boxHelper.CalculateCost(opened, boxData);
         var fields = new List<EmbedFieldBuilder>
         {
             embedFactory.CreateField("Opened", opened.ToString()),
@@ -71,24 +71,6 @@ public class Unbox(IEmbedFactory embedFactory, IboxHelper boxHelper, IUnboxTrack
             msg.Components = new ComponentBuilder().Build();
         });
         await Task.Delay(3000); // Give the gif time to play
-    }
-
-    private static double CalculateCost(int amount, BoxData box)
-    {
-        switch (box.Currency)
-        {
-            case BoxCurrency.Energy: return amount * box.Price;
-            case BoxCurrency.Dollar:
-                var cost = (amount / 14) * 49.95;
-                amount %= 14;
-
-                cost += (amount / 5) * 19.95;
-                amount %= 5;
-
-                cost += amount * 4.95;
-                return Math.Round(cost, 2);
-            default: return box.Price;
-        }
     }
 
     private async Task<List<ItemData>> OpenAsync(Box box)

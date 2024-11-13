@@ -1,4 +1,4 @@
-﻿using Kozma.net.Models;
+﻿using Kozma.net.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kozma.net.Services;
