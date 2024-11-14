@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Kozma.net.Services;
 
-public partial class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReader) : ITradeLogService
+public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReader) : ITradeLogService
 {
     public async Task<IEnumerable<LogCollection>> GetLogsAsync(List<string> items, DateTime date, bool checkMixed, bool skipSpecial, List<string> ignore)
     {
