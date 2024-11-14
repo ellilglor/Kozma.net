@@ -1,0 +1,34 @@
+[
+  {
+    "Command": "/bookchance",
+    "Description": "Get the % chance you have of getting at least 1 Book of Dark Rituals.\n`kats` Amount of Black Kats you encountered."
+  },
+  {
+    "Command": "/clear",
+    "Description": "Deletes all the messages the bot has sent you."
+  },
+  {
+    "Command": "/convert",
+    "Description": "Convert your currency. (glorified calculator)\n`amount` Amount you want to convert.\n`rate` Optional custom conversion rate."
+  },
+  {
+    "Command": "/findlogs",
+    "Description": "Makes the bot search the database for your item.\n`item` Item the bot should look for.\n`months` How far back the bot should search. Default: 6 months.\n`variants` Check for color variants / item family tree. Default: yes.\n`clean` Filter out high value uvs. Default: no.\n`mixed` Check the mixed-trades channel. Default: yes."
+  },
+  {
+    "Command": "/lockbox",
+    "Description": "Gives information about a lockbox or tells you what box drops your item.\n`boxes` Get the odds from a lockbox.\n`slime` Find where you can find a special themed box.\n`item` Find which lockbox drops your item."
+  },
+  {
+    "Command": "/punch",
+    "Description": "Craft items and roll for Unique Variants without draining your wallet.\n`item` Select the item you want to craft."
+  },
+  {
+    "Command": "/rate",
+    "Description": "Tells you the crowns per energy rate currently in use."
+  },
+  {
+    "Command": "/unbox",
+    "Description": "Simulate opening a box and be disappointed for free.\n`box` Select the box you want to open."
+  }
+]

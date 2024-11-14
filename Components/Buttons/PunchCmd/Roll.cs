@@ -44,7 +44,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper) 
             .WithImageUrl(image)
             .WithFields(fields);
 
-        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), Context, itemData.Gif, 1500);
+        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), Context.Interaction, itemData.Gif, 1500);
 
         await ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();

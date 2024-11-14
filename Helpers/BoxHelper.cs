@@ -72,11 +72,6 @@ public class BoxHelper(IFileReader jsonFileReader) : IBoxHelper
         };
     }
 
-    public string GetBoxImage(Box box)
-    {
-        return GetBox(box)?.Url ?? string.Empty;
-    }
-
     public Box? ConvertLockboxOption(LockboxOption box)
     {
         return box switch

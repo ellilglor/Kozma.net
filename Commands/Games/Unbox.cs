@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Kozma.net.Enums;
 using Kozma.net.Handlers;
 using Kozma.net.Helpers;
@@ -17,10 +18,10 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
         [Summary(name: "box", description: "Select the box you want to open.")] Box box)
     {
         unboxTracker.SetPlayer(Context.User.Id, box);
-        await UnboxAsync(Context, box);
+        await UnboxAsync(Context.Interaction, Context.User.Id, box);
     }
 
-    public async Task UnboxAsync(SocketInteractionContext context, Box box, int opened = 1)
+    public async Task UnboxAsync(SocketInteraction interaction, ulong userId, Box box, int opened = 1)
     {
         var boxData = boxHelper.GetBox(box)!;
         var author = new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url);
@@ -35,14 +36,14 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
         
         if (unboxed.Count == 0)
         {
-            await context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithDescription("Something went wrong while trying to open the box.").Build());
+            await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithDescription("Something went wrong while trying to open the box.").Build());
             // TODO: log in case this happens?
             return;
         }
 
         foreach (var item in unboxed)
         {
-            unboxTracker.AddEntry(context.User.Id, box, item.Name);
+            unboxTracker.AddEntry(userId, box, item.Name);
         }
 
         embed.WithDescription($"*{string.Join(" & ", unboxed.Select(item => item.Name))}*").WithImageUrl(unboxed.First().Url);
@@ -51,22 +52,22 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
             .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
         if (opened == 69) components.WithButton(emote: new Emoji("\U0001F4B0"), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
 
-        await SendOpeningAnimationAsync(context, author, boxData.Gif);
+        await SendOpeningAnimationAsync(interaction, author, boxData.Gif);
 
-        await context.Interaction.ModifyOriginalResponseAsync(msg => {
+        await interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
             msg.Components = components.Build();
         });
     }
 
-    private async Task SendOpeningAnimationAsync(SocketInteractionContext context, EmbedAuthorBuilder author, string url)
+    private async Task SendOpeningAnimationAsync(SocketInteraction interaction, EmbedAuthorBuilder author, string url)
     {
         var embed = embedHandler.GetEmbed(string.Empty)
             .WithAuthor(author)
             .WithImageUrl(url)
             .Build();
 
-        await context.Interaction.ModifyOriginalResponseAsync(msg => {
+        await interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed;
             msg.Components = new ComponentBuilder().Build();
         });

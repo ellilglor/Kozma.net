@@ -1,5 +1,5 @@
 ﻿using Discord;
-using Discord.Interactions;
+using Discord.WebSocket;
 using Kozma.net.Enums;
 using Kozma.net.Models;
 using Kozma.net.Trackers;
@@ -51,9 +51,9 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader)
         };
     }
 
-    public async Task SendWaitingAnimationAsync(EmbedBuilder embed, SocketInteractionContext context, string url, int delay)
+    public async Task SendWaitingAnimationAsync(EmbedBuilder embed, SocketInteraction interaction, string url, int delay)
     {
-        await context.Interaction.ModifyOriginalResponseAsync(msg => {
+        await interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.WithAuthor(GetAuthor()).WithImageUrl(url).Build(); ;
             msg.Components = new ComponentBuilder().Build();
         });

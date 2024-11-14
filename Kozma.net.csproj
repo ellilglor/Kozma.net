@@ -23,6 +23,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\Boxes\" />
+    <Folder Include="Data\FindLogs\" />
+    <Folder Include="Data\Help\" />
+    <Folder Include="Data\Items\" />
     <Folder Include="Data\Punch\" />
   </ItemGroup>
 </Project>

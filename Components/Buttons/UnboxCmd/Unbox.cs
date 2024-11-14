@@ -20,7 +20,7 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
             if (string.Equals(action, "again"))
             {
                 var command = new Commands.Games.Unbox(embedHandler, boxHelper, unboxTracker);
-                await command.UnboxAsync(Context, box, int.Parse(embed.Fields[0].Value) + 1);
+                await command.UnboxAsync(Context.Interaction, Context.User.Id, box, int.Parse(embed.Fields[0].Value) + 1);
             }
             else
             {
