@@ -214,7 +214,7 @@ public class StatPageTracker(IBot bot,
 
             boxes.AppendLine($"{index} **{box.Name}**");
             opened.AppendLine($"{box.Count:N0}");
-            percentages.AppendLine($"{box.Percentage:N2}%");
+            percentages.AppendLine($"{box.Percentage:P2}");
             index++;
         }
 
@@ -331,7 +331,7 @@ public class StatPageTracker(IBot bot,
         {
             names.AppendLine($"{index} **{item.Name}**");
             counts.AppendLine($"{item.Count:N0}");
-            percentages.AppendLine($"{item.Percentage:N2}%");
+            percentages.AppendLine($"{item.Percentage:P2}");
             index++;
         }
 

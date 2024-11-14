@@ -1,5 +1,4 @@
-﻿using Kozma.net.Enums;
-using Kozma.net.Helpers;
+﻿using Kozma.net.Helpers;
 using Kozma.net.Models;
 using Kozma.net.Models.Database;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Kozma.net.Services;
 
-public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReader) : ITradeLogService
+public partial class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReader) : ITradeLogService
 {
     public async Task<IEnumerable<LogCollection>> GetLogsAsync(List<string> items, DateTime date, bool checkMixed, bool skipSpecial, List<string> ignore)
     {
@@ -60,15 +59,14 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
         return query
             .GroupBy(l => authors ? l.Author : l.Channel)
-            .Select(g => new DbStat(g.Key, g.Count(), Math.Round(g.Count() / (double)total * 100, 2)))
+            .Select(g => new DbStat(g.Key, g.Count(), g.Count() / (double)total))
             .OrderByDescending(g => g.Count)
             .ToList();
     }
 
     public async Task<(IEnumerable<DbStat> Stats, int Total)> GetItemCountAsync(bool authors)
     {
-        var ignore = new List<string>() { "special-listings", "2024-flash-sales", "2023-flash-sales", "2022-flash-sales", "2021-flash-sales", "2020-flash-sales" };
-        var query = await dbContext.TradeLogs.Where(l => !ignore.Contains(l.Channel)).ToListAsync();
+        var query = await dbContext.TradeLogs.Where(l => l.Channel != "special-listings" && !l.Channel.Contains("flash-sales")).ToListAsync();
         var channels = query.GroupBy(l => authors ? l.Author : l.Channel).ToList();
         var regexCache = new Dictionary<string, Regex>();
         var counts = new Dictionary<string, int>();
@@ -103,7 +101,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         }
 
         var data = counts
-            .Select(x => new DbStat(x.Key, x.Value, Math.Round(x.Value / (double)totalCount * 100, 2)))
+            .Select(x => new DbStat(x.Key, x.Value, x.Value / (double)totalCount))
             .OrderByDescending(x => x.Count)
             .ToList();
 

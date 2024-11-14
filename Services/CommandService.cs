@@ -22,6 +22,6 @@ public class CommandService(KozmaDbContext dbContext) : ICommandService
             .ThenBy(cmd => cmd.Name)
             .ToListAsync();
 
-        return query.Select(cmd => new DbStat(cmd.Name, cmd.Count, Math.Round(cmd.Count / (double)total * 100, 2)));
+        return query.Select(cmd => new DbStat(cmd.Name, cmd.Count, cmd.Count / (double)total));
     }
 }
