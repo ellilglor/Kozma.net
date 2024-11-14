@@ -1,11 +1,11 @@
 ﻿using Discord.Interactions;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Services;
 
 namespace Kozma.net.Commands.Information;
 
-public class ConvertCurrency(IEmbedFactory embedFactory, IExchangeService exchangeService) : InteractionModuleBase<SocketInteractionContext>
+public class ConvertCurrency(IEmbedHandler embedHandler, IExchangeService exchangeService) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("convert", "Convert crowns or energy into the other currency.")]
     public async Task ExecuteAsync(
@@ -23,12 +23,12 @@ public class ConvertCurrency(IEmbedFactory embedFactory, IExchangeService exchan
             _ => "The provided currency was invalid."
         };
 
-        var embed = embedFactory.GetEmbed(title)
+        var embed = embedHandler.GetEmbed(title)
             .WithDescription($"Used conversion rate: **{exchange}** Crowns per Energy.");
 
         if (currency == Currency.crowns)
         {
-            embed.WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown));
+            embed.WithColor(embedHandler.ConvertEmbedColor(EmbedColor.Crown));
         }
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());

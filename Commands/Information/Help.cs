@@ -1,11 +1,11 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Commands.Information;
 
-public class Help(IEmbedFactory embedFactory, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
+public class Help(IEmbedHandler embedHandler, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("help", "Explains all commands.")]
     public async Task ExecuteAsync()
@@ -13,25 +13,25 @@ public class Help(IEmbedFactory embedFactory, IConfiguration config) : Interacti
         var inline = false;
         var fields = new List<EmbedFieldBuilder>
         {
-            embedFactory.CreateField("/bookchance", "Get the % chance you have of getting at least 1 Book of Dark Rituals.\n`kats` Amount of Black Kats you encountered.", inline),
-            embedFactory.CreateField("/clear", "Deletes all the messages the bot has sent you.", inline),
-            embedFactory.CreateField("/convert", "Convert your currency. (glorified calculator)\n`amount` Amount you want to convert.\n`rate` Optional custom conversion rate.", inline),
-            embedFactory.CreateField("/findlogs", @"Makes the bot search the database for your item.
+            embedHandler.CreateField("/bookchance", "Get the % chance you have of getting at least 1 Book of Dark Rituals.\n`kats` Amount of Black Kats you encountered.", inline),
+            embedHandler.CreateField("/clear", "Deletes all the messages the bot has sent you.", inline),
+            embedHandler.CreateField("/convert", "Convert your currency. (glorified calculator)\n`amount` Amount you want to convert.\n`rate` Optional custom conversion rate.", inline),
+            embedHandler.CreateField("/findlogs", @"Makes the bot search the database for your item.
                 `item` Item the bot should look for.
                 `months` How far back the bot should search. Default: 6 months.
                 `variants` Check for color variants / item family tree. Default: yes.
                 `clean` Filter out high value uvs. Default: no.
                 `mixed` Check the mixed-trades channel. Default: yes.", inline),
-            embedFactory.CreateField("/lockbox", @"Gives information about a lockbox or tells you what box drops your item.
+            embedHandler.CreateField("/lockbox", @"Gives information about a lockbox or tells you what box drops your item.
                 `boxes` Get the odds from a lockbox.
                 `slime` Find where you can find a special themed box.
                 `item` Find which lockbox drops your item.", inline),
-            embedFactory.CreateField("/punch", "Craft items and roll for Unique Variants without draining your wallet.\n`item` Select the item you want to craft.", inline),
-            embedFactory.CreateField("/rate", "Tells you the crowns per energy rate currently in use.", inline),
-            embedFactory.CreateField("/unbox", "Simulate opening a box and be disappointed for free.\n`box` Select the box you want to open.", inline)
+            embedHandler.CreateField("/punch", "Craft items and roll for Unique Variants without draining your wallet.\n`item` Select the item you want to craft.", inline),
+            embedHandler.CreateField("/rate", "Tells you the crowns per energy rate currently in use.", inline),
+            embedHandler.CreateField("/unbox", "Simulate opening a box and be disappointed for free.\n`box` Select the box you want to open.", inline)
         };
 
-        var embed = embedFactory.GetEmbed("Here are all my commands:")
+        var embed = embedHandler.GetEmbed("Here are all my commands:")
             .WithDescription($"*If you notice a problem please contact <@{config.GetValue<string>("ids:ownerId")}>*")
             .WithFields(fields)
             .Build();

@@ -1,20 +1,20 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Trackers;
 
 namespace Kozma.net.Components.Buttons.PunchCmd;
 
-public class Info(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchTracker punchTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Info(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchTracker punchTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("punch-info-*")]
     public async Task ExecuteAsync(string choice)
     {
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
-        var fields = oldEmbed.Fields.Select(f => embedFactory.CreateField(f.Name, f.Value, !f.Name.Contains("Crowns")));
+        var fields = oldEmbed.Fields.Select(f => embedHandler.CreateField(f.Name, f.Value, !f.Name.Contains("Crowns")));
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV")).ToList();
         var lockCount = uvFields.Count(f => f.Name.Contains("\U0001f512"));
         var desc = choice switch
@@ -28,7 +28,7 @@ public class Info(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchTr
             _ => "Invalid choice"
         };
 
-        var embed = embedFactory.GetEmbed(oldEmbed.Title)
+        var embed = embedHandler.GetEmbed(oldEmbed.Title)
             .WithDescription(desc)
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(oldEmbed.Thumbnail!.Value.Url)

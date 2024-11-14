@@ -1,9 +1,9 @@
 ﻿using Discord;
 using Kozma.net.Enums;
 
-namespace Kozma.net.Factories;
+namespace Kozma.net.Handlers;
 
-public interface IEmbedFactory
+public interface IEmbedHandler
 {
     EmbedBuilder GetEmbed(string title);
     EmbedBuilder GetBasicEmbed(string title);

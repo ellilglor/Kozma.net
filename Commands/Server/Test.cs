@@ -1,16 +1,16 @@
 ﻿using Discord.Interactions;
 using Discord;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 
 namespace Kozma.net.Commands.Server;
 
-public class Test(IEmbedFactory embedFactory) : InteractionModuleBase<SocketInteractionContext>
+public class Test(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("test", "Kozma's Backpack staff only.")]
     [RequireUserPermission(GuildPermission.BanMembers | GuildPermission.KickMembers)]
     public async Task ExecuteAsync()
     {
-        var embed = embedFactory.GetAndBuildEmbed("Command used for testing.");
+        var embed = embedHandler.GetAndBuildEmbed("Command used for testing.");
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
     }

@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
 using Kozma.net.Services;
@@ -11,7 +11,7 @@ namespace Kozma.net.Trackers;
 
 public class StatPageTracker(IBot bot,
     IConfiguration config,
-    IEmbedFactory embedFactory,
+    IEmbedHandler embedHandler,
     IBoxHelper boxHelper,
     ICommandService commandService,
     IUserService userService,
@@ -56,7 +56,7 @@ public class StatPageTracker(IBot bot,
             "Brandish", "Combuster", "Voltedge", "Autogun", "Blitz Needle", "Electron Vortex", "Spiral Soaker", "Caladbolg"]));
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "equipment"], ["Celestial Shield", "Celestial Saber", "Celestial Vortex", "Celestial Orbitgun"]));
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "equipment"], ["ctr very high", "ctr high", "asi very high", "asi high", "fire max", "normal max"]));
-        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Iron Lockbox", "Mirrored Lockbox", " Titanium Lockbox", "Silver Lockbox", "Steel Lockbox", "Platinum Lockbox", "Copper Lockbox", "Gold Lockbox", "Slime Lockbox"]));
+        pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Iron Lockbox", "Mirrored Lockbox", "Titanium Lockbox", "Silver Lockbox", "Steel Lockbox", "Platinum Lockbox", "Copper Lockbox", "Gold Lockbox", "Slime Lockbox"]));
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Gun Pup", "Spiraltail", "Piggy", "Spiralhorn", "Snarblepup", "Love Puppy"]));
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Extra Short Height Modifier", "Extra Tall Height Modifier", "Book of Dark Rituals", "Silver Personal Color"]));
         pages.Add(await BuildTermOccurencePageAsync([], ["Cool", "Dusky", "Fancy", "Heavy", "Military", "Regal", "Toasty"]));
@@ -65,21 +65,21 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("Bot Id", _client.CurrentUser.Id.ToString()),
-            embedFactory.CreateField("Bot Name", _client.CurrentUser.Username),
-            embedFactory.CreateField("Execution Time", $"{timer.Elapsed.TotalSeconds:F2}s"),
-            embedFactory.CreateField("Running Since", $"<t:{bot.GetReadyTimestamp()}:f>"),
-            embedFactory.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
-            embedFactory.CreateField("Commands Used", $"{commandUsage:N0}"),
-            embedFactory.CreateField("Unique Bot Users", $"{cmdUserCount:N0}"),
-            embedFactory.CreateField("Servers", $"{_client.Guilds.Count:N0}"),
-            embedFactory.CreateField("Unique Users", $"{userCount:N0}"),
-            embedFactory.CreateField("Tradelogs", $"{logCount:N0}"),
-            embedFactory.CreateField("Items Searched", $"{totalSearched:N0}"),
-            embedFactory.CreateField("Server Members", $"{kozmaGuild!.MemberCount:N0}"),
+            embedHandler.CreateField("Bot Id", _client.CurrentUser.Id.ToString()),
+            embedHandler.CreateField("Bot Name", _client.CurrentUser.Username),
+            embedHandler.CreateField("Execution Time", $"{timer.Elapsed.TotalSeconds:F2}s"),
+            embedHandler.CreateField("Running Since", $"<t:{bot.GetReadyTimestamp()}:f>"),
+            embedHandler.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
+            embedHandler.CreateField("Commands Used", $"{commandUsage:N0}"),
+            embedHandler.CreateField("Unique Bot Users", $"{cmdUserCount:N0}"),
+            embedHandler.CreateField("Servers", $"{_client.Guilds.Count:N0}"),
+            embedHandler.CreateField("Unique Users", $"{userCount:N0}"),
+            embedHandler.CreateField("Tradelogs", $"{logCount:N0}"),
+            embedHandler.CreateField("Items Searched", $"{totalSearched:N0}"),
+            embedHandler.CreateField("Server Members", $"{kozmaGuild!.MemberCount:N0}"),
         };
 
-        pages.Insert(0, embedFactory.GetBasicEmbed("General info").WithFields(fields));
+        pages.Insert(0, embedHandler.GetBasicEmbed("General info").WithFields(fields));
 
         for (int i = 0; i < pages.Count; i++)
         {
@@ -96,7 +96,7 @@ public class StatPageTracker(IBot bot,
 
     public Embed GetPage(ulong id, string action = "")
     {
-        if (_buildingInProgess) return embedFactory.GetAndBuildEmbed("Pages are being built, please try again later.");
+        if (_buildingInProgess) return embedHandler.GetAndBuildEmbed("Pages are being built, please try again later.");
         CheckIfIdIsPresent(id);
 
         switch (action)
@@ -158,14 +158,14 @@ public class StatPageTracker(IBot bot,
         int totalEmbeds = (serverPages.Count + 1) / 2;
         for (int i = 0; i < serverPages.Count; i += 2)
         {
-            var embed = embedFactory.GetBasicEmbed($"Servers ({(i / 2) + 1}/{totalEmbeds})");
+            var embed = embedHandler.GetBasicEmbed($"Servers ({(i / 2) + 1}/{totalEmbeds})");
             var fields = new List<EmbedFieldBuilder>
             {
-                embedFactory.CreateField("\u200B", serverPages[i]),
-                embedFactory.CreateField("\u200B", i + 1 < serverPages.Count ? serverPages[i + 1] : "\u200B"),
-                embedFactory.CreateField("\u200B", "\u200B"),
-                embedFactory.CreateField("Total", $"{_client.Guilds.Count:N0}"),
-                embedFactory.CreateField("Unique Users", $"{userCount:N0}")
+                embedHandler.CreateField("\u200B", serverPages[i]),
+                embedHandler.CreateField("\u200B", i + 1 < serverPages.Count ? serverPages[i + 1] : "\u200B"),
+                embedHandler.CreateField("\u200B", "\u200B"),
+                embedHandler.CreateField("Total", $"{_client.Guilds.Count:N0}"),
+                embedHandler.CreateField("Unique Users", $"{userCount:N0}")
             };
 
             pages.Add(embed.WithFields(fields));
@@ -182,14 +182,14 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("User", names),
-            embedFactory.CreateField(forUnboxed ? "Opened" : "Commands", counts),
-            embedFactory.CreateField("Percentage", percentages)
+            embedHandler.CreateField("User", names),
+            embedHandler.CreateField(forUnboxed ? "Opened" : "Commands", counts),
+            embedHandler.CreateField("Percentage", percentages)
         };
-        if (totalUsers > 0) embedFactory.CreateField("Unique Users", $"{totalUsers:N0}");
-        fields.Add(embedFactory.CreateField("Total", $"{totalUsed:N0}"));
+        if (totalUsers > 0) embedHandler.CreateField("Unique Users", $"{totalUsers:N0}");
+        fields.Add(embedHandler.CreateField("Total", $"{totalUsed:N0}"));
 
-        return embedFactory.GetBasicEmbed($"Top {limit} {(forUnboxed ? "unboxers" : "bot users")}").WithFields(fields);
+        return embedHandler.GetBasicEmbed($"Top {limit} {(forUnboxed ? "unboxers" : "bot users")}").WithFields(fields);
     }
 
     private async Task<EmbedBuilder> BuildUnboxPageAsync(int total)
@@ -220,15 +220,15 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("User", boxes.ToString()),
-            embedFactory.CreateField("Commands", opened.ToString()),
-            embedFactory.CreateField("Percentage", percentages.ToString()),
-            embedFactory.CreateField("Total", $"{total:N0}"),
-            embedFactory.CreateField("Energy", $"{energy:N0}"),
-            embedFactory.CreateField("Dollars", $"${dollars:N2}"),
+            embedHandler.CreateField("User", boxes.ToString()),
+            embedHandler.CreateField("Commands", opened.ToString()),
+            embedHandler.CreateField("Percentage", percentages.ToString()),
+            embedHandler.CreateField("Total", $"{total:N0}"),
+            embedHandler.CreateField("Energy", $"{energy:N0}"),
+            embedHandler.CreateField("Dollars", $"${dollars:N2}"),
         };
 
-        return embedFactory.GetBasicEmbed($"Unbox command").WithFields(fields);
+        return embedHandler.GetBasicEmbed($"Unbox command").WithFields(fields);
     }
 
     private async Task<EmbedBuilder> BuildGamblerPageAsync(int sessions)
@@ -240,14 +240,14 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("User", names),
-            embedFactory.CreateField("Crowns Spent", counts),
-            embedFactory.CreateField("Percentage", percentages),
-            embedFactory.CreateField("Total", $"{totalSpent:N0}"),
-            embedFactory.CreateField("Sessions", $"{sessions:N0}")
+            embedHandler.CreateField("User", names),
+            embedHandler.CreateField("Crowns Spent", counts),
+            embedHandler.CreateField("Percentage", percentages),
+            embedHandler.CreateField("Total", $"{totalSpent:N0}"),
+            embedHandler.CreateField("Sessions", $"{sessions:N0}")
         };
 
-        return embedFactory.GetBasicEmbed($"Top {limit} highest spenders at Punch").WithFields(fields);
+        return embedHandler.GetBasicEmbed($"Top {limit} highest spenders at Punch").WithFields(fields);
     }
 
     private async Task<EmbedBuilder> BuildFindLogsPageAsync(int totalSearched)
@@ -267,12 +267,12 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("Item", names.ToString()),
-            embedFactory.CreateField("Searches", searches.ToString()),
-            embedFactory.CreateField("Unique Searches", $"{totalSearched:N0}", inline: false),
+            embedHandler.CreateField("Item", names.ToString()),
+            embedHandler.CreateField("Searches", searches.ToString()),
+            embedHandler.CreateField("Unique Searches", $"{totalSearched:N0}", inline: false),
         };
 
-        return embedFactory.GetBasicEmbed($"Top {limit} searched items").WithFields(fields);
+        return embedHandler.GetBasicEmbed($"Top {limit} searched items").WithFields(fields);
     }
 
     private async Task<EmbedBuilder> BuildItemCountPageAsync(bool authors)
@@ -298,12 +298,12 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField("Logged", names.ToString()),
-            embedFactory.CreateField("Count", searches.ToString()),
-            embedFactory.CreateField("Total", $"{total:N0}", inline: false),
+            embedHandler.CreateField("Logged", names.ToString()),
+            embedHandler.CreateField("Count", searches.ToString()),
+            embedHandler.CreateField("Total", $"{total:N0}", inline: false),
         };
 
-        return embedFactory.GetBasicEmbed("Estimated logged items").WithFields(fields);
+        return embedHandler.GetBasicEmbed("Estimated logged items").WithFields(fields);
     }
 
     private EmbedBuilder BuildStatEmbed(string title, string field1, string field2, IEnumerable<DbStat> data, int total)
@@ -311,13 +311,13 @@ public class StatPageTracker(IBot bot,
         var (names, counts, percentages) = GetBasicFieldValues(data);
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedFactory.CreateField(field1, names),
-            embedFactory.CreateField(field2, counts),
-            embedFactory.CreateField("Percentage", percentages),
-            embedFactory.CreateField("Total", $"{total:N0}"),
+            embedHandler.CreateField(field1, names),
+            embedHandler.CreateField(field2, counts),
+            embedHandler.CreateField("Percentage", percentages),
+            embedHandler.CreateField("Total", $"{total:N0}"),
         };
 
-        return embedFactory.GetBasicEmbed(title).WithFields(fields);
+        return embedHandler.GetBasicEmbed(title).WithFields(fields);
     }
 
     private static (string names, string counts, string percentages) GetBasicFieldValues(IEnumerable<DbStat> data)

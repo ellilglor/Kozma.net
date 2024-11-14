@@ -2,7 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Models.Database;
 using Kozma.net.Services;
@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Kozma.net.Commands.Information;
 
-public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogService, IContentHelper contentHelper, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
+public class FindLogs(IEmbedHandler embedHandler, ITradeLogService tradeLogService, IContentHelper contentHelper, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly ItemData _data = new();
 
@@ -28,7 +28,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
         var checkClean = !string.IsNullOrEmpty(clean) && clean == "clean-search";
         var checkMixed = string.IsNullOrEmpty(mixed) || mixed == "mixed-search";
 
-        var embed = embedFactory.GetEmbed($"Searching for __{item}__, I will dm you what I can find.")
+        var embed = embedHandler.GetEmbed($"Searching for __{item}__, I will dm you what I can find.")
             .WithDescription("### Info & tips when searching:\n- **Slime boxes**:\ncombination followed by *slime lockbox*\nExample: QQQ Slime Lockbox\n" +
                 "- **UV's**:\nuse asi / ctr + med / high / very high / max\n" +
                 "The bot automatically swaps asi & ctr so you don't have to search twice.\nExample: Brandish ctr very high asi high\n" +
@@ -77,7 +77,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
                 var charCount = 0;
                 var embeds = new List<Embed>()
                 {
-                    embedFactory.GetBasicEmbed($"I found {count} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown)).Build()
+                    embedHandler.GetBasicEmbed($"I found {count} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(embedHandler.ConvertEmbedColor(EmbedColor.Crown)).Build()
                 };
 
                 foreach (var message in channel.Messages)
@@ -91,7 +91,7 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
 
                     charCount += message.OriginalContent.Length;
 
-                    embeds.Add(embedFactory.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
+                    embeds.Add(embedHandler.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
                         .WithUrl(message.MessageUrl)
                         .WithImageUrl(message.Image)
                         .WithDescription(message.OriginalContent.Length > (int)DiscordCharLimit.EmbedDesc ? message.OriginalContent.Substring(0, (int)DiscordCharLimit.EmbedDesc) : message.OriginalContent)
@@ -111,8 +111,8 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
 
     private async Task FinishInteractionAsync(string item, string copy, int matchCount, int months, bool checkVariants, SocketUser user)
     {
-        var embed = embedFactory.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing __{copy}__")
-            .WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Crown))
+        var embed = embedHandler.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing __{copy}__")
+            .WithColor(embedHandler.ConvertEmbedColor(EmbedColor.Crown))
             .WithDescription("By default I only look at tradelogs from the past **6 months**!\n" +
                 "If you want me to look past that use the `months` option.\n\n" +
                 "- Only want to see your item and no variants?\nSet `variants` to *NO*.\n" +
@@ -141,10 +141,10 @@ public class FindLogs(IEmbedFactory embedFactory, ITradeLogService tradeLogServi
     // The server responded with error 50007: Cannot send messages to this user
     private async Task SendErrorEmbedAsync()
     {
-        var embed = embedFactory.GetEmbed("I can't send you any messages!")
+        var embed = embedHandler.GetEmbed("I can't send you any messages!")
                 .WithDescription("Make sure you have the following enabled:\n" +
                 "*Allow direct messages from server members* in User Settings > Privacy & Safety\n\nAnd don't block me!")
-                .WithColor(embedFactory.ConvertEmbedColor(EmbedColor.Error))
+                .WithColor(embedHandler.ConvertEmbedColor(EmbedColor.Error))
                 .Build();
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);

@@ -1,14 +1,14 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
 using Kozma.net.Trackers;
 
 namespace Kozma.net.Commands.Games;
 
-public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchTracker punchTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchTracker punchTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -30,17 +30,17 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchT
     {
         if (item is null)
         {
-            await context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedFactory.GetAndBuildEmbed("Something went wrong while crafting"));
+            await context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedHandler.GetAndBuildEmbed("Something went wrong while crafting"));
             return;
         }
 
         var itemData = punchHelper.GetItem((PunchOption)item)!;
         var craftUvs = CraftItem(context.User.Id, itemData);
-        var fields = craftUvs.Select((uv, index) => embedFactory.CreateField($"UV #{index + 1}", uv)).ToList();
-        fields.Add(embedFactory.CreateField("Crafted", counter.ToString(), inline: false));
+        var fields = craftUvs.Select((uv, index) => embedHandler.CreateField($"UV #{index + 1}", uv)).ToList();
+        fields.Add(embedHandler.CreateField("Crafted", counter.ToString(), inline: false));
 
         var (desc, image) = await punchHelper.CheckForGmAsync(itemData.Type, craftUvs);
-        var embed = embedFactory.GetEmbed($"You crafted: {itemData.Name}")
+        var embed = embedHandler.GetEmbed($"You crafted: {itemData.Name}")
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
             .WithDescription(desc)
@@ -50,7 +50,7 @@ public class Punch(IEmbedFactory embedFactory, IPunchHelper punchHelper, IPunchT
             .WithButton(label: "Recraft", customId: "recraft", style: ButtonStyle.Primary)
             .WithButton(label: "Start Rolling Uvs", customId: "start-punching", style: ButtonStyle.Primary);
 
-        await punchHelper.SendWaitingAnimationAsync(embedFactory.GetEmbed(string.Empty), context, "https://cdn.discordapp.com/attachments/1069643121622777876/1069643186978430996/crafting.gif", 2500);
+        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), context, "https://cdn.discordapp.com/attachments/1069643121622777876/1069643186978430996/crafting.gif", 2500);
 
         await context.Interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();

@@ -1,14 +1,14 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
 using Kozma.net.Trackers;
 
 namespace Kozma.net.Commands.Games;
 
-public class Unbox(IEmbedFactory embedFactory, IBoxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -27,10 +27,10 @@ public class Unbox(IEmbedFactory embedFactory, IBoxHelper boxHelper, IUnboxTrack
         var cost = boxHelper.CalculateCost(opened, boxData);
         var fields = new List<EmbedFieldBuilder>
         {
-            embedFactory.CreateField("Opened", opened.ToString()),
-            embedFactory.CreateField("Spent", boxData.Currency.Equals(BoxCurrency.Dollar) ? $"${cost:N2}" : $"{cost:N0} Energy")
+            embedHandler.CreateField("Opened", opened.ToString()),
+            embedHandler.CreateField("Spent", boxData.Currency.Equals(BoxCurrency.Dollar) ? $"${cost:N2}" : $"{cost:N0} Energy")
         };
-        var embed = embedFactory.GetEmbed("You unboxed:").WithAuthor(author).WithFields(fields);
+        var embed = embedHandler.GetEmbed("You unboxed:").WithAuthor(author).WithFields(fields);
         var unboxed = await OpenAsync(box);
         
         if (unboxed.Count == 0)
@@ -61,7 +61,7 @@ public class Unbox(IEmbedFactory embedFactory, IBoxHelper boxHelper, IUnboxTrack
 
     private async Task SendOpeningAnimationAsync(SocketInteractionContext context, EmbedAuthorBuilder author, string url)
     {
-        var embed = embedFactory.GetEmbed(string.Empty)
+        var embed = embedHandler.GetEmbed(string.Empty)
             .WithAuthor(author)
             .WithImageUrl(url)
             .Build();

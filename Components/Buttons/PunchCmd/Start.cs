@@ -2,12 +2,12 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 
 namespace Kozma.net.Components.Buttons.PunchCmd;
 
-public class Start(IEmbedFactory embedFactory, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Start(IEmbedHandler embedHandler, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("start-punching")]
     public async Task ExecuteAsync()
@@ -18,10 +18,10 @@ public class Start(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Inter
         var craftedUvs = context.Message.Embeds.First().Fields.Where(f => f.Name.Contains("UV")).ToList();
         var disableRollBtn = false;
 
-        var fields = craftedUvs.Select(field => embedFactory.CreateField($"\U0001f513 {field.Name}", field.Value)).ToList();
-        fields.Add(embedFactory.CreateField("Crowns Spent", "0", inline: false));
+        var fields = craftedUvs.Select(field => embedHandler.CreateField($"\U0001f513 {field.Name}", field.Value)).ToList();
+        fields.Add(embedHandler.CreateField("Crowns Spent", "0", inline: false));
 
-        var embed = embedFactory.GetEmbed(itemData.Name)
+        var embed = embedHandler.GetEmbed(itemData.Name)
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
             .WithFields(fields);

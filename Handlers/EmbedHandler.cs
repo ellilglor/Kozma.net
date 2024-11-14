@@ -2,9 +2,9 @@
 using Discord.WebSocket;
 using Kozma.net.Enums;
 
-namespace Kozma.net.Factories;
+namespace Kozma.net.Handlers;
 
-public class EmbedFactory(IBot bot) : IEmbedFactory
+public class EmbedHandler(IBot bot) : IEmbedHandler
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 

@@ -1,13 +1,13 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Commands.Information;
 
-public class Lockbox(IEmbedFactory embedFactory, IBoxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly Dictionary<LockboxOption, string> _lockboxes = BuildLockboxes();
 
@@ -17,7 +17,7 @@ public class Lockbox(IEmbedFactory embedFactory, IBoxHelper boxHelper) : Interac
         [Summary(name: "slime", description: "Find where you can find a special themed box."), MinLength(3), MaxLength(69)] string? slimeCode = null,
         [Summary(description: "Find which lockbox drops your item."), MinLength(3), MaxLength(69)] string? item = null)
     {
-        var embed = embedFactory.GetEmbed("Please select 1 of the given options.");
+        var embed = embedHandler.GetEmbed("Please select 1 of the given options.");
         var optionCount = (box.HasValue ? 1 : 0) + (!string.IsNullOrEmpty(slimeCode) ? 1 : 0) + (!string.IsNullOrEmpty(item) ? 1 : 0);
 
         // Only 1 option should be selected

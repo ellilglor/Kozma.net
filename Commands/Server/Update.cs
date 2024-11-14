@@ -1,16 +1,16 @@
 ﻿using Discord.Interactions;
 using Discord;
-using Kozma.net.Factories;
 using Discord.WebSocket;
 using Kozma.net.Models;
 using System.Text.RegularExpressions;
 using Kozma.net.Helpers;
 using Kozma.net.Services;
 using Kozma.net.Models.Database;
+using Kozma.net.Handlers;
 
 namespace Kozma.net.Commands.Server;
 
-public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
+public class Update(IEmbedHandler embedHandler, IContentHelper contentHelper, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly Dictionary<string, ulong> Channels = new()
     {
@@ -41,7 +41,7 @@ public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper, IT
     public async Task ExecuteAsync()
     {
         var totalTime = System.Diagnostics.Stopwatch.StartNew();
-        var embed = embedFactory.GetEmbed("Executing /update");
+        var embed = embedHandler.GetEmbed("Executing /update");
         var data = new List<Channel>();
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
 
