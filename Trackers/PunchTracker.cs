@@ -11,15 +11,13 @@ public class PunchTracker : IPunchTracker
 
     public void SetPlayer(ulong id, string key)
     {
-        CheckIfIdIsPresent(id);
-        _uvs[id][key] = [];
-        _uvs[id][key][_types] = [];
-        _uvs[id][key][_grades] = [];
+        CheckIfIdIsPresent(id, key);
+        SetItem(id, key);
     }
 
     public void AddEntry(ulong id, string key, string type, string grade)
     {
-        CheckIfIdIsPresent(id);
+        CheckIfIdIsPresent(id, key);
         var existingType = _uvs[id][key][_types].Find(t => t.Name == type);
         var existingGrade = _uvs[id][key][_grades].Find(g => g.Name == grade);
 
@@ -29,7 +27,7 @@ public class PunchTracker : IPunchTracker
         }
         else
         {
-            _uvs[id][key][_types][_uvs[id][key][_types].IndexOf(existingType)] = existingType with { Count =  existingType.Count + 1 };
+            _uvs[id][key][_types][_uvs[id][key][_types].IndexOf(existingType)] = existingType with { Count = existingType.Count + 1 };
         }
 
         if (existingGrade is null)
@@ -44,9 +42,9 @@ public class PunchTracker : IPunchTracker
 
     public string GetData(ulong id, string key)
     {
-        CheckIfIdIsPresent(id);
+        CheckIfIdIsPresent(id, key);
 
-        if (!_uvs[id].TryGetValue(key, out Dictionary<string, List<TrackerItem>>? rolled) || rolled.Count == 0)
+        if (!_uvs[id].TryGetValue(key, out Dictionary<string, List<TrackerItem>>? rolled) || rolled[_types].Count == 0)
         {
             return "The bot has restarted and this data is lost!";
         }
@@ -62,8 +60,16 @@ public class PunchTracker : IPunchTracker
         return data.ToString();
     }
 
-    private void CheckIfIdIsPresent(ulong id)
+    private void CheckIfIdIsPresent(ulong id, string key)
     {
         if (!_uvs.ContainsKey(id)) _uvs[id] = [];
+        if (!_uvs[id].ContainsKey(key)) SetItem(id, key);
+    }
+
+    private void SetItem(ulong id, string key)
+    {
+        _uvs[id][key] = [];
+        _uvs[id][key][_types] = [];
+        _uvs[id][key][_grades] = [];
     }
 }

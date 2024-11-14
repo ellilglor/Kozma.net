@@ -1,4 +1,5 @@
-﻿using Kozma.net.Helpers;
+﻿using Kozma.net.Enums;
+using Kozma.net.Helpers;
 using Kozma.net.Models;
 using Kozma.net.Models.Database;
 using Microsoft.EntityFrameworkCore;
@@ -76,8 +77,9 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         var folder = Directory.GetFiles(Path.Combine(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName!, "Data", "Items"));
         foreach (var file in folder)
         {
-            var items = await jsonFileReader.ReadAsync<List<string>>(file);
-            regexCache[Path.GetFileName(file)] = new Regex(string.Join("|", items!.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var fileName = Path.GetFileName(file);
+            var items = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "Items", fileName));
+            regexCache[fileName] = new Regex(string.Join("|", items!.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
         foreach (var group in channels)

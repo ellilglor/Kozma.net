@@ -37,6 +37,11 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(inline);
     }
 
+    public EmbedFieldBuilder CreateEmptyField(bool inline = true)
+    {
+        return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(inline);
+    }
+
     public uint ConvertEmbedColor(EmbedColor color)
     {
         return (uint)color;

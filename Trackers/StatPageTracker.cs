@@ -163,7 +163,7 @@ public class StatPageTracker(IBot bot,
             {
                 embedHandler.CreateField("\u200B", serverPages[i]),
                 embedHandler.CreateField("\u200B", i + 1 < serverPages.Count ? serverPages[i + 1] : "\u200B"),
-                embedHandler.CreateField("\u200B", "\u200B"),
+                embedHandler.CreateEmptyField(),
                 embedHandler.CreateField("Total", $"{_client.Guilds.Count:N0}"),
                 embedHandler.CreateField("Unique Users", $"{userCount:N0}")
             };

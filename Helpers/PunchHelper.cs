@@ -160,13 +160,10 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader)
 
         if (!won) return (string.Empty, string.Empty);
 
-        var projectRoot = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName;
-        if (projectRoot == null) return ("Failed to get list of rewards.", string.Empty);
+        var rewards = await jsonFileReader.ReadAsync<List<PunchReward>>(Path.Combine("Data", "Punch", "Rewards.json"));
+        if(rewards is null) return ("Failed to get reward", string.Empty);
 
-        var directory = Path.Combine(projectRoot, "Data", "Punch", "Rewards.json");
-        var rewards = await jsonFileReader.ReadAsync<List<PunchReward>>(directory);
-        var reward = rewards![_random.Next(rewards.Count)];
-
+        var reward = rewards[_random.Next(rewards.Count)];
         return ($"Congratulations! You created a GM item.\nAs a reward you get a random Spiral Knights meme.\nAuthor: **{reward.Author}**", reward.Url);
     }
 }

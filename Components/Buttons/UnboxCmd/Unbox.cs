@@ -24,24 +24,7 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
             }
             else
             {
-                var boxData = boxHelper.GetBox(box)!;
-                var fields = new List<EmbedFieldBuilder>
-                {
-                    embedHandler.CreateField(embed.Fields[0].Name, embed.Fields[0].Value),
-                    embedHandler.CreateField(embed.Fields[1].Name, embed.Fields[1].Value),
-                    embedHandler.CreateField("\u200b", "\u200b"),
-                    embedHandler.CreateField("Unique", $"{unboxTracker.GetItemCount(Context.User.Id, box)}"),
-                    embedHandler.CreateField("Info", $"[Link]({boxData.Page} 'page with distribution of probabilities')"),
-                    embedHandler.CreateField("\u200b", "\u200b")
-                };
-
-                var statEmbed = embedHandler.GetEmbed("In this session you opened:")
-                    .WithAuthor(new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url))
-                    .WithDescription(unboxTracker.GetData(Context.User.Id, box))
-                    .WithFields(fields)
-                    .Build();
-
-                await ModifyOriginalResponseAsync(msg => msg.Embed = statEmbed);
+                await DisplayStatsAsync(embed, box);
             }
         } 
         else
@@ -51,5 +34,27 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
                 msg.Components = new ComponentBuilder().Build();
             });
         }
+    }
+
+    private async Task DisplayStatsAsync(Embed embed, Box box)
+    {
+        var boxData = boxHelper.GetBox(box)!;
+        var fields = new List<EmbedFieldBuilder>
+                {
+                    embedHandler.CreateField(embed.Fields[0].Name, embed.Fields[0].Value),
+                    embedHandler.CreateField(embed.Fields[1].Name, embed.Fields[1].Value),
+                    embedHandler.CreateEmptyField(),
+                    embedHandler.CreateField("Unique", $"{unboxTracker.GetItemCount(Context.User.Id, box)}"),
+                    embedHandler.CreateField("Info", $"[Link]({boxData.Page} 'page with distribution of probabilities')"),
+                    embedHandler.CreateEmptyField()
+                };
+
+        var statEmbed = embedHandler.GetEmbed("In this session you opened:")
+            .WithAuthor(new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url))
+            .WithDescription(unboxTracker.GetData(Context.User.Id, box))
+            .WithFields(fields)
+            .Build();
+
+        await ModifyOriginalResponseAsync(msg => msg.Embed = statEmbed);
     }
 }
