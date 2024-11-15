@@ -10,13 +10,13 @@ public class UnboxTracker : IUnboxTracker
 
     public void SetPlayer(ulong id, Box key)
     {
-        CheckIfIdIsPresent(id);
+        CheckIfIdIsPresent(id, key);
         _items[id][key] = [];
     }
 
     public void AddEntry(ulong id, Box key, string value)
     {
-        CheckIfIdIsPresent(id);
+        CheckIfIdIsPresent(id, key);
         var item = _items[id][key].Find(i => i.Name == value);
 
         if (item is null)
@@ -31,7 +31,7 @@ public class UnboxTracker : IUnboxTracker
 
     public string GetData(ulong id, Box key)
     {
-        CheckIfIdIsPresent(id);
+        CheckIfIdIsPresent(id, key);
 
         if (!_items[id].TryGetValue(key, out List<TrackerItem>? unboxed) || unboxed.Count == 0)
         {
@@ -57,12 +57,13 @@ public class UnboxTracker : IUnboxTracker
 
     public int GetItemCount(ulong id, Box key)
     {
-        CheckIfIdIsPresent(id);
+        CheckIfIdIsPresent(id, key);
         return _items[id][key].Count;
     }
 
-    private void CheckIfIdIsPresent(ulong id)
+    private void CheckIfIdIsPresent(ulong id, Box key)
     {
         if (!_items.ContainsKey(id)) _items[id] = [];
+        if (!_items[id].ContainsKey(key)) _items[id][key] = [];
     }
 }

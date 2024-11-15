@@ -20,6 +20,6 @@ public class PunchService(KozmaDbContext dbContext) : IPunchService
             .Take(limit)
             .ToListAsync();
 
-        return query.Select(g => new DbStat(g.Name, g.Total, Math.Round(g.Total / (double)total * 100, 2)));
+        return query.Select(g => new DbStat(g.Name, g.Total, g.Total / (double)total));
     }
 }

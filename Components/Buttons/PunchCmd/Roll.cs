@@ -2,7 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
 using System.Collections.Immutable;
@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Kozma.net.Components.Buttons.PunchCmd;
 
-public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
+public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("punch-gamble-*")]
     public async Task ExecuteAsync(string number)
@@ -28,23 +28,23 @@ public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) 
         foreach (var uv in uvs)
         {
             var index = uv.IndexOf(':');
-            fields.Add(embedFactory.CreateField(uv[..index], uv[(index + 1)..]));
+            fields.Add(embedHandler.CreateField(uv[..index], uv[(index + 1)..]));
         }
 
         var spent = int.Parse(oldEmbed.Fields.FirstOrDefault(f => f.Name.Contains("Crowns Spent")).Value.Replace(".", ","), NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
         var cost = count == 1 ? PunchPrices.Single : count == 2 ? PunchPrices.Double : PunchPrices.Triple;
-        fields.Add(embedFactory.CreateField("Crowns Spent", $"{spent + (int)cost:N0}", inline: false));
+        fields.Add(embedHandler.CreateField("Crowns Spent", $"{spent + (int)cost:N0}", inline: false));
         UpdateRollCounter(oldEmbed.Fields, count, fields);
 
         var (desc, image) = await punchHelper.CheckForGmAsync(itemData.Type, uvs);
-        var embed = embedFactory.GetEmbed(itemData.Name)
+        var embed = embedHandler.GetEmbed(itemData.Name)
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
             .WithDescription(desc)
             .WithImageUrl(image)
             .WithFields(fields);
 
-        await punchHelper.SendWaitingAnimationAsync(embedFactory.GetEmbed(string.Empty), Context, itemData.Gif, 1500);
+        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), Context.Interaction, itemData.Gif, 1500);
 
         await ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
@@ -76,19 +76,19 @@ public partial class Roll(IEmbedFactory embedFactory, IPunchHelper punchHelper) 
         switch (count)
         {
             case 1:
-                fields.Add(embedFactory.CreateField("Single Rolls", singleField.Name is null ? "1" : (int.Parse(singleField.Value) + 1).ToString()));
-                if (doubleField.Name != null) fields.Add(embedFactory.CreateField(doubleField.Name, doubleField.Value));
-                if (tripleField.Name != null) fields.Add(embedFactory.CreateField(tripleField.Name, tripleField.Value));
+                fields.Add(embedHandler.CreateField("Single Rolls", singleField.Name is null ? "1" : (int.Parse(singleField.Value) + 1).ToString()));
+                if (doubleField.Name != null) fields.Add(embedHandler.CreateField(doubleField.Name, doubleField.Value));
+                if (tripleField.Name != null) fields.Add(embedHandler.CreateField(tripleField.Name, tripleField.Value));
                 break;
             case 2:
-                if (singleField.Name != null) fields.Add(embedFactory.CreateField(singleField.Name, singleField.Value));
-                fields.Add(embedFactory.CreateField("Double Rolls", doubleField.Name is null ? "1" : (int.Parse(doubleField.Value) + 1).ToString()));
-                if (tripleField.Name != null) fields.Add(embedFactory.CreateField(tripleField.Name, tripleField.Value));
+                if (singleField.Name != null) fields.Add(embedHandler.CreateField(singleField.Name, singleField.Value));
+                fields.Add(embedHandler.CreateField("Double Rolls", doubleField.Name is null ? "1" : (int.Parse(doubleField.Value) + 1).ToString()));
+                if (tripleField.Name != null) fields.Add(embedHandler.CreateField(tripleField.Name, tripleField.Value));
                 break;
             case 3:
-                if (singleField.Name != null) fields.Add(embedFactory.CreateField(singleField.Name, singleField.Value));
-                if (doubleField.Name != null) fields.Add(embedFactory.CreateField(doubleField.Name, doubleField.Value));
-                fields.Add(embedFactory.CreateField("Triple Rolls", tripleField.Name is null ? "1" : (int.Parse(tripleField.Value) + 1).ToString()));
+                if (singleField.Name != null) fields.Add(embedHandler.CreateField(singleField.Name, singleField.Value));
+                if (doubleField.Name != null) fields.Add(embedHandler.CreateField(doubleField.Name, doubleField.Value));
+                fields.Add(embedHandler.CreateField("Triple Rolls", tripleField.Name is null ? "1" : (int.Parse(tripleField.Value) + 1).ToString()));
                 break;
         }
     }

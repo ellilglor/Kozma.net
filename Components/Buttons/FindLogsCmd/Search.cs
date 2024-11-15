@@ -2,20 +2,20 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Commands.Information;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Components.Buttons.FindLogsCmd;
 
-public class Search(IEmbedFactory embedFactory, ITradeLogService tradeLogService, IContentHelper contentHelper, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
+public class Search(IEmbedHandler embedHandler, ITradeLogService tradeLogService, IContentHelper contentHelper, IFileReader jsonFileReader, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("research-*")]
     public async Task ExecuteAsync(string variantSearch)
     {
         var context = (SocketMessageComponent)Context.Interaction;
-        var command = new FindLogs(embedFactory, tradeLogService, contentHelper, config);
+        var command = new FindLogs(embedHandler, tradeLogService, contentHelper, jsonFileReader, config);
         var item = string.Join(" ", context.Message.Embeds.First().Title.Split(' ').Skip(5)).Replace("_", string.Empty);
 
         await ModifyOriginalResponseAsync(msg => msg.Components = new ComponentBuilder().Build());

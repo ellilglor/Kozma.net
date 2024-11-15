@@ -1,5 +1,4 @@
-﻿using Kozma.net.Models;
-using Kozma.net.Models.Database;
+﻿using Kozma.net.Models.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kozma.net.Services;
@@ -20,6 +19,6 @@ public class UnboxService(KozmaDbContext dbContext) : IUnboxService
             .ThenBy(box => box.Name)
             .ToListAsync();
 
-        return query.Select(box => new UnboxStat(box.Name, box.Count, Math.Round(box.Count / (double)total * 100, 2)));
+        return query.Select(box => new UnboxStat(box.Name, box.Count, box.Count / (double)total));
     }
 }

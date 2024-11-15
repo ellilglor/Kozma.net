@@ -1,5 +1,4 @@
 ﻿using Kozma.net.Handlers;
-using Kozma.net.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Discord.Interactions;
 using Kozma.net.Services;
@@ -23,7 +22,7 @@ public class Program
                 .AddSingleton(config)
                 .AddSingleton<IBot, Bot>()
                 .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
-                .AddSingleton<IEmbedFactory, EmbedFactory>()
+                .AddSingleton<IEmbedHandler, EmbedHandler>()
                 .AddSingleton<IInteractionHandler, InteractionHandler>()
                 .AddSingleton<IBoxHelper, BoxHelper>()
                 .AddSingleton<IPunchHelper, PunchHelper>()

@@ -1,17 +1,17 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 
 namespace Kozma.net.Components.Buttons.PunchCmd;
 
-public class Lock(IEmbedFactory embedFactory, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
+public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("punch-lock-*")]
     public async Task ExecuteAsync(string number)
     {
-        var count = int.Parse(number);
+        var position = int.Parse(number);
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV")).ToList();
@@ -24,19 +24,19 @@ public class Lock(IEmbedFactory embedFactory, IPunchHelper punchHelper) : Intera
         { 
             var field = uvFields[i];
 
-            if (i + 1 == count)
+            if (i + 1 == position)
             {
-                fields.Add(embedFactory.CreateField(field.Name.Contains(locked) ? field.Name.Replace(locked, unlocked) : field.Name.Replace(unlocked, locked), field.Value));
+                fields.Add(embedHandler.CreateField(field.Name.Contains(locked) ? field.Name.Replace(locked, unlocked) : field.Name.Replace(unlocked, locked), field.Value));
             }
             else
             {
-                fields.Add(embedFactory.CreateField(field.Name, field.Value));
+                fields.Add(embedHandler.CreateField(field.Name, field.Value));
             }
         }
         var lockCount = fields.Count(f => f.Name.Contains(locked));
-        fields.AddRange(otherFields.Select(field => embedFactory.CreateField(field.Name, field.Value, field.Name != "Crowns Spent")));
+        fields.AddRange(otherFields.Select(field => embedHandler.CreateField(field.Name, field.Value, field.Name != "Crowns Spent")));
 
-        var embed = embedFactory.GetEmbed(oldEmbed.Title)
+        var embed = embedHandler.GetEmbed(oldEmbed.Title)
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(oldEmbed.Thumbnail!.Value.Url)
             .WithFields(fields);

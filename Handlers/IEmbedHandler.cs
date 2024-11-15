@@ -1,13 +1,14 @@
 ﻿using Discord;
 using Kozma.net.Enums;
 
-namespace Kozma.net.Factories;
+namespace Kozma.net.Handlers;
 
-public interface IEmbedFactory
+public interface IEmbedHandler
 {
     EmbedBuilder GetEmbed(string title);
     EmbedBuilder GetBasicEmbed(string title);
     Embed GetAndBuildEmbed(string title);
     EmbedFieldBuilder CreateField(string name, string value, bool inline = true);
+    EmbedFieldBuilder CreateEmptyField(bool inline = true);
     uint ConvertEmbedColor(EmbedColor color);
 }

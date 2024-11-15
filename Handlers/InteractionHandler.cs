@@ -1,13 +1,12 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Factories;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
 namespace Kozma.net.Handlers;
 
-public class InteractionHandler(IBot bot, IConfiguration config, IEmbedFactory embedFactory, IServiceProvider services, InteractionService handler) : IInteractionHandler
+public class InteractionHandler(IBot bot, IConfiguration config, IEmbedHandler embedHandler, IServiceProvider services, InteractionService handler) : IInteractionHandler
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
@@ -30,7 +29,7 @@ public class InteractionHandler(IBot bot, IConfiguration config, IEmbedFactory e
     {
         if (interaction.User.Id != config.GetValue<ulong>("ids:ownerId"))
         {
-            var maintenanceEmbed = embedFactory.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later.");
+            var maintenanceEmbed = embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later.");
             await interaction.RespondAsync(embed: maintenanceEmbed, ephemeral: true);
             return;
         }
@@ -49,7 +48,7 @@ public class InteractionHandler(IBot bot, IConfiguration config, IEmbedFactory e
                 {
                     case InteractionCommandError.UnknownCommand:
                         await interaction.ModifyOriginalResponseAsync(msg => {
-                            msg.Embed = embedFactory.GetAndBuildEmbed($"It looks like this command is missing!");
+                            msg.Embed = embedHandler.GetAndBuildEmbed($"It looks like this command is missing!");
                             msg.Components = new ComponentBuilder().Build();
                         });
                         break;

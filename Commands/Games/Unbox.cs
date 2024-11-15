@@ -1,14 +1,15 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Kozma.net.Enums;
-using Kozma.net.Factories;
+using Kozma.net.Handlers;
 using Kozma.net.Helpers;
 using Kozma.net.Models;
 using Kozma.net.Trackers;
 
 namespace Kozma.net.Commands.Games;
 
-public class Unbox(IEmbedFactory embedFactory, IBoxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -17,56 +18,56 @@ public class Unbox(IEmbedFactory embedFactory, IBoxHelper boxHelper, IUnboxTrack
         [Summary(name: "box", description: "Select the box you want to open.")] Box box)
     {
         unboxTracker.SetPlayer(Context.User.Id, box);
-        await UnboxAsync(Context, box);
+        await UnboxAsync(Context.Interaction, Context.User.Id, box);
     }
 
-    public async Task UnboxAsync(SocketInteractionContext context, Box box, int opened = 1)
+    public async Task UnboxAsync(SocketInteraction interaction, ulong userId, Box box, int opened = 1)
     {
         var boxData = boxHelper.GetBox(box)!;
         var author = new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url);
         var cost = boxHelper.CalculateCost(opened, boxData);
         var fields = new List<EmbedFieldBuilder>
         {
-            embedFactory.CreateField("Opened", opened.ToString()),
-            embedFactory.CreateField("Spent", boxData.Currency.Equals(BoxCurrency.Dollar) ? $"${cost:N2}" : $"{cost:N0} Energy")
+            embedHandler.CreateField("Opened", opened.ToString()),
+            embedHandler.CreateField("Spent", boxData.Currency.Equals(BoxCurrency.Dollar) ? $"${cost:N2}" : $"{cost:N0} Energy")
         };
-        var embed = embedFactory.GetEmbed("You unboxed:").WithAuthor(author).WithFields(fields);
+        var embed = embedHandler.GetEmbed("You unboxed:").WithAuthor(author).WithFields(fields);
         var unboxed = await OpenAsync(box);
         
         if (unboxed.Count == 0)
         {
-            await context.Interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithDescription("Something went wrong while trying to open the box.").Build());
+            await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithDescription("Something went wrong while trying to open the box.").Build());
             // TODO: log in case this happens?
             return;
         }
 
         foreach (var item in unboxed)
         {
-            unboxTracker.AddEntry(context.User.Id, box, item.Name);
+            unboxTracker.AddEntry(userId, box, item.Name);
         }
 
         embed.WithDescription($"*{string.Join(" & ", unboxed.Select(item => item.Name))}*").WithImageUrl(unboxed.First().Url);
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Secondary, disabled: opened == 1); //TODO: make primary?
+            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
         if (opened == 69) components.WithButton(emote: new Emoji("\U0001F4B0"), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
 
-        await SendOpeningAnimationAsync(context, author, boxData.Gif);
+        await SendOpeningAnimationAsync(interaction, author, boxData.Gif);
 
-        await context.Interaction.ModifyOriginalResponseAsync(msg => {
+        await interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
             msg.Components = components.Build();
         });
     }
 
-    private async Task SendOpeningAnimationAsync(SocketInteractionContext context, EmbedAuthorBuilder author, string url)
+    private async Task SendOpeningAnimationAsync(SocketInteraction interaction, EmbedAuthorBuilder author, string url)
     {
-        var embed = embedFactory.GetEmbed(string.Empty)
+        var embed = embedHandler.GetEmbed(string.Empty)
             .WithAuthor(author)
             .WithImageUrl(url)
             .Build();
 
-        await context.Interaction.ModifyOriginalResponseAsync(msg => {
+        await interaction.ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed;
             msg.Components = new ComponentBuilder().Build();
         });

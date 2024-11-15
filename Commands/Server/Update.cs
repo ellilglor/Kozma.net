@@ -1,17 +1,19 @@
 ﻿using Discord.Interactions;
 using Discord;
-using Kozma.net.Factories;
 using Discord.WebSocket;
-using Kozma.net.Models;
 using System.Text.RegularExpressions;
 using Kozma.net.Helpers;
 using Kozma.net.Services;
 using Kozma.net.Models.Database;
+using Kozma.net.Handlers;
 
 namespace Kozma.net.Commands.Server;
 
-public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
+public partial class Update(IEmbedHandler embedHandler, IContentHelper contentHelper, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
 {
+    private record Channel(string Name, int Count, string Time);
+
+    private static readonly SemaphoreSlim _dbLock = new(1, 1);
     private readonly Dictionary<string, ulong> Channels = new()
     {
         { "special-listings", 807369188133306408 },
@@ -41,21 +43,25 @@ public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper, IT
     public async Task ExecuteAsync()
     {
         var totalTime = System.Diagnostics.Stopwatch.StartNew();
-        var embed = embedFactory.GetEmbed("Executing /update");
+        var embed = embedHandler.GetEmbed("Executing /update");
         var data = new List<Channel>();
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
 
-        foreach (var (name, id) in Channels)
+        var tasks = Channels.Select(async (channelData) =>
         {
-            if (Context.Guild.GetChannel(id) is not SocketTextChannel channel) continue;
+            var (name, id) = channelData;
+            if (Context.Guild.GetChannel(id) is not SocketTextChannel channel) return;
             var channelTime = System.Diagnostics.Stopwatch.StartNew();
             var count = await UpdateLogsAsync(channel, reset: true);
 
             channelTime.Stop();
             var elapsed = $"{channelTime.Elapsed.TotalSeconds:F2}";
             data.Add(new Channel(name, count, elapsed));
+
             await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Finished {name} in {elapsed} seconds").Build());
-        }
+        }).ToList();
+
+        await Task.WhenAll(tasks);
 
         totalTime.Stop();
         DisplayData(data);
@@ -73,16 +79,23 @@ public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper, IT
             logs.Add(ConvertMessage(message, channel.Name));
         }
 
-        await tradeLogService.UpdateLogsAsync(logs, reset, channel.Name);
+        await _dbLock.WaitAsync();
+        try
+        {
+            await tradeLogService.UpdateLogsAsync(logs, reset, channel.Name);
+        }
+        finally
+        {
+            _dbLock.Release();
+        }
         return logs.Count;
     }
 
     private TradeLog ConvertMessage(IMessage message, string channel)
     {
-        var pattern = @"[0-9]{2}/[0-9]{2}/[0-9]{4}";
         var filtered = contentHelper.FilterContent(message.Content);
         var copy = message.Content;
-        var date = Regex.Match(filtered, pattern) is Match match && match.Success ? DateTime.Parse(match.Value) : message.CreatedAt.DateTime;
+        var date = DateRegex().Match(filtered) is Match match && match.Success ? DateTime.Parse(match.Value) : message.CreatedAt.DateTime;
         if (message.Attachments.Count > 1) copy += "\n\n*This message had multiple images*\n*Click the date to look at them*";
 
         return new TradeLog()
@@ -109,4 +122,7 @@ public class Update(IEmbedFactory embedFactory, IContentHelper contentHelper, IT
             Console.WriteLine("{0,-20} {1,-10} {2,-10}", channel.Name, channel.Count, channel.Time);
         }
     }
+
+    [GeneratedRegex("[0-9]{2}/[0-9]{2}/[0-9]{4}")]
+    private static partial Regex DateRegex();
 }

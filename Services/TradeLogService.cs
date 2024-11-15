@@ -59,15 +59,14 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
         return query
             .GroupBy(l => authors ? l.Author : l.Channel)
-            .Select(g => new DbStat(g.Key, g.Count(), Math.Round(g.Count() / (double)total * 100, 2)))
+            .Select(g => new DbStat(g.Key, g.Count(), g.Count() / (double)total))
             .OrderByDescending(g => g.Count)
             .ToList();
     }
 
     public async Task<(IEnumerable<DbStat> Stats, int Total)> GetItemCountAsync(bool authors)
     {
-        var ignore = new List<string>() { "special-listings", "2024-flash-sales", "2023-flash-sales", "2022-flash-sales", "2021-flash-sales", "2020-flash-sales" };
-        var query = await dbContext.TradeLogs.Where(l => !ignore.Contains(l.Channel)).ToListAsync();
+        var query = await dbContext.TradeLogs.Where(l => l.Channel != "special-listings" && !l.Channel.Contains("flash-sales")).ToListAsync();
         var channels = query.GroupBy(l => authors ? l.Author : l.Channel).ToList();
         var regexCache = new Dictionary<string, Regex>();
         var counts = new Dictionary<string, int>();
@@ -76,8 +75,9 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         var folder = Directory.GetFiles(Path.Combine(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName!, "Data", "Items"));
         foreach (var file in folder)
         {
-            var items = await jsonFileReader.ReadAsync<List<string>>(file);
-            regexCache[Path.GetFileName(file)] = new Regex(string.Join("|", items!.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var fileName = Path.GetFileName(file);
+            var items = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "Items", fileName));
+            regexCache[fileName] = new Regex(string.Join("|", items!.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
         foreach (var group in channels)
@@ -101,7 +101,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         }
 
         var data = counts
-            .Select(x => new DbStat(x.Key, x.Value, Math.Round(x.Value / (double)totalCount * 100, 2)))
+            .Select(x => new DbStat(x.Key, x.Value, x.Value / (double)totalCount))
             .OrderByDescending(x => x.Count)
             .ToList();
 

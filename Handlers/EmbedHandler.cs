@@ -2,9 +2,9 @@
 using Discord.WebSocket;
 using Kozma.net.Enums;
 
-namespace Kozma.net.Factories;
+namespace Kozma.net.Handlers;
 
-public class EmbedFactory(IBot bot) : IEmbedFactory
+public class EmbedHandler(IBot bot) : IEmbedHandler
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
@@ -35,6 +35,11 @@ public class EmbedFactory(IBot bot) : IEmbedFactory
     public EmbedFieldBuilder CreateField(string name, string value, bool inline = true)
     {
         return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(inline);
+    }
+
+    public EmbedFieldBuilder CreateEmptyField(bool inline = true)
+    {
+        return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(inline);
     }
 
     public uint ConvertEmbedColor(EmbedColor color)
