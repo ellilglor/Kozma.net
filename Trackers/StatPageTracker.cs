@@ -31,24 +31,26 @@ public class StatPageTracker(IBot bot,
         _buildingInProgess = true;
         _pages = [];
 
-        var userCount = await GetUserCountAsync();
-        var commandUsage = await commandService.GetCommandUsageAsync(isGame: false);
-        var gameUsage = await commandService.GetCommandUsageAsync(isGame: true);
-        var cmdUserCount = await userService.GetTotalUsersCountAsync();
-        var unboxedCount = await unboxService.GetBoxOpenedCountAsync();
-        var logCount = await tradeLogService.GetTotalLogCountAsync();
-        var totalSearched = await tradeLogService.GetTotalSearchCountAsync();
+        var userCountTask = GetUserCountAsync();
+        var commandUsageTask = commandService.GetCommandUsageAsync(isGame: false);
+        var gameUsageTask = commandService.GetCommandUsageAsync(isGame: true);
+        var cmdUserCountTask = userService.GetTotalUsersCountAsync();
+        var unboxedCountTask = unboxService.GetBoxOpenedCountAsync();
+        var logCountTask = tradeLogService.GetTotalLogCountAsync();
+        var totalSearchedTask = tradeLogService.GetTotalSearchCountAsync();
+
+        await Task.WhenAll(userCountTask, commandUsageTask, gameUsageTask, cmdUserCountTask, unboxedCountTask, logCountTask, totalSearchedTask);
         var kozmaGuild = _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:serverId")));
 
-        pages.AddRange(BuildServerPages(userCount));
-        pages.Add(BuildStatEmbed("Command usage", "Command", "Used", await commandService.GetCommandsAsync(isGame: false, commandUsage), commandUsage));
-        pages.Add(BuildStatEmbed("Games played", "Game", "Played", await commandService.GetCommandsAsync(isGame: true, commandUsage), commandUsage));
-        pages.Add(await BuildUserPageAsync(commandUsage, forUnboxed: false, cmdUserCount));
-        pages.Add(await BuildUnboxPageAsync(unboxedCount));
-        pages.Add(await BuildUserPageAsync(unboxedCount, forUnboxed: true));
-        pages.Add(await BuildGamblerPageAsync(gameUsage - unboxedCount));
-        pages.Add(BuildStatEmbed("All loggers", "User", "Posts", await tradeLogService.GetLogStatsAsync(authors: true, logCount), logCount));
-        pages.Add(BuildStatEmbed("Tradelog channels", "Channel", "Posts", await tradeLogService.GetLogStatsAsync(authors: false, logCount), logCount));
+        pages.AddRange(BuildServerPages(userCountTask.Result));
+        pages.Add(BuildStatEmbed("Command usage", "Command", "Used", await commandService.GetCommandsAsync(isGame: false, commandUsageTask.Result), commandUsageTask.Result));
+        pages.Add(BuildStatEmbed("Games played", "Game", "Played", await commandService.GetCommandsAsync(isGame: true, commandUsageTask.Result), commandUsageTask.Result));
+        pages.Add(await BuildUserPageAsync(commandUsageTask.Result, forUnboxed: false, cmdUserCountTask.Result));
+        pages.Add(await BuildUnboxPageAsync(unboxedCountTask.Result));
+        pages.Add(await BuildUserPageAsync(unboxedCountTask.Result, forUnboxed: true));
+        pages.Add(await BuildGamblerPageAsync(gameUsageTask.Result - unboxedCountTask.Result));
+        pages.Add(BuildStatEmbed("All loggers", "User", "Posts", await tradeLogService.GetLogStatsAsync(authors: true, logCountTask.Result), logCountTask.Result));
+        pages.Add(BuildStatEmbed("Tradelog channels", "Channel", "Posts", await tradeLogService.GetLogStatsAsync(authors: false, logCountTask.Result), logCountTask.Result));
         pages.Add(await BuildItemCountPageAsync(authors: true));
         pages.Add(await BuildItemCountPageAsync(authors: false));
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "equipment"], [
@@ -60,7 +62,7 @@ public class StatPageTracker(IBot bot,
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Gun Pup", "Spiraltail", "Piggy", "Spiralhorn", "Snarblepup", "Love Puppy"]));
         pages.Add(await BuildTermOccurencePageAsync(["mixed-trades", "miscellaneous"], ["Extra Short Height Modifier", "Extra Tall Height Modifier", "Book of Dark Rituals", "Silver Personal Color"]));
         pages.Add(await BuildTermOccurencePageAsync([], ["Cool", "Dusky", "Fancy", "Heavy", "Military", "Regal", "Toasty"]));
-        pages.Add(await BuildFindLogsPageAsync(totalSearched));
+        pages.Add(await BuildFindLogsPageAsync(totalSearchedTask.Result));
         timer.Stop();
 
         var fields = new List<EmbedFieldBuilder>()
@@ -70,12 +72,12 @@ public class StatPageTracker(IBot bot,
             embedHandler.CreateField("Execution Time", $"{timer.Elapsed.TotalSeconds:F2}s"),
             embedHandler.CreateField("Running Since", $"<t:{bot.GetReadyTimestamp()}:f>"),
             embedHandler.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
-            embedHandler.CreateField("Commands Used", $"{commandUsage:N0}"),
-            embedHandler.CreateField("Unique Bot Users", $"{cmdUserCount:N0}"),
+            embedHandler.CreateField("Commands Used", $"{commandUsageTask.Result:N0}"),
+            embedHandler.CreateField("Unique Bot Users", $"{cmdUserCountTask.Result:N0}"),
             embedHandler.CreateField("Servers", $"{_client.Guilds.Count:N0}"),
-            embedHandler.CreateField("Unique Users", $"{userCount:N0}"),
-            embedHandler.CreateField("Tradelogs", $"{logCount:N0}"),
-            embedHandler.CreateField("Items Searched", $"{totalSearched:N0}"),
+            embedHandler.CreateField("Unique Users", $"{userCountTask.Result:N0}"),
+            embedHandler.CreateField("Tradelogs", $"{logCountTask.Result:N0}"),
+            embedHandler.CreateField("Items Searched", $"{totalSearchedTask.Result:N0}"),
             embedHandler.CreateField("Server Members", $"{kozmaGuild!.MemberCount:N0}"),
         };
 

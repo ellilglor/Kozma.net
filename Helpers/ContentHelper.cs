@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Kozma.net.Helpers;
 
-public class ContentHelper : IContentHelper
+public partial class ContentHelper : IContentHelper
 {
     private readonly List<TermFilter> filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
         new TermFilter("totem", "somnambulists totem", "somnambulists"),
@@ -42,8 +42,7 @@ public class ContentHelper : IContentHelper
             .ToLower()
             .Replace("vh", "very high");
             
-        var pattern = @"['""’\+\[\]()\-{},|]";
-        filtered = Regex.Replace(filtered, pattern, string.Empty);
+        filtered = SpecialCharacters().Replace(filtered, string.Empty);
 
         foreach (var filter in filters)
         {
@@ -58,4 +57,7 @@ public class ContentHelper : IContentHelper
 
         return filtered;
     }
+
+    [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
+    private static partial Regex SpecialCharacters();
 }
