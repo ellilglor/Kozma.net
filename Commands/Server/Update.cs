@@ -1,7 +1,6 @@
 ﻿using Discord.Interactions;
 using Discord;
 using Discord.WebSocket;
-using Kozma.net.Models;
 using System.Text.RegularExpressions;
 using Kozma.net.Helpers;
 using Kozma.net.Services;
@@ -12,6 +11,8 @@ namespace Kozma.net.Commands.Server;
 
 public partial class Update(IEmbedHandler embedHandler, IContentHelper contentHelper, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
 {
+    private record Channel(string Name, int Count, string Time);
+
     private static readonly SemaphoreSlim _dbLock = new(1, 1);
     private readonly Dictionary<string, ulong> Channels = new()
     {

@@ -1,10 +1,11 @@
-﻿using Kozma.net.Models;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Kozma.net.Helpers;
 
 public partial class ContentHelper : IContentHelper
 {
+    private record TermFilter(string Before, string After, string? Exclude);
+
     private readonly List<TermFilter> filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
         new TermFilter("totem", "somnambulists totem", "somnambulists"),
         new TermFilter("orbit gun", "orbitgun", null),
