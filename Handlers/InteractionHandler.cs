@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Enums;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
@@ -17,6 +18,7 @@ public class InteractionHandler(IBot bot, IConfiguration config, IEmbedHandler e
         await handler.AddModulesAsync(Assembly.GetEntryAssembly(), services);
 
         _client.InteractionCreated += HandleInteractionAsync;
+        handler.InteractionExecuted += HandlePostInteractionAsync;
     }
 
     private async Task ReadyAsync()
@@ -37,30 +39,71 @@ public class InteractionHandler(IBot bot, IConfiguration config, IEmbedHandler e
         await interaction.DeferAsync(ephemeral: true);
 
         // TODO: check if banned from server
-        try
-        {
-            var context = new SocketInteractionContext(_client, interaction);
-            var result = await handler.ExecuteCommandAsync(context, services);
 
-            if (!result.IsSuccess)
-            {
-                switch (result.Error)
-                {
-                    case InteractionCommandError.UnknownCommand:
-                        await interaction.ModifyOriginalResponseAsync(msg => {
-                            msg.Embed = embedHandler.GetAndBuildEmbed($"It looks like this command is missing!");
-                            msg.Components = new ComponentBuilder().Build();
-                        });
-                        break;
-                    default:
-                        Console.WriteLine(result.Error);
-                        break;
-                }
-            }
-        } catch (Exception ex) 
+        var context = new SocketInteractionContext(_client, interaction);
+        await handler.ExecuteCommandAsync(context, services);
+    }
+
+    private async Task HandlePostInteractionAsync(ICommandInfo command, IInteractionContext context, IResult result)
+    {
+        if (!result.IsSuccess)
         {
-            Console.WriteLine(ex.ToString());
-            // TODO: Let user know crash happened
+            await HandleErrorAsync(command.Name, context, result);
         }
+    }
+
+    private async Task HandleErrorAsync(string command, IInteractionContext context, IResult result)
+    {
+        var description = result.Error switch
+        {
+            InteractionCommandError.UnmetPrecondition => $"Unmet Precondition.",
+            InteractionCommandError.UnknownCommand => $"It looks like this command is missing.",
+            InteractionCommandError.BadArgs => "Invalid number of arguments given.",
+            InteractionCommandError.Exception => $"An exception was thrown during execution.",
+            InteractionCommandError.Unsuccessful => "Command could not be executed.",
+            InteractionCommandError.ConvertFailed => "Failed to convert one or more parameters.",
+            InteractionCommandError.ParseFailed => "Failed to parse the command.",
+            _ => $"Unknown reason."
+        };
+
+        var interactionName = context.Interaction.Type switch
+        {
+            InteractionType.ApplicationCommand => (context.Interaction as SocketSlashCommand)?.CommandName,
+            InteractionType.MessageComponent => (context.Interaction as SocketMessageComponent)?.Data.CustomId,
+            _ => command
+        };
+        if (string.IsNullOrEmpty(interactionName)) interactionName = command;
+
+        var error = (ExecuteResult)result;
+        var stackTrace = error.Exception.InnerException?.StackTrace;
+        var channel = (ISocketMessageChannel)await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannelId"));
+        var color = embedHandler.ConvertEmbedColor(EmbedColor.Error);
+        var fields = new List<EmbedFieldBuilder>
+        {
+            embedHandler.CreateField("User", context.User.Username),
+            embedHandler.CreateField("UserId", context.User.Id.ToString()),
+            embedHandler.CreateField("Locale", context.Interaction.UserLocale),
+            embedHandler.CreateField("Command", interactionName),
+            embedHandler.CreateField("Type", context.Interaction.Type.ToString()),
+            embedHandler.CreateField("Location", context.Interaction.IsDMInteraction ? "DM" : context.Guild.Name),
+        };
+        if (context.Interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", string.Join("\n", data.Options.Select(o => $"{o.Name}: {o.Value}"))));
+
+        var errorEmbed = embedHandler.GetBasicEmbed($"Error while executing __{interactionName}__ for __{context.User.Username}__")
+            .WithDescription(string.Join("\n\n", 
+                error.Exception.InnerException?.Message,
+                stackTrace?.Length < (int)DiscordCharLimit.EmbedDesc ? stackTrace : stackTrace?.Substring(0, (int)DiscordCharLimit.EmbedDesc)))
+            .WithFields(fields)
+            .WithColor(color);
+        await channel.SendMessageAsync($"<@{config.GetValue<ulong>("ids:ownerId")}>", embed: errorEmbed.Build());
+
+        var userEmbed = embedHandler.GetEmbed("Something went wrong while executing this command.")
+            .WithDescription(string.Join("\n\n", description, $"<@{config.GetValue<ulong>("ids:ownerId")}> has been notified"))
+            .WithColor(color);
+        await context.Interaction.ModifyOriginalResponseAsync(msg =>
+        {
+            msg.Embed = userEmbed.Build();
+            msg.Components = new ComponentBuilder().Build();
+        });
     }
 }

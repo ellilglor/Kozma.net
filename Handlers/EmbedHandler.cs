@@ -42,6 +42,7 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(inline);
     }
 
+    // TODO: remove method
     public uint ConvertEmbedColor(EmbedColor color)
     {
         return (uint)color;
