@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Kozma.net.Helpers;
 using Kozma.net.Trackers;
+using Kozma.net.Logging;
 
 namespace Kozma.net;
 
@@ -19,26 +20,27 @@ public class Program
             .Build();
 
         var services = new ServiceCollection()
-                .AddSingleton(config)
-                .AddSingleton<IBot, Bot>()
-                .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
-                .AddSingleton<IEmbedHandler, EmbedHandler>()
-                .AddSingleton<IInteractionHandler, InteractionHandler>()
-                .AddSingleton<IBoxHelper, BoxHelper>()
-                .AddSingleton<IPunchHelper, PunchHelper>()
-                .AddSingleton<IContentHelper, ContentHelper>()
-                .AddSingleton<IFileReader, JsonFileReader>()
-                .AddSingleton<IUnboxTracker, UnboxTracker>()
-                .AddSingleton<IPunchTracker, PunchTracker>()
-                .AddSingleton<IStatPageTracker, StatPageTracker>()
-                .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken") ?? string.Empty, config.GetValue<string>("database") ?? string.Empty))
-                .AddScoped<ITradeLogService, TradeLogService>()
-                .AddScoped<IExchangeService, ExchangeService>()
-                .AddScoped<ICommandService, CommandService>()
-                .AddScoped<IUserService, UserService>()
-                .AddScoped<IUnboxService, UnboxService>()
-                .AddScoped<IPunchService, PunchService>()
-                .BuildServiceProvider();
+            .AddSingleton(config)
+            .AddSingleton<IBot, Bot>()
+            .AddSingleton<IBotLogger, Logger>()
+            .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
+            .AddSingleton<IEmbedHandler, EmbedHandler>()
+            .AddSingleton<IInteractionHandler, InteractionHandler>()
+            .AddSingleton<IBoxHelper, BoxHelper>()
+            .AddSingleton<IPunchHelper, PunchHelper>()
+            .AddSingleton<IContentHelper, ContentHelper>()
+            .AddSingleton<IFileReader, JsonFileReader>()
+            .AddSingleton<IUnboxTracker, UnboxTracker>()
+            .AddSingleton<IPunchTracker, PunchTracker>()
+            .AddSingleton<IStatPageTracker, StatPageTracker>()
+            .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken") ?? string.Empty, config.GetValue<string>("database") ?? string.Empty))
+            .AddScoped<ITradeLogService, TradeLogService>()
+            .AddScoped<IExchangeService, ExchangeService>()
+            .AddScoped<ICommandService, CommandService>()
+            .AddScoped<IUserService, UserService>()
+            .AddScoped<IUnboxService, UnboxService>()
+            .AddScoped<IPunchService, PunchService>()
+            .BuildServiceProvider();
 
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
         await StartBotAsync(services);

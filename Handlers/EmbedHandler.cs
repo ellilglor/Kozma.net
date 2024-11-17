@@ -23,7 +23,7 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         return new EmbedBuilder
         {
             Title = title.Length > (int)DiscordCharLimit.EmbedTitle ? title.Substring(0, (int)DiscordCharLimit.EmbedTitle) : title,
-            Color = ConvertEmbedColor(EmbedColor.Default)
+            Color = (uint)EmbedColor.Default
         };
     }
 
@@ -40,11 +40,5 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
     public EmbedFieldBuilder CreateEmptyField(bool inline = true)
     {
         return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(inline);
-    }
-
-    // TODO: remove method
-    public uint ConvertEmbedColor(EmbedColor color)
-    {
-        return (uint)color;
     }
 }

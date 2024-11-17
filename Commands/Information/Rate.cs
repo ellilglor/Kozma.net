@@ -25,7 +25,7 @@ public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, 
                 embed.WithTitle($"The conversion rate has been changed to: {newRate}.");
             } else
             {
-                embed.WithColor(embedHandler.ConvertEmbedColor(EmbedColor.Error));
+                embed.WithColor((uint)EmbedColor.Error);
             }
         }
         else
