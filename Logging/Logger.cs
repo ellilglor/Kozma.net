@@ -37,34 +37,22 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
     public async Task HandlePostInteractionAsync(ICommandInfo command, IInteractionContext context, IResult result)
     {
+        var location = context.Interaction.IsDMInteraction ? "DM" : context.Guild.Name;
+
         if (!result.IsSuccess)
         {
-            await HandleErrorAsync(command.Name, context, result);
+            await HandleErrorAsync(command.Name, context.Interaction, result, location);
             return;
         }
 
         //if (context.User.Id == config.GetValue<ulong>("ids:ownerId")) return;
-        if (context.Interaction.Type != InteractionType.ApplicationCommand) return;
-        if (AdminCommandsRegex().IsMatch(command.Name)) return;
 
-
-        var desc = string.Empty;
-        if (context.Interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));
-
-        var fields = new List<EmbedFieldBuilder>
+        switch (context.Interaction.Type)
         {
-            embedHandler.CreateField("Action", $"/{command.Name}"),
-            embedHandler.CreateField(context.Interaction.IsDMInteraction ? "DM" : context.Guild.Name, context.Interaction.UserLocale),
-        };
-
-        var embed = GetLogEmbed(string.Empty, EmbedColor.Default)
-            .WithDescription(desc)
-            .WithFields(fields)
-            .WithAuthor(new EmbedAuthorBuilder().WithName(context.User.Username).WithIconUrl(context.User.GetDisplayAvatarUrl()))
-            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {context.User.Id}"));
-
-        Log(LogColor.Command, $"{context.User.Username} used /{command.Name}");
-        await LogAsync(embed: embed.Build());
+            case InteractionType.ApplicationCommand: await HandleCommandAsync(command.Name, context.Interaction, location); break;
+            case InteractionType.MessageComponent: await HandleComponentAsync((SocketMessageComponent)context.Interaction, location); break;
+            default: await Task.CompletedTask; break;
+        }
     }
 
     private EmbedBuilder GetLogEmbed(string title, EmbedColor color)
@@ -74,12 +62,41 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             .WithCurrentTimestamp();
     }
 
-    private async Task HandleErrorAsync(string command, IInteractionContext context, IResult result)
+    private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
-        var interactionName = context.Interaction.Type switch
+        if (AdminCommandsRegex().IsMatch(command)) return;
+
+        var desc = string.Empty;
+        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));
+
+        var fields = new List<EmbedFieldBuilder>
         {
-            InteractionType.ApplicationCommand => (context.Interaction as SocketSlashCommand)?.CommandName,
-            InteractionType.MessageComponent => (context.Interaction as SocketMessageComponent)?.Data.CustomId,
+            embedHandler.CreateField("Action", $"/{command}"),
+            embedHandler.CreateField(location, interaction.UserLocale),
+        };
+
+        var embed = GetLogEmbed(string.Empty, EmbedColor.Default)
+            .WithDescription(desc)
+            .WithFields(fields)
+            .WithAuthor(new EmbedAuthorBuilder().WithName(interaction.User.Username).WithIconUrl(interaction.User.GetDisplayAvatarUrl()))
+            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"));
+
+        Log(LogColor.Command, $"{interaction.User.Username} used /{command} in {location}");
+        //await LogAsync(embed: embed.Build());
+    }
+
+    private async Task HandleComponentAsync(SocketMessageComponent interaction, string location)
+    {
+        Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, IResult result, string location)
+    {
+        var interactionName = interaction.Type switch
+        {
+            InteractionType.ApplicationCommand => (interaction as SocketSlashCommand)?.CommandName,
+            InteractionType.MessageComponent => (interaction as SocketMessageComponent)?.Data.CustomId,
             _ => command
         };
         if (string.IsNullOrEmpty(interactionName)) interactionName = command;
@@ -88,17 +105,17 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         var stackTrace = error.Exception.InnerException?.StackTrace;
         var fields = new List<EmbedFieldBuilder>
         {
-            embedHandler.CreateField("Type", context.Interaction.Type.ToString()),
-            embedHandler.CreateField("Location", context.Interaction.IsDMInteraction ? "DM" : context.Guild.Name),
-            embedHandler.CreateField("Locale", context.Interaction.UserLocale),
+            embedHandler.CreateField("Type", interaction.Type.ToString()),
+            embedHandler.CreateField("Location", location),
+            embedHandler.CreateField("Locale", interaction.UserLocale),
         };
-        if (context.Interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", string.Join("\n", data.Options.Select(o => $"{o.Name}: {o.Value}"))));
+        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"))));
 
-        var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{context.User.Username}__", EmbedColor.Error)
+        var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", EmbedColor.Error)
             .WithDescription(string.Join("\n\n",
                 error.Exception.InnerException?.Message,
                 stackTrace?.Length < (int)DiscordCharLimit.EmbedDesc ? stackTrace : stackTrace?.Substring(0, (int)DiscordCharLimit.EmbedDesc)))
-            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {context.User.Id}"))
+            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
         await LogAsync($"<@{config.GetValue<ulong>("ids:ownerId")}>", errorEmbed.Build());
 
@@ -118,7 +135,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             .WithColor((uint)EmbedColor.Error);
 
         Log(LogColor.Error, error.Exception.InnerException?.Message ?? description);
-        await context.Interaction.ModifyOriginalResponseAsync(msg =>
+        await interaction.ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = userEmbed.Build();
             msg.Components = new ComponentBuilder().Build();
