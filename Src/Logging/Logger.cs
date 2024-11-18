@@ -49,6 +49,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             return;
         }
 
+        if (AdminCommandsRegex().IsMatch(command.Name)) return;
         if (context.User.Id == config.GetValue<ulong>("ids:ownerId")) return;
 
         switch (context.Interaction.Type)
@@ -68,8 +69,6 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
-        if (AdminCommandsRegex().IsMatch(command)) return;
-
         await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), string.Equals(command, "unbox"));
 
         var desc = string.Empty;
