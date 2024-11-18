@@ -1,5 +1,5 @@
 ﻿using Kozma.net.Src.Models;
-using Kozma.net.Src.Models.Database;
+using Kozma.net.Src.Models.Entities;
 
 namespace Kozma.net.Src.Services;
 

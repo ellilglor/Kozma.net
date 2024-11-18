@@ -5,12 +5,13 @@ using Kozma.net.Src;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Logging;
+using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Logging;
 
-public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embedHandler) : IBotLogger
+public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embedHandler, IUserService userService, ICommandService commandService) : IBotLogger
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
@@ -47,7 +48,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             return;
         }
 
-        //if (context.User.Id == config.GetValue<ulong>("ids:ownerId")) return;
+        if (context.User.Id == config.GetValue<ulong>("ids:ownerId")) return;
 
         switch (context.Interaction.Type)
         {
@@ -84,13 +85,22 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"));
 
         Log(LogColor.Command, $"{interaction.User.Username} used /{command} in {location}");
-        //await LogAsync(embed: embed.Build());
+        await LogAsync(embed: embed.Build());
+
+        var isCommand = GameRegex().IsMatch(command);
+        await userService.UpdateOrAddUserAsync(interaction.User.Id, interaction.User.Username, isCommand, string.Equals(command, "unbox"));
+        await commandService.UpdateOrAddCommandAsync(command, isCommand);
     }
 
     private async Task HandleComponentAsync(SocketMessageComponent interaction, string location)
     {
         Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
-        await Task.CompletedTask;
+
+        if (string.Equals(interaction.Data.CustomId, "unbox-again"))
+        {
+            await userService.UpdateOrAddUserAsync(interaction.User.Id, interaction.User.Username, isCommand: false, isUnbox: true);
+            await commandService.UpdateOrAddCommandAsync("unbox");
+        }
     }
 
     private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, IResult result, string location)
@@ -146,4 +156,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
     [GeneratedRegex(@"(pricecheck|stats|test|update)")]
     private static partial Regex AdminCommandsRegex();
+
+    [GeneratedRegex(@"(unbox|punch)")]
+    private static partial Regex GameRegex();
 }

@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.EntityFrameworkCore;
 
-namespace Kozma.net.Src.Models.Database;
+namespace Kozma.net.Src.Models.Entities;
 
 [Collection("gamblers")]
 public class Gambler

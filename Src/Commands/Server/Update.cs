@@ -3,9 +3,9 @@ using Discord;
 using Discord.WebSocket;
 using System.Text.RegularExpressions;
 using Kozma.net.Src.Services;
-using Kozma.net.Src.Models.Database;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Handlers;
+using Kozma.net.Src.Models.Entities;
 
 namespace Kozma.net.Commands.Server;
 

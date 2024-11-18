@@ -1,6 +1,6 @@
 ﻿using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
-using Kozma.net.Src.Models.Database;
+using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 

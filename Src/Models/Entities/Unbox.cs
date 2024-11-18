@@ -3,7 +3,7 @@ using MongoDB.Bson;
 using MongoDB.EntityFrameworkCore;
 using Kozma.net.Src.Enums;
 
-namespace Kozma.net.Src.Models.Database;
+namespace Kozma.net.Src.Models.Entities;
 
 [Collection("boxes")]
 public class Unbox
