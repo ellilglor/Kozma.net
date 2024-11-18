@@ -2,12 +2,35 @@
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Services;
 
 public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReader) : ITradeLogService
 {
+    public async Task UpdateOrSaveItemAsync(string item)
+    {
+        var model = await dbContext.SearchedLogs.FirstOrDefaultAsync(i => i.Item == item);
+
+        if (model is null)
+        {
+            await dbContext.SearchedLogs.AddAsync(new SearchedLog()
+            {
+                Id = ObjectId.GenerateNewId(),
+                Item = item,
+                Count = 1
+            });
+        }
+        else
+        {
+            model.Count++;
+            dbContext.SearchedLogs.Update(model);
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<IEnumerable<LogCollection>> GetLogsAsync(List<string> items, DateTime date, bool checkMixed, bool skipSpecial, List<string> ignore)
     {
         var query = dbContext.TradeLogs.Where(log => items.Any(item => log.Content.Contains(item)) && log.Date > date);

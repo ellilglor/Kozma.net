@@ -19,6 +19,6 @@ public class Search(IEmbedHandler embedHandler, ITradeLogService tradeLogService
         var item = string.Join(" ", context.Message.Embeds.First().Title.Split(' ').Skip(5)).Replace("_", string.Empty);
 
         await ModifyOriginalResponseAsync(msg => msg.Components = new ComponentBuilder().Build());
-        await command.SearchLogsAsync(item, months: 120, checkVariants: variantSearch.Equals("var"), checkClean: false, checkMixed: true, user: context.User);
+        await command.SearchLogsAsync(contentHelper.FilterContent(item), item, months: 120, checkVariants: variantSearch.Equals("var"), checkClean: false, checkMixed: true, user: context.User);
     }
 }

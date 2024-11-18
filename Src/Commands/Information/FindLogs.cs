@@ -31,6 +31,7 @@ public partial class FindLogs(
         var checkVariants = string.IsNullOrEmpty(variants) || variants == "variant-search";
         var checkClean = !string.IsNullOrEmpty(clean) && clean == "clean-search";
         var checkMixed = string.IsNullOrEmpty(mixed) || mixed == "mixed-search";
+        var altered = contentHelper.FilterContent(item);
 
         var embed = embedHandler.GetEmbed($"Searching for __{item}__, I will dm you what I can find.")
             .WithDescription("### Info & tips when searching:\n- **Slime boxes**:\ncombination followed by *slime lockbox*\nExample: QQQ Slime Lockbox\n" +
@@ -44,13 +45,13 @@ public partial class FindLogs(
             .Build();
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
-        await SearchLogsAsync(item, months, checkVariants, checkClean, checkMixed);
+        if (Context.User.Id != config.GetValue<ulong>("ids:ownerId")) await tradeLogService.UpdateOrSaveItemAsync(altered);
+        await SearchLogsAsync(altered, item, months, checkVariants, checkClean, checkMixed);
     }
 
-    public async Task SearchLogsAsync(string item, int months, bool checkVariants, bool checkClean, bool checkMixed, SocketUser? user = null)
+    public async Task SearchLogsAsync(string item, string original, int months, bool checkVariants, bool checkClean, bool checkMixed, SocketUser? user = null)
     {
-        var copy = item;
-        var items = new List<string>() { contentHelper.FilterContent(item) };
+        var items = new List<string>() { item };
         var reverse = new List<string>();
         var ignore = new List<string>();
         var stopHere = DateTime.Now.AddMonths(-months);
@@ -70,7 +71,7 @@ public partial class FindLogs(
         var matchCount = matches.Sum(collection => collection.Messages.Count);
 
         var sentMatchesSuccesfully = await SendMatchesAsync(matches, cmdUser);
-        if (sentMatchesSuccesfully) await FinishInteractionAsync(items[0], copy, matchCount, months, checkVariants, cmdUser);
+        if (sentMatchesSuccesfully) await FinishInteractionAsync(items[0], original, matchCount, months, checkVariants, cmdUser);
     }
 
     private async Task<bool> SendMatchesAsync(IEnumerable<LogCollection> matches, SocketUser user)
