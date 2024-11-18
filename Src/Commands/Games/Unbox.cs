@@ -4,12 +4,15 @@ using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
+using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models;
+using Kozma.net.Src.Services;
 using Kozma.net.Src.Trackers;
+using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Games;
 
-public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker, IUnboxService unboxService, IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -37,16 +40,19 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
         if (unboxed.Count == 0)
         {
             await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithDescription("Something went wrong while trying to open the box.").Build());
-            // TODO: log in case this happens?
-            return;
+            throw new Exception($"Something went wrong while trying to open {box}.");
         }
+
+        var items = string.Join(" & ", unboxed.Select(item => item.Name));
+        logger.Log(items.Contains('*') ? LogColor.Special : LogColor.Info, $"{interaction.User.Username} opened {box} and got {items}");
+        if (userId != config.GetValue<ulong>("ids:ownerId")) await unboxService.UpdateOrSaveBoxAsync(box);
 
         foreach (var item in unboxed)
         {
             unboxTracker.AddEntry(userId, box, item.Name);
         }
 
-        embed.WithDescription($"*{string.Join(" & ", unboxed.Select(item => item.Name))}*").WithImageUrl(unboxed.First().Url);
+        embed.WithDescription($"*{items}*").WithImageUrl(unboxed.First().Url);
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);

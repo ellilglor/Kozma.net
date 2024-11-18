@@ -7,7 +7,7 @@ namespace Kozma.net.Src.Services;
 
 public class CommandService(KozmaDbContext dbContext) : ICommandService
 {
-    public async Task UpdateOrAddCommandAsync(string name, bool isCommand = true)
+    public async Task UpdateOrSaveCommandAsync(string name, bool isCommand = true)
     {
         var command = await dbContext.Commands.FirstOrDefaultAsync(cmd => name == cmd.Name);
 

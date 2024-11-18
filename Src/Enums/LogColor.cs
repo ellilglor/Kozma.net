@@ -6,5 +6,6 @@ public enum LogColor
     Button,
     Moderation,
     Info,
+    Special,
     Error
 }

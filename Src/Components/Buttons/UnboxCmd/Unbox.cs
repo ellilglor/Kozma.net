@@ -4,11 +4,14 @@ using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
+using Kozma.net.Src.Logging;
+using Kozma.net.Src.Services;
 using Kozma.net.Src.Trackers;
+using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Components.Buttons.UnboxCmd;
 
-public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker, IUnboxService unboxService, IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("unbox-*")]
     public async Task ExecuteAsync(string action)
@@ -20,7 +23,7 @@ public class Unbox(IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTrack
         {
             if (string.Equals(action, "again"))
             {
-                var command = new Commands.Games.Unbox(embedHandler, boxHelper, unboxTracker);
+                var command = new Commands.Games.Unbox(config, embedHandler, boxHelper, unboxTracker, unboxService, logger);
                 await command.UnboxAsync(Context.Interaction, Context.User.Id, box, int.Parse(embed.Fields[0].Value) + 1);
             }
             else

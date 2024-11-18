@@ -23,6 +23,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             LogColor.Button => "\u001b[36m",
             LogColor.Moderation => "\u001b[35m",
             LogColor.Info => "\u001b[33m",
+            LogColor.Special => "\u001b[32m",
             LogColor.Error => "\u001b[31m",
             _ => "\u001b[37m"
         };
@@ -71,7 +72,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
         var isCommand = GameRegex().IsMatch(command);
         await userService.UpdateOrSaveUserAsync(interaction.User.Id, interaction.User.Username, isCommand, string.Equals(command, "unbox"));
-        await commandService.UpdateOrAddCommandAsync(command, isCommand);
+        await commandService.UpdateOrSaveCommandAsync(command, isCommand);
 
         var desc = string.Empty;
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));
@@ -97,7 +98,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         if (string.Equals(interaction.Data.CustomId, "unbox-again"))
         {
             await userService.UpdateOrSaveUserAsync(interaction.User.Id, interaction.User.Username, isCommand: false, isUnbox: true);
-            await commandService.UpdateOrAddCommandAsync("unbox");
+            await commandService.UpdateOrSaveCommandAsync("unbox");
         }
 
         Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
