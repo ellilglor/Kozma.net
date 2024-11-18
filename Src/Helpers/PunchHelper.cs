@@ -1,12 +1,13 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Trackers;
 
 namespace Kozma.net.Src.Helpers;
 
-public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader) : IPunchHelper
+public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader, IBotLogger logger) : IPunchHelper
 {
     private static readonly Random _random = new();
 
@@ -150,7 +151,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader)
 
     private record PunchReward(string Author, string Url);
 
-    public async Task<(string desc, string image)> CheckForGmAsync(ItemType type, List<string> uvs)
+    public async Task<(string desc, string image)> CheckForGmAsync(string user, ItemType type, List<string> uvs)
     {
         var won = type switch
         {
@@ -160,6 +161,8 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader)
         };
 
         if (!won) return (string.Empty, string.Empty);
+
+        logger.Log(LogColor.Info, $"{user} rolled a GM item");
 
         var rewards = await jsonFileReader.ReadAsync<List<PunchReward>>(Path.Combine("Data", "Punch", "Rewards.json"));
         if (rewards is null) return ("Failed to get reward", string.Empty);

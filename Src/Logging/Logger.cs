@@ -69,6 +69,10 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
     {
         if (AdminCommandsRegex().IsMatch(command)) return;
 
+        var isCommand = GameRegex().IsMatch(command);
+        await userService.UpdateOrSaveUserAsync(interaction.User.Id, interaction.User.Username, isCommand, string.Equals(command, "unbox"));
+        await commandService.UpdateOrAddCommandAsync(command, isCommand);
+
         var desc = string.Empty;
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));
 
@@ -86,21 +90,17 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
         Log(LogColor.Command, $"{interaction.User.Username} used /{command} in {location}");
         await LogAsync(embed: embed.Build());
-
-        var isCommand = GameRegex().IsMatch(command);
-        await userService.UpdateOrAddUserAsync(interaction.User.Id, interaction.User.Username, isCommand, string.Equals(command, "unbox"));
-        await commandService.UpdateOrAddCommandAsync(command, isCommand);
     }
 
     private async Task HandleComponentAsync(SocketMessageComponent interaction, string location)
     {
-        Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
-
         if (string.Equals(interaction.Data.CustomId, "unbox-again"))
         {
-            await userService.UpdateOrAddUserAsync(interaction.User.Id, interaction.User.Username, isCommand: false, isUnbox: true);
+            await userService.UpdateOrSaveUserAsync(interaction.User.Id, interaction.User.Username, isCommand: false, isUnbox: true);
             await commandService.UpdateOrAddCommandAsync("unbox");
         }
+
+        Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
     }
 
     private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, IResult result, string location)

@@ -40,7 +40,7 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
         var fields = craftUvs.Select((uv, index) => embedHandler.CreateField($"UV #{index + 1}", uv)).ToList();
         fields.Add(embedHandler.CreateField("Crafted", counter.ToString(), inline: false));
 
-        var (desc, image) = await punchHelper.CheckForGmAsync(itemData.Type, craftUvs);
+        var (desc, image) = await punchHelper.CheckForGmAsync(interaction.User.Username, itemData.Type, craftUvs);
         var embed = embedHandler.GetEmbed($"You crafted: {itemData.Name}")
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)

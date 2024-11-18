@@ -5,13 +5,14 @@ using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
+using Kozma.net.Src.Services;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Components.Buttons.PunchCmd;
 
-public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
+public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchService punchService) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("punch-gamble-*")]
     public async Task ExecuteAsync(string number)
@@ -36,7 +37,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper) 
         fields.Add(embedHandler.CreateField("Crowns Spent", $"{spent + (int)cost:N0}", inline: false));
         UpdateRollCounter(oldEmbed.Fields, count, fields);
 
-        var (desc, image) = await punchHelper.CheckForGmAsync(itemData.Type, uvs);
+        var (desc, image) = await punchHelper.CheckForGmAsync(Context.User.Username, itemData.Type, uvs);
         var embed = embedHandler.GetEmbed(itemData.Name)
             .WithAuthor(punchHelper.GetAuthor())
             .WithThumbnailUrl(itemData.Image)
@@ -44,6 +45,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper) 
             .WithImageUrl(image)
             .WithFields(fields);
 
+        await punchService.UpdateOrSaveGamblerAsync(Context.User.Id, Context.User.Username, cost);
         await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), Context.Interaction, itemData.Gif, 1500);
 
         await ModifyOriginalResponseAsync(msg => {

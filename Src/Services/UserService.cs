@@ -1,13 +1,16 @@
 ﻿using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Services;
 
-public class UserService(KozmaDbContext dbContext) : IUserService
+public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUserService
 {
-    public async Task UpdateOrAddUserAsync(ulong id, string name, bool isCommand, bool isUnbox)
+    public async Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, bool isUnbox)
     {
+        if (id == config.GetValue<ulong>("ids:ownerId")) return;
+
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id.ToString());
 
         if (user is null)
@@ -26,6 +29,9 @@ public class UserService(KozmaDbContext dbContext) : IUserService
             if (isCommand) user.Count++;
             else if (isUnbox) user.Unboxed++;
             else user.Punched++;
+
+            if (user.Name != name) user.Name = name; // Get rid of legacy discord tag
+
             dbContext.Users.Update(user);
         }
 
