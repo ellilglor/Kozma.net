@@ -70,9 +70,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
     {
         if (AdminCommandsRegex().IsMatch(command)) return;
 
-        var isCommand = GameRegex().IsMatch(command);
-        await userService.UpdateOrSaveUserAsync(interaction.User.Id, interaction.User.Username, isCommand, string.Equals(command, "unbox"));
-        await commandService.UpdateOrSaveCommandAsync(command, isCommand);
+        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), string.Equals(command, "unbox"));
 
         var desc = string.Empty;
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));
@@ -95,13 +93,19 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
     private async Task HandleComponentAsync(SocketMessageComponent interaction, string location)
     {
-        if (string.Equals(interaction.Data.CustomId, "unbox-again"))
+        switch (interaction.Data.CustomId)
         {
-            await userService.UpdateOrSaveUserAsync(interaction.User.Id, interaction.User.Username, isCommand: false, isUnbox: true);
-            await commandService.UpdateOrSaveCommandAsync("unbox");
+            case "unbox-again": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "unbox", isCommand: false); break;
+            case "clear-messages": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "clear", isCommand: true); break;
         }
 
         Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
+    }
+
+    private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand, bool isUnbox = true)
+    {
+        await userService.UpdateOrSaveUserAsync(id, user, isCommand, isUnbox);
+        await commandService.UpdateOrSaveCommandAsync(command, isCommand);
     }
 
     private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, IResult result, string location)
