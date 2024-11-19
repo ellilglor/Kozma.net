@@ -29,6 +29,7 @@ public class Program
             .AddSingleton<IEmbedHandler, EmbedHandler>()
             .AddSingleton<IInteractionHandler, InteractionHandler>()
             .AddSingleton<IMessageHandler, MessageHandler>()
+            .AddSingleton<IRoleHandler, RoleHandler>()
             .AddSingleton<IBoxHelper, BoxHelper>()
             .AddSingleton<IPunchHelper, PunchHelper>()
             .AddSingleton<IContentHelper, ContentHelper>()
