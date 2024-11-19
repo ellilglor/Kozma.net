@@ -38,6 +38,22 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> SaveMuteAsync<T>(ulong id, DateTime createdAt, Func<T> factory) where T : Mute
+    {
+        var collection = dbContext.Set<T>();
+
+        if (await collection.FirstOrDefaultAsync(u => u.Id == id.ToString()) != null) return false;
+
+        var model = factory();
+        model.ExpiresAt = createdAt.AddHours(config.GetValue<double>("slowmodeHours"));
+        model.CreatedAt = DateTime.Now;
+        model.UpdatedAt = DateTime.Now;
+
+        await collection.AddAsync(model);
+        await dbContext.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<int> GetTotalUsersCountAsync()
     {
         return await dbContext.Users.CountAsync();

@@ -1,11 +1,13 @@
 ﻿using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
+using Kozma.net.Src.Models.Entities;
+using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Handlers;
 
-public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger) : IRoleHandler
+public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUserService userService) : IRoleHandler
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
@@ -28,7 +30,12 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger) : I
         if (message.Author is not SocketGuildUser user) return;
         if (user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) return;
 
-        await GiveRoleAsync(user, roleId);
+        bool success;
+        if (roleId == config.GetValue<ulong>("ids:wtsRole")) success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new SellMute() { Id = user.Id.ToString(), Name = user.Username });
+        else success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new BuyMute() { Id = user.Id.ToString(), Name = user.Username });
+
+        if (!success) await logger.LogAsync($"{(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} - <@{config.GetValue<ulong>("ids:owner")}> <@{user.Id}> is already in the database!");
+        else await GiveRoleAsync(user, roleId);
     }
 
     private SocketGuild GetGuild()

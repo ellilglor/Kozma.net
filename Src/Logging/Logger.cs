@@ -133,7 +133,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
                 stackTrace?.Length < (int)DiscordCharLimit.EmbedDesc ? stackTrace : stackTrace?.Substring(0, (int)DiscordCharLimit.EmbedDesc)))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
-        await LogAsync($"<@{config.GetValue<ulong>("ids:ownerId")}>", errorEmbed.Build());
+        await LogAsync($"<@{config.GetValue<ulong>("ids:owner")}>", errorEmbed.Build());
 
         var description = result.Error switch
         {
