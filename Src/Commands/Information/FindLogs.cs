@@ -45,7 +45,7 @@ public partial class FindLogs(
             .Build();
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
-        if (Context.User.Id != config.GetValue<ulong>("ids:ownerId")) await tradeLogService.UpdateOrSaveItemAsync(altered);
+        if (Context.User.Id != config.GetValue<ulong>("ids:owner")) await tradeLogService.UpdateOrSaveItemAsync(altered);
         await SearchLogsAsync(altered, item, months, checkVariants, checkClean, checkMixed);
     }
 
@@ -125,7 +125,7 @@ public partial class FindLogs(
                 "- Only want to see your item and no variants?\nSet `variants` to *NO*.\n" +
                 "- Want to filter out higher value UV's?\nSet `clean` to *YES*.\n" +
                 "- Not interested in item trades?\nSet `mixed` to *NO*.\n\n" +
-                $"If you notice a problem please contact <@{config.GetValue<ulong>("ids:ownerId")}>!\n" +
+                $"If you notice a problem please contact <@{config.GetValue<ulong>("ids:owner")}>!\n" +
                 $"Did you know we have our own [**Discord server**]({config.GetValue<string>("serverInvite")} 'Kozma's Backpack Discord server')?");
 
         var spreadsheet = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "FindLogs", "Spreadsheet.json")) ?? [];

@@ -45,7 +45,7 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
 
         var items = string.Join(" & ", unboxed.Select(item => item.Name));
         logger.Log(items.Contains('*') ? LogColor.Special : LogColor.Info, $"{interaction.User.Username} opened {box} and got {items}");
-        if (userId != config.GetValue<ulong>("ids:ownerId")) await unboxService.UpdateOrSaveBoxAsync(box);
+        if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
 
         foreach (var item in unboxed)
         {

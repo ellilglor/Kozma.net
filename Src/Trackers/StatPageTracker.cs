@@ -42,7 +42,7 @@ public class StatPageTracker(IBot bot,
         var totalSearchedTask = tradeLogService.GetTotalSearchCountAsync();
 
         await Task.WhenAll(userCountTask, commandUsageTask, gameUsageTask, cmdUserCountTask, unboxedCountTask, logCountTask, totalSearchedTask);
-        var kozmaGuild = _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:serverId")));
+        var kozmaGuild = _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")));
 
         pages.AddRange(BuildServerPages(userCountTask.Result));
         pages.Add(BuildStatEmbed("Command usage", "Command", "Used", await commandService.GetCommandsAsync(isGame: false, commandUsageTask.Result), commandUsageTask.Result));

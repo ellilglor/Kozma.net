@@ -17,7 +17,7 @@ public class Help(IEmbedHandler embedHandler, IConfiguration config, IFileReader
         var fields = info.Select(cmd => embedHandler.CreateField(cmd.Command, cmd.Description, inline: false)).ToList();
 
         var embed = embedHandler.GetEmbed("Here are all my commands:")
-            .WithDescription($"*If you notice a problem please contact <@{config.GetValue<string>("ids:ownerId")}>*")
+            .WithDescription($"*If you notice a problem please contact <@{config.GetValue<string>("ids:owner")}>*")
             .WithFields(fields)
             .Build();
 

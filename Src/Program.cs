@@ -28,6 +28,8 @@ public class Program
             .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
             .AddSingleton<IEmbedHandler, EmbedHandler>()
             .AddSingleton<IInteractionHandler, InteractionHandler>()
+            .AddSingleton<IMessageHandler, MessageHandler>()
+            .AddSingleton<IRoleHandler, RoleHandler>()
             .AddSingleton<IBoxHelper, BoxHelper>()
             .AddSingleton<IPunchHelper, PunchHelper>()
             .AddSingleton<IContentHelper, ContentHelper>()
@@ -45,6 +47,7 @@ public class Program
             .BuildServiceProvider();
 
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
+        await services.GetRequiredService<IMessageHandler>().InitializeAsync();
         await StartBotAsync(services);
     }
 

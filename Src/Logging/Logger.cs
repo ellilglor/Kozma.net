@@ -34,7 +34,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
     public async Task LogAsync(string? message = null, Embed? embed = null)
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannelId")) is not ISocketMessageChannel channel) return;
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ISocketMessageChannel channel) return;
 
         await channel.SendMessageAsync(message, embed: embed);
     }
@@ -50,7 +50,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         }
 
         if (AdminCommandsRegex().IsMatch(command.Name)) return;
-        if (context.User.Id == config.GetValue<ulong>("ids:ownerId")) return;
+        if (context.User.Id == config.GetValue<ulong>("ids:owner")) return;
 
         switch (context.Interaction.Type)
         {
@@ -133,7 +133,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
                 stackTrace?.Length < (int)DiscordCharLimit.EmbedDesc ? stackTrace : stackTrace?.Substring(0, (int)DiscordCharLimit.EmbedDesc)))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
-        await LogAsync($"<@{config.GetValue<ulong>("ids:ownerId")}>", errorEmbed.Build());
+        await LogAsync($"<@{config.GetValue<ulong>("ids:owner")}>", errorEmbed.Build());
 
         var description = result.Error switch
         {
@@ -147,7 +147,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             _ => "Unknown reason."
         };
         var userEmbed = embedHandler.GetEmbed("Something went wrong while executing this command.")
-            .WithDescription(string.Join("\n\n", description, $"<@{config.GetValue<ulong>("ids:ownerId")}> has been notified"))
+            .WithDescription(string.Join("\n\n", description, $"<@{config.GetValue<ulong>("ids:owner")}> has been notified"))
             .WithColor((uint)EmbedColor.Error);
 
         Log(LogColor.Error, error.Exception.InnerException?.Message ?? description);

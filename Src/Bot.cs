@@ -40,6 +40,7 @@ public class Bot : IBot
         return new DateTimeOffset(_ready).ToUnixTimeSeconds();
     }
 
+    //TODO: move to logger?
     private static Task Log(LogMessage msg)
     {
         Console.WriteLine(msg.ToString());
