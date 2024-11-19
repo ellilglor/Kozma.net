@@ -9,7 +9,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
 {
     public async Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, bool isUnbox)
     {
-        if (id == config.GetValue<ulong>("ids:ownerId")) return;
+        if (id == config.GetValue<ulong>("ids:owner")) return;
 
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id.ToString());
 

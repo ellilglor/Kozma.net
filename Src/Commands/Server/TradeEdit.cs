@@ -9,7 +9,7 @@ public class TradeEdit(IEmbedHandler embedHandler, IConfiguration config) : Inte
     [SlashCommand("tradepostedit", "Gives you 2 minutes to edit your tradeposts.")]
     public async Task ExecuteAsync()
     {
-        var role = Context.Guild.GetRole(config.GetValue<ulong>("ids:editRoleId"));
+        var role = Context.Guild.GetRole(config.GetValue<ulong>("ids:editRole"));
         var user = Context.Guild.GetUser(Context.User.Id);
         var embed = embedHandler.GetEmbed("You have 2 minutes to edit your tradeposts.")
             .WithDescription("Using this command to bypass the slowmode will result in a timeout.");

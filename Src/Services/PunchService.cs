@@ -10,7 +10,7 @@ public class PunchService(KozmaDbContext dbContext, IConfiguration config) : IPu
 {
     public async Task UpdateOrSaveGamblerAsync(ulong id, string name, PunchPrices ticket)
     {
-        if (id == config.GetValue<ulong>("ids:ownerId")) return;
+        if (id == config.GetValue<ulong>("ids:owner")) return;
 
         var user = await dbContext.Gamblers.FirstOrDefaultAsync(u => u.Id == id.ToString());
         var cost = (int)ticket;

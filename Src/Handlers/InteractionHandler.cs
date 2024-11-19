@@ -29,7 +29,7 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
 
     private async Task HandleInteractionAsync(SocketInteraction interaction)
     {
-        if (interaction.User.Id != config.GetValue<ulong>("ids:ownerId"))
+        if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {
             var maintenanceEmbed = embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later.");
             await interaction.RespondAsync(embed: maintenanceEmbed, ephemeral: true);

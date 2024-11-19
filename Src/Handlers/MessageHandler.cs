@@ -19,7 +19,7 @@ public class MessageHandler(IBot bot, IConfiguration config, IRoleHandler roleHa
         if (channelType is null || channelType != ChannelType.Text && channelType != ChannelType.News) return;
 
         var channel = (ITextChannel)message.Channel;
-        if (channel.GuildId.Equals(config.GetValue<ulong>("ids:serverId"))) await HandleKbpMessageAsync(message);
+        if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message);
         else if (channel.GuildId.Equals(653349356459786240)) await HandleHavenMessageAsync(message);
     }
 
@@ -27,12 +27,12 @@ public class MessageHandler(IBot bot, IConfiguration config, IRoleHandler roleHa
     {
         if (message.Author.IsBot)
         {
-            if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:marketChannelId"))) await message.CrosspostAsync();
+            if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:marketChannel"))) await message.CrosspostAsync();
         }
         else
         {
-            if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:wtsChannelId"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtsRoleId"));
-            else if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:wtbChannelId"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtbRoleId"));
+            if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:wtsChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtsRole"));
+            else if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtbRole"));
         }
     }
 

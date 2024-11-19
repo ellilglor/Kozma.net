@@ -26,13 +26,13 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger) : I
     public async Task HandleTradeCooldownAsync(SocketUserMessage message, ulong roleId)
     {
         if (message.Author is not SocketGuildUser user) return;
-        if (user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:adminId") || r.Id == config.GetValue<ulong>("ids:modId"))) return;
+        if (user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) return;
 
         await GiveRoleAsync(user, roleId);
     }
 
     private SocketGuild GetGuild()
     {
-       return _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:serverId")))!;
+       return _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
     }
 }

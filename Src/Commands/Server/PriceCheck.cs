@@ -20,7 +20,7 @@ public class PriceCheck(IConfiguration config) : InteractionModuleBase<SocketInt
         {
             await Context.Channel.SendFileAsync(
                 filePath: Path.Combine(projectRoot, "Src", "Assets", "we-dont-do-that-here.jpg"),
-                text: $"Asking for prices outside of <#{config.GetValue<string>("ids:priceCheckChannelId")}>?"
+                text: $"Asking for prices outside of <#{config.GetValue<string>("ids:priceCheckChannel")}>?"
             );
 
             await ModifyOriginalResponseAsync(msg => msg.Content = "Image posted.");
