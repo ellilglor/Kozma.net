@@ -9,6 +9,7 @@ public class MessageHandler(IBot bot, IConfiguration config, IRoleHandler roleHa
     public void Initialize()
     {
         bot.GetClient().MessageReceived += HandleMessageAsync;
+        bot.GetClient().Ready += roleHandler.CheckTradeMessagesAsync;
     }
 
     private async Task HandleMessageAsync(SocketMessage rawMessage)

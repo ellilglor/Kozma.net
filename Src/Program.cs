@@ -30,6 +30,7 @@ public class Program
             .AddSingleton<IInteractionHandler, InteractionHandler>()
             .AddSingleton<IMessageHandler, MessageHandler>()
             .AddSingleton<IRoleHandler, RoleHandler>()
+            .AddSingleton<ITaskHandler, TaskHandler>()
             .AddSingleton<IBoxHelper, BoxHelper>()
             .AddSingleton<IPunchHelper, PunchHelper>()
             .AddSingleton<IContentHelper, ContentHelper>()
@@ -44,11 +45,12 @@ public class Program
             .AddScoped<IUserService, UserService>()
             .AddScoped<IUnboxService, UnboxService>()
             .AddScoped<IPunchService, PunchService>()
+            .AddScoped<ITaskService, TaskService>()
             .BuildServiceProvider();
 
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
         services.GetRequiredService<IMessageHandler>().Initialize();
-        services.GetRequiredService<IRoleHandler>().Initialize();
+        services.GetRequiredService<ITaskHandler>().Initialize();
         await StartBotAsync(services);
     }
 
