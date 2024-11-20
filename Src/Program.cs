@@ -47,7 +47,8 @@ public class Program
             .BuildServiceProvider();
 
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
-        await services.GetRequiredService<IMessageHandler>().InitializeAsync();
+        services.GetRequiredService<IMessageHandler>().Initialize();
+        services.GetRequiredService<IRoleHandler>().Initialize();
         await StartBotAsync(services);
     }
 

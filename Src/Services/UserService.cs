@@ -45,7 +45,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
         if (await collection.FirstOrDefaultAsync(u => u.Id == id.ToString()) != null) return false;
 
         var model = factory();
-        model.ExpiresAt = createdAt.AddHours(config.GetValue<double>("slowmodeHours"));
+        model.ExpiresAt = createdAt.AddHours(config.GetValue<double>("timers:slowmodeHours"));
         model.CreatedAt = DateTime.Now;
         model.UpdatedAt = DateTime.Now;
 

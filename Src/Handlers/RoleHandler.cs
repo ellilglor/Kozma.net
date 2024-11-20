@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models.Entities;
@@ -10,6 +11,11 @@ namespace Kozma.net.Src.Handlers;
 public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUserService userService) : IRoleHandler
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
+
+    public void Initialize()
+    {
+        _client.Ready += CheckTradeMessagesAsync;
+    }
 
     public async Task GiveRoleAsync(SocketGuildUser user, ulong roleId)
     {
@@ -30,16 +36,58 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         if (message.Author is not SocketGuildUser user) return;
         if (user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) return;
 
+        await MuteUserAsync(user, message, roleId);
+    }
+
+    private SocketGuild GetGuild()
+    {
+       return _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
+    }
+
+    private async Task CheckTradeMessagesAsync()
+    {
+        var currentDate = DateTime.UtcNow;
+        // TODO check db for early return
+
+        logger.Log(LogColor.Moderation, "Checking if people need to be muted");
+
+        var guild = GetGuild();
+        if (!guild.HasAllMembers) await guild.DownloadUsersAsync();
+
+        var editRole = guild.GetRole(config.GetValue<ulong>("ids:editRole"));
+        var users = guild.Users.Where(u => u.Roles.Contains(editRole)).ToList(); // Should in theory be empty
+        foreach (var user in users)
+        {
+            await RemoveRoleAsync(user, config.GetValue<ulong>("ids:editRole"));
+        }
+
+        await CheckMessagesAsync(guild, config.GetValue<ulong>("ids:wtsChannel"), config.GetValue<ulong>("ids:wtsRole"), currentDate);
+        await CheckMessagesAsync(guild, config.GetValue<ulong>("ids:wtbChannel"), config.GetValue<ulong>("ids:wtbRole"), currentDate);
+        // TODO Update db
+    }
+
+    private async Task CheckMessagesAsync(SocketGuild guild, ulong channelId, ulong roleId, DateTime d)
+    {
+        if (guild.GetChannel(channelId) is not SocketTextChannel channel) return;
+        var messages = await channel.GetMessagesAsync(25).FlattenAsync();
+
+        foreach (var message in messages)
+        {
+            if (d > message.CreatedAt.DateTime.AddHours(config.GetValue<double>("timers:slowmodeHours"))) break;
+            if (message.Author.IsBot || message.Author is not SocketGuildUser user) continue;
+            if (user.Roles.Any(r => r.Id == roleId || r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) continue;
+
+            await MuteUserAsync(user, (SocketUserMessage)message, roleId);
+        }
+    }
+
+    private async Task MuteUserAsync(SocketGuildUser user, SocketUserMessage message, ulong roleId)
+    {
         bool success;
         if (roleId == config.GetValue<ulong>("ids:wtsRole")) success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new SellMute() { Id = user.Id.ToString(), Name = user.Username });
         else success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new BuyMute() { Id = user.Id.ToString(), Name = user.Username });
 
         if (!success) await logger.LogAsync($"{(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} - <@{config.GetValue<ulong>("ids:owner")}> <@{user.Id}> is already in the database!");
         else await GiveRoleAsync(user, roleId);
-    }
-
-    private SocketGuild GetGuild()
-    {
-       return _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
     }
 }
