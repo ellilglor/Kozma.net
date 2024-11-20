@@ -14,6 +14,7 @@ public partial class Update(IEmbedHandler embedHandler, IContentHelper contentHe
     private record Channel(string Name, int Count, string Time);
 
     private static readonly SemaphoreSlim _dbLock = new(1, 1);
+
     private readonly Dictionary<string, ulong> Channels = new()
     {
         { "special-listings", 807369188133306408 },

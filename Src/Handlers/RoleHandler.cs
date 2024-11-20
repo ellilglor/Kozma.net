@@ -10,6 +10,8 @@ namespace Kozma.net.Src.Handlers;
 
 public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUserService userService, ITaskService taskService) : IRoleHandler
 {
+    private readonly double _offlineMutesCheckInterval = 3;
+
     public async Task GiveRoleAsync(SocketGuildUser user, ulong roleId)
     {
         var role = GetGuild().GetRole(roleId);
@@ -43,7 +45,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
             await logger.LogAsync($"<@{config.GetValue<ulong>("ids:owner")}> failed to fetch {taskName} from db");
             return;
         }
-        if (task.UpdatedAt.AddHours(config.GetValue<double>($"timers:{taskName}")) > currentDate) return;
+        if (task.UpdatedAt.AddHours(_offlineMutesCheckInterval) > currentDate) return;
 
         logger.Log(LogColor.Moderation, "Checking if people need to be muted");
 
