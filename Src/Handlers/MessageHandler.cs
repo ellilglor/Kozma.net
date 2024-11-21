@@ -6,10 +6,10 @@ namespace Kozma.net.Src.Handlers;
 
 public class MessageHandler(IBot bot, IConfiguration config, IRoleHandler roleHandler) : IMessageHandler
 {
-    public async Task InitializeAsync()
+    public void Initialize()
     {
         bot.GetClient().MessageReceived += HandleMessageAsync;
-        await Task.CompletedTask;
+        bot.GetClient().Ready += roleHandler.CheckTradeMessagesAsync;
     }
 
     private async Task HandleMessageAsync(SocketMessage rawMessage)

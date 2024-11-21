@@ -164,7 +164,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
 
         logger.Log(LogColor.Special, $"{user} rolled a GM item");
 
-        var rewards = await jsonFileReader.ReadAsync<List<PunchReward>>(Path.Combine("Data", "Punch", "Rewards.json"));
+        var rewards = await jsonFileReader.ReadAsync<List<PunchReward>>(Path.Combine("Data", "Punch.json"));
         if (rewards is null) return ("Failed to get reward", string.Empty);
 
         var reward = rewards[_random.Next(rewards.Count)];

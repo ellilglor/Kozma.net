@@ -45,13 +45,24 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
         if (await collection.FirstOrDefaultAsync(u => u.Id == id.ToString()) != null) return false;
 
         var model = factory();
-        model.ExpiresAt = createdAt.AddHours(config.GetValue<double>("slowmodeHours"));
+        model.ExpiresAt = createdAt.AddHours(config.GetValue<double>("timers:slowmodeHours"));
         model.CreatedAt = DateTime.Now;
         model.UpdatedAt = DateTime.Now;
 
         await collection.AddAsync(model);
         await dbContext.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<IEnumerable<T>> GetAndDeleteExpiredMutesAsync<T>() where T : Mute
+    {
+        var collection = dbContext.Set<T>();
+        var mutes = await collection.Where(x => x.ExpiresAt <= DateTime.Now).ToListAsync();
+
+        if (mutes.Count > 0) collection.RemoveRange(mutes);
+        await dbContext.SaveChangesAsync();
+
+        return mutes;
     }
 
     public async Task<int> GetTotalUsersCountAsync()

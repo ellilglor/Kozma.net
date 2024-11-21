@@ -1,6 +1,6 @@
 ﻿namespace Kozma.net.Src.Handlers;
 
-public interface IMessageHandler
+public interface ITaskHandler
 {
     void Initialize();
 }

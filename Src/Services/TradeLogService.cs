@@ -64,6 +64,11 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> CheckIfLogExistsAsync(ulong id)
+    {
+        return await dbContext.TradeLogs.FirstOrDefaultAsync(log => log.Id == id.ToString()) != null;
+    }
+
     private async Task DeleteLogsAsync(string channel)
     {
         var toDelete = await dbContext.TradeLogs.Where(log => log.Channel == channel).ToListAsync();

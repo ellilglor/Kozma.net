@@ -60,7 +60,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         }
     }
 
-    private EmbedBuilder GetLogEmbed(string title, EmbedColor color)
+    public EmbedBuilder GetLogEmbed(string title, EmbedColor color)
     {
         return embedHandler.GetBasicEmbed(title)
             .WithColor((uint)color)

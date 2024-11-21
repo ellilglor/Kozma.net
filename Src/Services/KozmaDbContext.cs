@@ -14,6 +14,7 @@ public class KozmaDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Unbox> Boxes { get; set; }
     public DbSet<Gambler> Gamblers { get; set; }
     public DbSet<SearchedLog> SearchedLogs { get; set; }
+    public DbSet<TimedTask> TimedTasks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,5 +29,6 @@ public class KozmaDbContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<Unbox>();
         modelBuilder.Entity<Gambler>();
         modelBuilder.Entity<SearchedLog>();
+        modelBuilder.Entity<TimedTask>();
     }
 }
