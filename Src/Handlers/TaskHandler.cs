@@ -63,7 +63,7 @@ public class TaskHandler(IBot bot,
         }
 
         await Task.Delay(TimeSpan.FromMinutes(2));
-        // TODO post still connected message
+        await PostStillConnectedAsync();
         await CheckForExpiredTasksAsync();
     }
 
@@ -143,8 +143,9 @@ public class TaskHandler(IBot bot,
 
     private async Task CheckForNewLogsAsync()
     {
-        logger.Log(LogColor.Moderation, "Checking for new tradelogs");
-        //TODO logasync
+        var message = "Checking for new tradelogs";
+        logger.Log(LogColor.Moderation, message);
+        await logger.LogAsync(embed: logger.GetLogEmbed(message, EmbedColor.Moderation).Build());
 
         var channels = updateHelper.GetChannels();
         foreach (var channelData in channels)
@@ -159,5 +160,12 @@ public class TaskHandler(IBot bot,
 
             await updateHelper.UpdateLogsAsync(channel);
         }
+    }
+
+    private async Task PostStillConnectedAsync()
+    {
+        var embed = logger.GetLogEmbed($"Connected since <t:{bot.GetReadyTimestamp()}:f> with {_client.Latency}ms latency.", EmbedColor.Moderation);
+
+        await logger.LogAsync(embed: embed.Build());
     }
 }
