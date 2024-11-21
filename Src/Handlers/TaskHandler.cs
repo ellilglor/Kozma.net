@@ -3,7 +3,6 @@ using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
-using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
@@ -17,7 +16,6 @@ public class TaskHandler(IBot bot,
     IRoleHandler roleHandler,
     IUpdateHelper updateHelper,
     ITaskService taskService,
-    IUserService userService,
     IExchangeService exchangeService,
     IFileReader jsonFileReader) : ITaskHandler
 {
@@ -52,7 +50,7 @@ public class TaskHandler(IBot bot,
 
     private async Task CheckForExpiredTasksAsync()
     {
-        await CheckExpiredMutesAsync();
+        await roleHandler.CheckExpiredMutesAsync();
 
         var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
         foreach (var task in tasks)
@@ -64,32 +62,9 @@ public class TaskHandler(IBot bot,
             await taskService.UpdateTaskAsync(task.Name);
         }
 
-        await Task.Delay(TimeSpan.FromMinutes(5));
+        await Task.Delay(TimeSpan.FromMinutes(30));
         await PostStillConnectedAsync();
         await CheckForExpiredTasksAsync();
-    }
-
-    private async Task CheckExpiredMutesAsync()
-    {
-        logger.Log(LogColor.Moderation, "Checking expired mutes");
-        var sellMutes = await userService.GetAndDeleteExpiredMutesAsync<SellMute>();
-        var buyMutes = await userService.GetAndDeleteExpiredMutesAsync<BuyMute>();
-
-        if (!sellMutes.Any() && !buyMutes.Any()) return; // Both are empty
-        var guild = _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
-        if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
-
-        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtsRole"), sellMutes);
-        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtbRole"), buyMutes);
-    }
-
-    private async Task RemoveExpiredMutesAsync<T>(SocketGuild guild, ulong roleId, IEnumerable<T> mutes) where T : Mute
-    {
-        foreach (var m in mutes)
-        {
-            if (guild.GetUser(ulong.Parse(m.Id)) is not SocketGuildUser user) continue; // User left the server
-            await roleHandler.RemoveRoleAsync(user, roleId);
-        }
     }
 
     private async Task PostEnergyMarketAsync()

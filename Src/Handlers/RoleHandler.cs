@@ -64,6 +64,29 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         await taskService.UpdateTaskAsync(taskName);
     }
 
+    public async Task CheckExpiredMutesAsync()
+    {
+        logger.Log(LogColor.Moderation, "Checking expired mutes");
+        var sellMutes = await userService.GetAndDeleteExpiredMutesAsync<SellMute>();
+        var buyMutes = await userService.GetAndDeleteExpiredMutesAsync<BuyMute>();
+
+        if (!sellMutes.Any() && !buyMutes.Any()) return; // Both are empty
+        var guild = GetGuild();
+        if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
+
+        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtsRole"), sellMutes);
+        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtbRole"), buyMutes);
+    }
+
+    private async Task RemoveExpiredMutesAsync<T>(SocketGuild guild, ulong roleId, IEnumerable<T> mutes) where T : Mute
+    {
+        foreach (var m in mutes)
+        {
+            if (guild.GetUser(ulong.Parse(m.Id)) is not SocketGuildUser user) continue; // User left the server
+            await RemoveRoleAsync(user, roleId);
+        }
+    }
+
     private SocketGuild GetGuild()
     {
        return bot.GetClient().Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;

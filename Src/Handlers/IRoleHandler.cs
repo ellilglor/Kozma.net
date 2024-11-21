@@ -8,4 +8,5 @@ public interface IRoleHandler
     Task RemoveRoleAsync(SocketGuildUser user, ulong roleId);
     Task HandleTradeCooldownAsync(SocketUserMessage message, ulong roleId);
     Task CheckTradeMessagesAsync();
+    Task CheckExpiredMutesAsync();
 }
