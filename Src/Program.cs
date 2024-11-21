@@ -33,6 +33,7 @@ public class Program
             .AddSingleton<ITaskHandler, TaskHandler>()
             .AddSingleton<IBoxHelper, BoxHelper>()
             .AddSingleton<IPunchHelper, PunchHelper>()
+            .AddSingleton<IUpdateHelper, UpdateHelper>()
             .AddSingleton<IContentHelper, ContentHelper>()
             .AddSingleton<IFileReader, JsonFileReader>()
             .AddSingleton<IUnboxTracker, UnboxTracker>()

@@ -13,6 +13,7 @@ public class TaskHandler(IBot bot,
     IConfiguration config,
     IBotLogger logger,
     IEmbedHandler embedHandler,
+    IUpdateHelper updateHelper,
     ITaskService taskService,
     IExchangeService exchangeService,
     IFileReader jsonFileReader) : ITaskHandler
@@ -55,19 +56,19 @@ public class TaskHandler(IBot bot,
         foreach (var task in tasks)
         {
             var taskConfig = _tasks[task.Name];
-            //if (task.UpdatedAt.AddHours(taskConfig.Interval) > currentTime) continue;
+            if (task.UpdatedAt.AddHours(taskConfig.Interval) > currentTime) continue;
 
             await taskConfig.ExecuteAsync();
-            //await taskService.UpdateTaskAsync(task.Name);
+            await taskService.UpdateTaskAsync(task.Name);
         }
 
         await Task.Delay(TimeSpan.FromMinutes(2));
+        // TODO post still connected message
         await CheckForExpiredTasksAsync();
     }
 
     private async Task PostEnergyMarketAsync()
     {
-        return;
         try
         {
             if (_client.GetChannel(config.GetValue<ulong>("ids:marketChannel")) is not SocketTextChannel channel) return;
@@ -99,6 +100,7 @@ public class TaskHandler(IBot bot,
             await exchangeService.UpdateExchangeAsync(rate);
             await channel.SendMessageAsync(embed: embed.Build());
             logger.Log(LogColor.Moderation, "Posted latest Energy Market");
+            //TODO logasync
         }
         catch (Exception ex)
         {
@@ -109,7 +111,6 @@ public class TaskHandler(IBot bot,
 
     private async Task PostSlowModeReminderAsync()
     {
-        return;
         if (_client.GetChannel(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel wtsChannel) return;
         if (_client.GetChannel(config.GetValue<ulong>("ids:wtbChannel")) is not SocketTextChannel wtbChannel) return;
 
@@ -125,7 +126,6 @@ public class TaskHandler(IBot bot,
 
     private async Task PostScamPreventionAsync()
     {
-        return;
         if (_client.GetChannel(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel channel) return;
         var reminders = await jsonFileReader.ReadAsync<List<Reminder>>(Path.Combine("Data", "Reminders.json"));
         if (reminders is null) return;
@@ -143,7 +143,21 @@ public class TaskHandler(IBot bot,
 
     private async Task CheckForNewLogsAsync()
     {
-        logger.Log(LogColor.Moderation, "logs");
-        await Task.CompletedTask;
+        logger.Log(LogColor.Moderation, "Checking for new tradelogs");
+        //TODO logasync
+
+        var channels = updateHelper.GetChannels();
+        foreach (var channelData in channels)
+        {
+            if (_client.GetChannel(channelData.Value) is not SocketTextChannel channel) return;
+
+            if (channel is SocketThreadChannel thread)
+            {
+                await thread.ModifyAsync(t => t.Archived = true);
+                await thread.ModifyAsync(t => t.Archived = false);
+            }
+
+            await updateHelper.UpdateLogsAsync(channel);
+        }
     }
 }
