@@ -54,6 +54,17 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
         return true;
     }
 
+    public async Task<IEnumerable<T>> GetAndDeleteExpiredMutesAsync<T>() where T : Mute
+    {
+        var collection = dbContext.Set<T>();
+        var mutes = await collection.Where(x => x.ExpiresAt <= DateTime.Now).ToListAsync();
+
+        if (mutes.Count > 0) collection.RemoveRange(mutes);
+        await dbContext.SaveChangesAsync();
+
+        return mutes;
+    }
+
     public async Task<int> GetTotalUsersCountAsync()
     {
         return await dbContext.Users.CountAsync();

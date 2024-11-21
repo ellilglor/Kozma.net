@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
+using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
@@ -13,8 +14,10 @@ public class TaskHandler(IBot bot,
     IConfiguration config,
     IBotLogger logger,
     IEmbedHandler embedHandler,
+    IRoleHandler roleHandler,
     IUpdateHelper updateHelper,
     ITaskService taskService,
+    IUserService userService,
     IExchangeService exchangeService,
     IFileReader jsonFileReader) : ITaskHandler
 {
@@ -49,22 +52,44 @@ public class TaskHandler(IBot bot,
 
     private async Task CheckForExpiredTasksAsync()
     {
-        // TODO check expired mutes
-        var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
-        var currentTime = DateTime.Now;
+        await CheckExpiredMutesAsync();
 
+        var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
         foreach (var task in tasks)
         {
             var taskConfig = _tasks[task.Name];
-            if (task.UpdatedAt.AddHours(taskConfig.Interval) > currentTime) continue;
+            if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now) continue;
 
             await taskConfig.ExecuteAsync();
             await taskService.UpdateTaskAsync(task.Name);
         }
 
-        await Task.Delay(TimeSpan.FromMinutes(2));
+        await Task.Delay(TimeSpan.FromMinutes(5));
         await PostStillConnectedAsync();
         await CheckForExpiredTasksAsync();
+    }
+
+    private async Task CheckExpiredMutesAsync()
+    {
+        logger.Log(LogColor.Moderation, "Checking expired mutes");
+        var sellMutes = await userService.GetAndDeleteExpiredMutesAsync<SellMute>();
+        var buyMutes = await userService.GetAndDeleteExpiredMutesAsync<BuyMute>();
+
+        if (!sellMutes.Any() && !buyMutes.Any()) return; // Both are empty
+        var guild = _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
+        if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
+
+        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtsRole"), sellMutes);
+        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtbRole"), buyMutes);
+    }
+
+    private async Task RemoveExpiredMutesAsync<T>(SocketGuild guild, ulong roleId, IEnumerable<T> mutes) where T : Mute
+    {
+        foreach (var m in mutes)
+        {
+            if (guild.GetUser(ulong.Parse(m.Id)) is not SocketGuildUser user) continue; // User left the server
+            await roleHandler.RemoveRoleAsync(user, roleId);
+        }
     }
 
     private async Task PostEnergyMarketAsync()
@@ -100,7 +125,6 @@ public class TaskHandler(IBot bot,
             await exchangeService.UpdateExchangeAsync(rate);
             await channel.SendMessageAsync(embed: embed.Build());
             logger.Log(LogColor.Moderation, "Posted latest Energy Market");
-            //TODO logasync
         }
         catch (Exception ex)
         {
