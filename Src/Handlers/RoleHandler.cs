@@ -50,7 +50,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         logger.Log(LogColor.Moderation, "Checking if people need to be muted");
 
         var guild = GetGuild();
-        if (!guild.HasAllMembers) await guild.DownloadUsersAsync();
+        if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
 
         var editRole = guild.GetRole(config.GetValue<ulong>("ids:editRole"));
         var users = guild.Users.Where(u => u.Roles.Contains(editRole)).ToList(); // Should be empty but exists just in case

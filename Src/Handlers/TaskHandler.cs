@@ -1,10 +1,12 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Handlers;
 
-public class TaskHandler(IBot bot, IBotLogger logger, ITaskService taskService) : ITaskHandler
+public class TaskHandler(IBot bot, IConfiguration config, IBotLogger logger, IEmbedHandler embedHandler, ITaskService taskService) : ITaskHandler
 {
     private record TaskConfig(double Interval, Func<Task> ExecuteAsync);
 
@@ -33,21 +35,20 @@ public class TaskHandler(IBot bot, IBotLogger logger, ITaskService taskService) 
 
     private async Task CheckForExpiredTasksAsync()
     {
-        //logger.Log(LogColor.Moderation, "test");
         // TODO check expired mutes
         var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
         var currentTime = DateTime.Now;
 
         foreach (var task in tasks)
         {
-            var config = _tasks[task.Name];
-            if (task.UpdatedAt.AddHours(config.Interval) > currentTime) continue;
+            var taskConfig = _tasks[task.Name];
+            if (task.UpdatedAt.AddHours(taskConfig.Interval) > currentTime) continue;
 
-            await config.ExecuteAsync();
+            await taskConfig.ExecuteAsync();
             await taskService.UpdateTaskAsync(task.Name);
         }
 
-        await Task.Delay(TimeSpan.FromMinutes(1));
+        await Task.Delay(TimeSpan.FromMinutes(30));
         await CheckForExpiredTasksAsync();
     }
 
@@ -59,8 +60,15 @@ public class TaskHandler(IBot bot, IBotLogger logger, ITaskService taskService) 
 
     private async Task PostSlowModeReminderAsync()
     {
-        logger.Log(Enums.LogColor.Moderation, "slow");
-        await Task.CompletedTask;
+        if (_client.GetChannel(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel wtsChannel) return;
+        if (_client.GetChannel(config.GetValue<ulong>("ids:wtbChannel")) is not SocketTextChannel wtbChannel) return;
+
+        var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the __{config.GetValue<int>("timers:slowmodeHours")} hour slowmode__ in this channel.")
+            .WithDescription("You can edit your posts through the **/tradepostedit** command.\nWe apologise for any inconvenience this may cause.")
+            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField("\u200B", "Interested in what an item has sold for in the past?\nUse the **/findlogs** command.") });
+
+        await wtsChannel.SendMessageAsync(embed: embed.Build());
+        await wtbChannel.SendMessageAsync(embed: embed.Build());
     }
 
     private async Task PostScamPreventionAsync()
