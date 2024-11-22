@@ -42,7 +42,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
         if (task is null)
         {
-            await logger.LogAsync($"<@{config.GetValue<ulong>("ids:owner")}> failed to fetch {taskName} from db");
+            await logger.LogAsync($"failed to fetch {taskName} from db", pingOwner: true);
             return;
         }
         if (task.UpdatedAt.AddHours(_offlineMutesCheckInterval) > currentDate) return;
@@ -113,7 +113,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         if (roleId == config.GetValue<ulong>("ids:wtsRole")) success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new SellMute() { Id = user.Id.ToString(), Name = user.Username });
         else success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new BuyMute() { Id = user.Id.ToString(), Name = user.Username });
 
-        if (!success) await logger.LogAsync($"{(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} - <@{config.GetValue<ulong>("ids:owner")}> <@{user.Id}> is already in the database");
+        if (!success) await logger.LogAsync($"- {(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} <@{user.Id}> is already in the database", pingOwner: true);
         else await GiveRoleAsync(user, roleId);
     }
 }

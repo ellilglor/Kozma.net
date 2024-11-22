@@ -1,9 +1,10 @@
-﻿using Kozma.net.Src.Models.Entities;
+﻿using Kozma.net.Src.Logging;
+using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kozma.net.Src.Services;
 
-public class ExchangeService(KozmaDbContext dbContext) : IExchangeService
+public class ExchangeService(KozmaDbContext dbContext, IBotLogger logger) : IExchangeService
 {
     public async Task<int> GetExchangeRateAsync()
     {
@@ -15,7 +16,7 @@ public class ExchangeService(KozmaDbContext dbContext) : IExchangeService
         }
         else
         {
-            // TODO: @me in logchannel
+            await LogNoRateAsync();
             return -1;
         }
 
@@ -34,13 +35,17 @@ public class ExchangeService(KozmaDbContext dbContext) : IExchangeService
         }
         else
         {
-            // TODO: @me in logchannel
+            await LogNoRateAsync();
         }
     }
 
     private async Task<Exchange?> GetExchangeAsync()
     {
-        // Should only have 1 entry so ID is not needed
-        return await dbContext.Exchange.FirstOrDefaultAsync();
+        return await dbContext.Exchange.FirstOrDefaultAsync(); // Should only have 1 entry so ID is not needed
+    }
+
+    private async Task LogNoRateAsync()
+    {
+        await logger.LogAsync("Failed to find exchange rate.", pingOwner: true);
     }
 }

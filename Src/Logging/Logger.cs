@@ -31,12 +31,13 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         Console.WriteLine($"{color}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
     }
 
-    public async Task LogAsync(string? message = null, Embed? embed = null)
+    public async Task LogAsync(string? message = null, Embed? embed = null, bool pingOwner = false)
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
         if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ISocketMessageChannel channel) return;
+        var msg = pingOwner ? string.Join(" ", $"<@{config.GetValue<ulong>("ids:owner")}>", message) : message;
 
-        await channel.SendMessageAsync(message, embed: embed);
+        await channel.SendMessageAsync(msg, embed: embed);
     }
 
     public async Task HandlePostInteractionAsync(ICommandInfo command, IInteractionContext context, IResult result)
@@ -133,7 +134,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
                 stackTrace?.Length < (int)DiscordCharLimit.EmbedDesc ? stackTrace : stackTrace?.Substring(0, (int)DiscordCharLimit.EmbedDesc)))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
-        await LogAsync($"<@{config.GetValue<ulong>("ids:owner")}>", errorEmbed.Build());
+        await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
         var description = result.Error switch
         {

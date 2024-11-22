@@ -104,7 +104,7 @@ public class TaskHandler(IBot bot,
         catch (Exception ex)
         {
             logger.Log(LogColor.Error, ex.Message);
-            await logger.LogAsync($"<@{config.GetValue<ulong>("ids:owner")}> error while fetching data from energy market api\n{ex.Message}");
+            await logger.LogAsync($"error while fetching data from energy market api\n{ex.Message}", pingOwner: true);
         }
     }
 
