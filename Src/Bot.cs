@@ -20,7 +20,6 @@ public class Bot : IBot
         };
 
         _client = new DiscordSocketClient(intents);
-        _client.Log += Log;
         _ready = DateTime.UtcNow;
     }
 
@@ -38,12 +37,5 @@ public class Bot : IBot
     public long GetReadyTimestamp()
     {
         return new DateTimeOffset(_ready).ToUnixTimeSeconds();
-    }
-
-    //TODO: move to logger?
-    private static Task Log(LogMessage msg)
-    {
-        Console.WriteLine(msg.ToString());
-        return Task.CompletedTask;
     }
 }

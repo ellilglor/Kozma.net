@@ -15,6 +15,11 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
+    public void Initialize()
+    {
+        _client.Log += DiscordLog;
+    }
+
     public void Log(LogColor level, string message)
     {
         var color = level switch
@@ -23,6 +28,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             LogColor.Button => "\u001b[36m",
             LogColor.Moderation => "\u001b[35m",
             LogColor.Info => "\u001b[33m",
+            LogColor.Discord => "\u001b[90m",
             LogColor.Special => "\u001b[32m",
             LogColor.Error => "\u001b[31m",
             _ => "\u001b[37m"
@@ -157,6 +163,12 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             msg.Embed = userEmbed.Build();
             msg.Components = new ComponentBuilder().Build();
         });
+    }
+
+    private Task DiscordLog(LogMessage msg)
+    {
+        Log(LogColor.Discord, $"{msg.Source}\t{msg.Message}");
+        return Task.CompletedTask;
     }
 
     [GeneratedRegex(@"(pricecheck|stats|test|update)")]

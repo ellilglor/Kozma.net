@@ -49,6 +49,7 @@ public class Program
             .AddScoped<ITaskService, TaskService>()
             .BuildServiceProvider();
 
+        services.GetRequiredService<IBotLogger>().Initialize();
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
         services.GetRequiredService<IMessageHandler>().Initialize();
         services.GetRequiredService<ITaskHandler>().Initialize();

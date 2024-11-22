@@ -7,5 +7,6 @@ public enum LogColor
     Moderation,
     Info,
     Special,
+    Discord,
     Error
 }
