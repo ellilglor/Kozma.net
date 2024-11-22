@@ -49,20 +49,29 @@ public class Program
             .AddScoped<ITaskService, TaskService>()
             .BuildServiceProvider();
 
-        services.GetRequiredService<IBotLogger>().Initialize();
         await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
-        services.GetRequiredService<IMessageHandler>().Initialize();
-        services.GetRequiredService<ITaskHandler>().Initialize();
+        AttachClientEvents(services);
         await StartBotAsync(services);
+    }
+
+    private static void AttachClientEvents(ServiceProvider services)
+    {
+        var client = services.GetRequiredService<IBot>().GetClient();
+        var interactionHandler = services.GetRequiredService<IInteractionHandler>();
+
+        client.Log += services.GetRequiredService<IBotLogger>().HandleDiscordLog;
+        client.Ready += interactionHandler.RegisterCommandsAsync;
+        client.Ready += services.GetRequiredService<IRoleHandler>().CheckTradeMessagesAsync;
+        client.Ready += services.GetRequiredService<ITaskHandler>().LaunchTasksAsync;
+        client.InteractionCreated += interactionHandler.HandleInteractionAsync;
+        client.MessageReceived += services.GetRequiredService<IMessageHandler>().HandleMessageAsync;
     }
 
     private static async Task StartBotAsync(ServiceProvider services)
     {
         try
         {
-            var bot = services.GetRequiredService<IBot>();
-
-            await bot.StartAsync();
+            await services.GetRequiredService<IBot>().StartAsync();
             await Task.Delay(-1);
         }
         catch (Exception exception)

@@ -13,21 +13,17 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
 
     public async Task InitializeAsync()
     {
-        _client.Ready += ReadyAsync;
-
         await handler.AddModulesAsync(Assembly.GetEntryAssembly(), services);
-
-        _client.InteractionCreated += HandleInteractionAsync;
         handler.InteractionExecuted += logger.HandlePostInteractionAsync;
     }
 
-    private async Task ReadyAsync()
+    public async Task RegisterCommandsAsync()
     {
         // TODO: register commands
         await Task.CompletedTask;
     }
 
-    private async Task HandleInteractionAsync(SocketInteraction interaction)
+    public async Task HandleInteractionAsync(SocketInteraction interaction)
     {
         if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {

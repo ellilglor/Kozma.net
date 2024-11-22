@@ -15,11 +15,6 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
-    public void Initialize()
-    {
-        _client.Log += DiscordLog;
-    }
-
     public void Log(LogColor level, string message)
     {
         var color = level switch
@@ -165,9 +160,11 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         });
     }
 
-    private Task DiscordLog(LogMessage msg)
+    public Task HandleDiscordLog(LogMessage msg)
     {
         Log(LogColor.Discord, $"{msg.Source}\t{msg.Message}");
+        // TODO logasync if error
+        
         return Task.CompletedTask;
     }
 

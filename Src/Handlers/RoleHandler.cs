@@ -10,6 +10,7 @@ namespace Kozma.net.Src.Handlers;
 
 public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUserService userService, ITaskService taskService) : IRoleHandler
 {
+    private readonly DiscordSocketClient _client = bot.GetClient();
     private readonly double _offlineMutesCheckInterval = 3;
 
     public async Task GiveRoleAsync(SocketGuildUser user, ulong roleId)
@@ -89,7 +90,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     private SocketGuild GetGuild()
     {
-       return bot.GetClient().Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
+       return _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
     }
 
     private async Task CheckMessagesAsync(SocketGuild guild, ulong channelId, ulong roleId, DateTime d)

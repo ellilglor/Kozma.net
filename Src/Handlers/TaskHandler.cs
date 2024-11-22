@@ -29,18 +29,13 @@ public class TaskHandler(IBot bot,
     private static readonly Random _random = new();
     private static readonly JsonSerializerOptions _marketOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public void Initialize()
+    public async Task LaunchTasksAsync()
     {
         _tasks.Add("energyMarket", new TaskConfig(12, async () => await PostEnergyMarketAsync()));
         _tasks.Add("slowmodeReminder", new TaskConfig(36, async () => await PostSlowModeReminderAsync()));
         _tasks.Add("scamPrevention", new TaskConfig(72, async () => await PostScamPreventionAsync()));
         _tasks.Add("newLogs", new TaskConfig(6, async () => await CheckForNewLogsAsync()));
 
-        _client.Ready += OnReadyAsync;
-    }
-
-    private async Task OnReadyAsync()
-    {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(async () => await CheckForExpiredTasksAsync());
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
