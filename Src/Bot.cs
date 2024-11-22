@@ -29,6 +29,11 @@ public class Bot : IBot
         await _client.StartAsync();
     }
 
+    public async Task UpdateActivityAsync(string activity, ActivityType type)
+    {
+        await _client.SetActivityAsync(new Game(activity, type));
+    }
+
     public DiscordSocketClient GetClient()
     {
         return _client;

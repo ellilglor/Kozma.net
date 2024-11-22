@@ -45,6 +45,7 @@ public class TaskHandler(IBot bot,
 
     private async Task CheckForExpiredTasksAsync()
     {
+        await UpdateActivityAsync();
         await roleHandler.CheckExpiredMutesAsync();
 
         var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
@@ -60,6 +61,32 @@ public class TaskHandler(IBot bot,
         await Task.Delay(TimeSpan.FromMinutes(30));
         await PostStillConnectedAsync();
         await CheckForExpiredTasksAsync();
+    }
+
+    private async Task UpdateActivityAsync()
+    {
+        var random = _random.Next(0, 17);
+        var name = random switch
+        {
+            0 => "/help",
+            1 => "/findlogs",
+            2 => "/unbox",
+            3 => "/punch",
+            4 => "Emberlight Radio",
+            6 => "The Devilite podcast",
+            7 => "m.sound_test",
+            8 => "Harry Mack",
+            9 => "Traversing the Aurora Isles",
+            10 => "Feedback",
+            11 => "Chawkthree Weapon Demonstrations",
+            12 => "Tier 4 Ice Queen With Commentary",
+            13 => "Gun Guides: Ep. 10",
+            14 => "Gatemap Viewer",
+            15 => "m.jellycube_arena",
+            _ => "Avengers: Age of Ulton"
+        };
+
+        await bot.UpdateActivityAsync(name, type: random < 11 ? ActivityType.Listening : ActivityType.Watching);
     }
 
     private async Task PostEnergyMarketAsync()

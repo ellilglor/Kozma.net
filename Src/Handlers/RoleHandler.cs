@@ -90,7 +90,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     private SocketGuild GetGuild()
     {
-       return _client.Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
+        return _client.GetGuild(config.GetValue<ulong>("ids:server"));
     }
 
     private async Task CheckMessagesAsync(SocketGuild guild, ulong channelId, ulong roleId, DateTime d)
