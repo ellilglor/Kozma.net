@@ -1,15 +1,13 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 
-namespace Kozma.net.Logging;
+namespace Kozma.net.Src.Logging;
 
 public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embedHandler, IUserService userService, ICommandService commandService) : IBotLogger
 {

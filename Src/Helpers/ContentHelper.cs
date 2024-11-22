@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using Kozma.net.Src.Helpers;
 
-namespace Kozma.net.Helpers;
+namespace Kozma.net.Src.Helpers;
 
 public partial class ContentHelper : IContentHelper
 {

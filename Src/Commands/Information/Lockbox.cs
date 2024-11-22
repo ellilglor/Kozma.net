@@ -5,7 +5,7 @@ using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using System.Text.RegularExpressions;
 
-namespace Kozma.net.Commands.Information;
+namespace Kozma.net.Src.Commands.Information;
 
 public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
 {

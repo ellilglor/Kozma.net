@@ -1,5 +1,4 @@
 ﻿using Discord.Interactions;
-using System.Runtime.Serialization;
 
 namespace Kozma.net.Src.Enums;
 
