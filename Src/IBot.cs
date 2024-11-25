@@ -9,4 +9,5 @@ public interface IBot
     Task UpdateActivityAsync(string activity, ActivityType type);
     DiscordSocketClient GetClient();
     long GetReadyTimestamp();
+    void Dispose();
 }

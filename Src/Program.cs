@@ -21,13 +21,16 @@ internal sealed class Program
 
     private static async Task StartBotAsync(ServiceProvider services)
     {
+        var bot = services.GetRequiredService<IBot>();
         using (services)
         {
             await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
             AttachClientEvents(services);
-            await services.GetRequiredService<IBot>().StartAsync();
+            await bot.StartAsync();
             await Task.Delay(-1);
         }
+
+        bot.Dispose();
     }
 
     private static void AttachClientEvents(ServiceProvider services)

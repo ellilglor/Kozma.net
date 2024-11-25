@@ -1,12 +1,11 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Discord.Net;
 using Discord.WebSocket;
 using Kozma.net.Src.Handlers;
 
 namespace Kozma.net.Src.Commands.Other;
 
-public class Clear(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInteractionContext>
+public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandler) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("clear", "Removes all bot messages in your dms.")]
     [ComponentInteraction("clear-messages")]
@@ -27,15 +26,20 @@ public class Clear(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInt
         });
     }
 
-    private static async Task ClearMessagesAsync(SocketUser user)
+    private async Task ClearMessagesAsync(SocketUser user)
     {
         var channel = await user.CreateDMChannelAsync();
         var messages = await channel.GetMessagesAsync(int.MaxValue).FlattenAsync();
 
         foreach (var msg in messages.Where(msg => msg.Author.IsBot))
         {
+            while (rateLimitHandler.IsRateLimited())
+            {
+                await Task.Delay(500);
+            }
+
             await msg.DeleteAsync();
-            await Task.Delay(700); // delay to prevent hitting Discord rate limit
+            await Task.Delay(420);
         }
     }
 }

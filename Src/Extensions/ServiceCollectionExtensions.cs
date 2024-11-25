@@ -33,7 +33,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IInteractionHandler, InteractionHandler>()
             .AddSingleton<IMessageHandler, MessageHandler>()
             .AddSingleton<IRoleHandler, RoleHandler>()
-            .AddSingleton<ITaskHandler, TaskHandler>();
+            .AddSingleton<ITaskHandler, TaskHandler>()
+            .AddSingleton<IRateLimitHandler, RateLimitHandler>();
     }
 
     public static IServiceCollection ConfigureHelpers(this IServiceCollection services)

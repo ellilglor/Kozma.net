@@ -9,7 +9,12 @@ using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Logging;
 
-public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embedHandler, IUserService userService, ICommandService commandService) : IBotLogger
+public partial class Logger(IBot bot,
+    IConfiguration config,
+    IEmbedHandler embedHandler,
+    IRateLimitHandler rateLimitHandler,
+    IUserService userService,
+    ICommandService commandService) : IBotLogger
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
@@ -162,6 +167,8 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
     {
         Log(LogColor.Discord, $"{msg.Source}\t{msg.Message}");
         // TODO logasync if error
+
+        if (msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
         
         return Task.CompletedTask;
     }
