@@ -5,8 +5,8 @@ namespace Kozma.net.Src.Helpers;
 
 public class BoxHelper(IFileReader jsonFileReader) : IBoxHelper
 {
-    private static readonly string _lockboxSheetUrl = "https://docs.google.com/spreadsheets/d/14FQWsNevL-7Uiiy-Q3brif8FaEaH7zGGR2Lv_JkOyr8/htmlview#";
-    private static readonly string _baseGifUrl = "https://cdn.discordapp.com/attachments/1069643121622777876/";
+    private const string _lockboxSheetUrl = "https://docs.google.com/spreadsheets/d/14FQWsNevL-7Uiiy-Q3brif8FaEaH7zGGR2Lv_JkOyr8/htmlview#";
+    private const string _baseGifUrl = "https://cdn.discordapp.com/attachments/1069643121622777876/";
 
     public BoxData? GetBox(Box box)
     {

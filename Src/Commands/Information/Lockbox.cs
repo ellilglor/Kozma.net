@@ -3,6 +3,7 @@ using Discord.Interactions;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Commands.Information;
@@ -38,13 +39,13 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
                 newTitle = string.Concat(newTitle, " Lockbox");
             }
 
-            embed.WithTitle($"{newTitle.ToUpper()}:")
+            embed.WithTitle($"{newTitle.ToUpper(CultureInfo.InvariantCulture)}:")
                 .WithDescription(match);
         }
 
         if (!string.IsNullOrEmpty(slimeCode))
         {
-            embed.WithTitle(GetSlimeboxDescription(slimeCode.ToLower()) ?? $"I didn't find a match for __{slimeCode}__.");
+            embed.WithTitle(GetSlimeboxDescription(slimeCode.ToUpper(CultureInfo.InvariantCulture)) ?? $"I didn't find a match for __{slimeCode}__.");
         }
 
         if (!string.IsNullOrEmpty(item))
@@ -109,27 +110,27 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
             "007" => "The 007 Slime lockbox contains **no special** themed box.",
             "008" => "The 008 Slime lockbox contains **no special** themed box.",
             "009" => "The 009 Slime lockbox contains **no special** themed box.",
-            "40g" => "The 40G Slime lockbox contains the **Hunter** themed box.",
-            "41c" => "The 41C Slime lockbox contains the **Dangerous** themed box.",
-            "40n" => "The 40N Slime lockbox contains the **Glacial** themed box.",
-            "41d" => "The 41D Slime lockbox contains the **Hazardous** themed box.",
-            "50e" => "The 50E Slime lockbox contains the **Wicked** themed box.",
+            "40G" => "The 40G Slime lockbox contains the **Hunter** themed box.",
+            "41C" => "The 41C Slime lockbox contains the **Dangerous** themed box.",
+            "40N" => "The 40N Slime lockbox contains the **Glacial** themed box.",
+            "41D" => "The 41D Slime lockbox contains the **Hazardous** themed box.",
+            "50E" => "The 50E Slime lockbox contains the **Wicked** themed box.",
             "509" => "The 509 Slime lockbox contains the **Shadow** themed box.",
-            "a1j" => "The A1J Slime lockbox contains the **Pearl** themed box.",
-            "a16" => "The A16 Slime lockbox contains the **Opal** themed box.",
-            "a1a" => "The A1A Slime lockbox contains the **Amethyst** themed box.",
-            "a18" => "The A18 Slime lockbox contains the **Turquoise** themed box.",
-            "a10" => "The A10 Slime lockbox contains the **Ruby** themed box.",
-            "a12" => "The A12 Slime lockbox contains the **Peridot** themed box.",
-            "a1b" => "The A1B Slime lockbox contains **no special** themed box.",
+            "A1J" => "The A1J Slime lockbox contains the **Pearl** themed box.",
+            "A16" => "The A16 Slime lockbox contains the **Opal** themed box.",
+            "A1A" => "The A1A Slime lockbox contains the **Amethyst** themed box.",
+            "A18" => "The A18 Slime lockbox contains the **Turquoise** themed box.",
+            "A10" => "The A10 Slime lockbox contains the **Ruby** themed box.",
+            "A12" => "The A12 Slime lockbox contains the **Peridot** themed box.",
+            "A1b" => "The A1B Slime lockbox contains **no special** themed box.",
             "403" => "The 403 Slime lockbox contains **no special** themed box.",
-            "b1b" => "The B1B Slime lockbox contains the **Aquamarine** themed box.",
-            "a17" => "The A17 Slime lockbox contains the **Citrine** themed box.",
-            "a19" => "The A19 Slime lockbox contains the **Garnet** themed box.",
-            "a14" => "The A14 Slime lockbox contains the **Sapphire** themed box.",
-            "a1i" => "The A1I Slime lockbox contains the **Emerald** themed box.",
-            "a1h" => "The A1H Slime lockbox contains the **Diamond** themed box.",
-            "qqq" => "The QQQ Slime lockbox contains **no special** themed box.",
+            "B1B" => "The B1B Slime lockbox contains the **Aquamarine** themed box.",
+            "A17" => "The A17 Slime lockbox contains the **Citrine** themed box.",
+            "A19" => "The A19 Slime lockbox contains the **Garnet** themed box.",
+            "A14" => "The A14 Slime lockbox contains the **Sapphire** themed box.",
+            "A1I" => "The A1I Slime lockbox contains the **Emerald** themed box.",
+            "A1H" => "The A1H Slime lockbox contains the **Diamond** themed box.",
+            "QQQ" => "The QQQ Slime lockbox contains **no special** themed box.",
             _ => null
         };
     }
@@ -143,12 +144,12 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
             .Select(box =>
             {
                 var boxContent = new System.Text.StringBuilder();
-                boxContent.Append($"\n\n__**{box.Key.ToString().ToUpper()} LOCKBOX:**__\n");
+                boxContent.Append($"\n\n__**{box.Key.ToString().ToUpper(CultureInfo.InvariantCulture)} LOCKBOX:**__\n");
 
                 if (box.Key == LockboxOption.Iron)
                 {
-                    var pools = Pattern().Replace(box.Value, string.Empty).ToLower().Split("80%");
-                    boxContent.Append(pools[0].Contains(item) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n");
+                    var pools = Pattern().Replace(box.Value, string.Empty).Split("80%");
+                    boxContent.Append(pools[0].Contains(item, StringComparison.OrdinalIgnoreCase) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n");
                 }
 
                 var matchingLines = box.Value

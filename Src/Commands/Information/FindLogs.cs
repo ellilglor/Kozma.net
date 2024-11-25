@@ -60,13 +60,13 @@ public partial class FindLogs(
 
         AttachUvsToBack(items);
         if (checkVariants) await AddVariantsAsync(items);
-        if (items[0].Contains("ctr") && items[0].Contains("asi")) items.ForEach(item => reverse.Add(SwapUvs(item)));
+        if (items[0].Contains("ctr", StringComparison.OrdinalIgnoreCase) && items[0].Contains("asi", StringComparison.OrdinalIgnoreCase)) items.ForEach(item => reverse.Add(SwapUvs(item)));
         if (checkClean) items.ForEach(item => cleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
-        if (items[0].Contains("blaster") && !items[0].Contains("nog")) ignore.Add("nog blaster");
-        if (!items[0].Contains("recipe")) ignore.Add("recipe");
+        if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("nog blaster");
+        if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("recipe");
 
         var commonFeatured = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json")) ?? [];
-        var skipSpecial = commonFeatured.Any(item => items[0].Contains(item));
+        var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
         var matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
         var matchCount = matches.Sum(collection => collection.Messages.Count);
 
@@ -74,7 +74,7 @@ public partial class FindLogs(
         if (sentMatchesSuccesfully) await FinishInteractionAsync(items[0], original, matchCount, months, checkVariants, cmdUser);
     }
 
-    private async Task<bool> SendMatchesAsync(IEnumerable<LogCollection> matches, SocketUser user)
+    private async Task<bool> SendMatchesAsync(IEnumerable<LogGroups> matches, SocketUser user)
     {
         try
         {
@@ -129,7 +129,7 @@ public partial class FindLogs(
                 $"Did you know we have our own [**Discord server**]({config.GetValue<string>("serverInvite")} 'Kozma's Backpack Discord server')?");
 
         var spreadsheet = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "FindLogs", "Spreadsheet.json")) ?? [];
-        if (spreadsheet.Any(equipment => item.Contains(equipment)))
+        if (spreadsheet.Any(equipment => item.Contains(equipment, StringComparison.OrdinalIgnoreCase)))
         {
             embed.AddField("** **", $"__{copy}__ can be found on the [**merchant sheet**](https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#).");
         }
@@ -174,8 +174,8 @@ public partial class FindLogs(
                     {
                         if (i + 1 < input.Length && string.Equals(input[i + 1], grade, StringComparison.OrdinalIgnoreCase))
                         {
-                            var uv = string.Equals(grade, "very") && (i + 2 < input.Length && string.Equals(input[i + 2], "high", StringComparison.OrdinalIgnoreCase)) ? type + " very high" : type + " " + grade;
-                            items[0] = (items[0].Replace(uv, string.Empty) + " " + uv).Replace("  ", " ").Trim();
+                            var uv = grade == "very" && (i + 2 < input.Length && string.Equals(input[i + 2], "high", StringComparison.OrdinalIgnoreCase)) ? type + " very high" : type + " " + grade;
+                            items[0] = (items[0].Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).Replace("  ", " ", StringComparison.OrdinalIgnoreCase).Trim();
                         }
                     }
                 }
@@ -187,15 +187,15 @@ public partial class FindLogs(
     {
         var item = items[0];
         var exceptions = new List<string> { "drakon", "maskeraith", "nog" };
-        if (exceptions.Any(keyword => item.Contains(keyword))) return;
+        if (exceptions.Any(keyword => item.Contains(keyword, StringComparison.OrdinalIgnoreCase))) return;
 
         var equipmentFamilies = await jsonFileReader.ReadAsync<Dictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "EquipmentFamilies.json")) ?? [];
-        var family = equipmentFamilies.FirstOrDefault(f => f.Value.Any(name => item.Contains(name)));
+        var family = equipmentFamilies.FirstOrDefault(f => f.Value.Any(name => item.Contains(name, StringComparison.OrdinalIgnoreCase)));
 
         if (!family.Equals(default(KeyValuePair<string, List<string>>)))
         {
-            var match = family.Value.First(name => item.Contains(name));
-            var uvs = item.Replace(match, string.Empty).Trim();
+            var match = family.Value.First(name => item.Contains(name, StringComparison.OrdinalIgnoreCase));
+            var uvs = item.Replace(match, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
 
             items.Clear();
             family.Value.ForEach(entry => items.Add($"{entry} {uvs}".Trim()));
@@ -208,15 +208,15 @@ public partial class FindLogs(
         {
             foreach (var color in set.Value)
             {
-                if (!item.Contains(color)) continue;
-                if (string.Equals(set.Key, "gems") && GemExceptionRegex().IsMatch(item)) break;
-                if (string.Equals(set.Key, "snipes") && (item.Contains("slime") || item.Contains("plume"))) break;
+                if (!item.Contains(color, StringComparison.OrdinalIgnoreCase)) continue;
+                if (set.Key == "gems" && GemExceptionRegex().IsMatch(item)) break;
+                if (set.Key == "snipes" && (item.Contains("slime", StringComparison.OrdinalIgnoreCase) || item.Contains("plume", StringComparison.OrdinalIgnoreCase))) break;
 
-                var template = item.Replace(color, string.Empty).Trim();
-                if (string.Equals(color, "rose") && ((template.Contains("tabard") || template.Contains("chapeau")) || RoseColorRegex().IsMatch(template))) break;
+                var template = item.Replace(color, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
+                if (color == "rose" && ((template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase)) || RoseColorRegex().IsMatch(template))) break;
 
                 items.Clear();
-                if (set.Key.Contains("obsidian") || set.Key.Contains("rose"))
+                if (set.Key == "obsidian" || set.Key.Contains("rose", StringComparison.OrdinalIgnoreCase))
                 {
                     set.Value.ForEach(value => items.Add($"{template} {value}".Trim()));
                 } else

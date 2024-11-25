@@ -1,10 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Helpers;
 
 public partial class ContentHelper : IContentHelper
 {
-    private record TermFilter(string Before, string After, string? Exclude);
+    private sealed record TermFilter(string Before, string After, string? Exclude);
 
     private readonly List<TermFilter> filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
         new TermFilter("totem", "somnambulists totem", "somnambulists"),
@@ -39,20 +40,22 @@ public partial class ContentHelper : IContentHelper
 
     public string FilterContent(string content)
     {
+#pragma warning disable CA1308 // Normalize strings to uppercase -> can't do this yet because legacy code from js version
         var filtered = content
-            .ToLower()
-            .Replace("vh", "very high");
-            
+            .ToLower(CultureInfo.InvariantCulture)
+            .Replace("vh", "very high", StringComparison.OrdinalIgnoreCase);
+#pragma warning restore CA1308 // Normalize strings to uppercase
+
         filtered = SpecialCharacters().Replace(filtered, string.Empty);
 
         foreach (var filter in filters)
         {
-            if (filtered.Contains(filter.Before))
+            if (filtered.Contains(filter.Before, StringComparison.OrdinalIgnoreCase))
             {
-                if (filter.Exclude != null && filtered.Contains(filter.Exclude))
+                if (filter.Exclude != null && filtered.Contains(filter.Exclude, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                filtered = filtered.Replace(filter.Before, filter.After);
+                filtered = filtered.Replace(filter.Before, filter.After, StringComparison.OrdinalIgnoreCase);
             }
         }
 

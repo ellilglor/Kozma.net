@@ -13,13 +13,13 @@ public class Gambler
     public required string Name { get; set; }
 
     [BsonElement("single")]
-    public int Single { get; set; }
+    public int SingleTicket { get; set; }
 
     [BsonElement("double")]
-    public int Double { get; set; }
+    public int DoubleTicket { get; set; }
 
     [BsonElement("triple")]
-    public int Triple { get; set; }
+    public int TripleTicket { get; set; }
 
     [BsonElement("total")]
     public int Total { get; set; }

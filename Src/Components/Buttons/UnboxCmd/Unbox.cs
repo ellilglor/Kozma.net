@@ -21,7 +21,7 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
 
         if (Enum.TryParse(embed.Author!.Value.Name, out Box box))
         {
-            if (string.Equals(action, "again"))
+            if (action == "again")
             {
                 var command = new Commands.Games.Unbox(config, embedHandler, boxHelper, unboxTracker, unboxService, logger);
                 await command.UnboxAsync(Context.Interaction, Context.User.Id, box, int.Parse(embed.Fields[0].Value) + 1);

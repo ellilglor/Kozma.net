@@ -23,7 +23,7 @@ public class StatPageTracker(IBot bot,
     private readonly DiscordSocketClient _client = bot.GetClient();
     private List<Embed> _pages = [];
     private readonly Dictionary<ulong, int> _users = [];
-    private bool _buildingInProgess = false;
+    private bool _buildingInProgess;
 
     public async Task BuildPagesAsync()
     {
@@ -272,7 +272,7 @@ public class StatPageTracker(IBot bot,
         {
             embedHandler.CreateField("Item", names.ToString()),
             embedHandler.CreateField("Searches", searches.ToString()),
-            embedHandler.CreateField("Unique Searches", $"{totalSearched:N0}", inline: false),
+            embedHandler.CreateField("Unique Searches", $"{totalSearched:N0}", isInline: false),
         };
 
         return embedHandler.GetBasicEmbed($"Top {limit} searched items").WithFields(fields);
@@ -303,7 +303,7 @@ public class StatPageTracker(IBot bot,
         {
             embedHandler.CreateField("Logged", names.ToString()),
             embedHandler.CreateField("Count", searches.ToString()),
-            embedHandler.CreateField("Total", $"{total:N0}", inline: false),
+            embedHandler.CreateField("Total", $"{total:N0}", isInline: false),
         };
 
         return embedHandler.GetBasicEmbed("Estimated logged items").WithFields(fields);

@@ -69,7 +69,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
-        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), string.Equals(command, "unbox"));
+        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), isUnbox: command == "unbox");
 
         var desc = string.Empty;
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));

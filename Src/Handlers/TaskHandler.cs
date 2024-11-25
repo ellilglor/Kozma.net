@@ -19,10 +19,10 @@ public class TaskHandler(IBot bot,
     IExchangeService exchangeService,
     IFileReader jsonFileReader) : ITaskHandler
 {
-    private record TaskConfig(double Interval, Func<Task> ExecuteAsync);
-    private record Reminder(string Title, string Description);
-    private record Offer(int Price, int Volume);
-    private record EnergyMarketData(DateTime Datetime, int LastPrice, List<Offer> BuyOffers, List<Offer> SellOffers);
+    private sealed record TaskConfig(double Interval, Func<Task> ExecuteAsync);
+    private sealed record Reminder(string Title, string Description);
+    private sealed record Offer(int Price, int Volume);
+    private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, List<Offer> BuyOffers, List<Offer> SellOffers);
 
     private readonly DiscordSocketClient _client = bot.GetClient();
     private readonly Dictionary<string, TaskConfig> _tasks = new();
@@ -31,13 +31,13 @@ public class TaskHandler(IBot bot,
 
     public async Task LaunchTasksAsync()
     {
-        _tasks.Add("energyMarket", new TaskConfig(12, async () => await PostEnergyMarketAsync()));
-        _tasks.Add("slowmodeReminder", new TaskConfig(36, async () => await PostSlowModeReminderAsync()));
-        _tasks.Add("scamPrevention", new TaskConfig(72, async () => await PostScamPreventionAsync()));
-        _tasks.Add("newLogs", new TaskConfig(6, async () => await CheckForNewLogsAsync()));
+        _tasks.Add("energyMarket", new TaskConfig(12, PostEnergyMarketAsync));
+        _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
+        _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
+        _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        Task.Run(async () => await CheckForExpiredTasksAsync());
+        Task.Run(CheckForExpiredTasksAsync);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
         await Task.CompletedTask;
@@ -93,14 +93,15 @@ public class TaskHandler(IBot bot,
     {
         try
         {
-            if (_client.GetChannel(config.GetValue<ulong>("ids:marketChannel")) is not SocketTextChannel channel) return;
+            if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not SocketTextChannel channel) return;
 
             using var client = new HttpClient();
             var response = await client.GetAsync(new Uri(config.GetValue<string>("energyMarket")!));
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
-            var data = JsonSerializer.Deserialize<EnergyMarketData>(json, _marketOptions) ?? throw new Exception();
+            var data = JsonSerializer.Deserialize<EnergyMarketData>(json, _marketOptions) ?? throw new ArgumentNullException();
+            // TODO: log when not up to date?
 
             var crown = "<:kbpcrowns:1092398578053431366>";
             var energy = "<:kbpenergy:1092398618939506718>";
@@ -132,8 +133,8 @@ public class TaskHandler(IBot bot,
 
     private async Task PostSlowModeReminderAsync()
     {
-        if (_client.GetChannel(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel wtsChannel) return;
-        if (_client.GetChannel(config.GetValue<ulong>("ids:wtbChannel")) is not SocketTextChannel wtbChannel) return;
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel wtsChannel) return;
+        if (await _client.GetChannelAsync (config.GetValue<ulong>("ids:wtbChannel")) is not SocketTextChannel wtbChannel) return;
 
         var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the __{config.GetValue<int>("timers:slowmodeHours")} hour slowmode__ in this channel.")
             .WithDescription("You can edit your posts through the **/tradepostedit** command.\nWe apologise for any inconvenience this may cause.")
@@ -147,7 +148,7 @@ public class TaskHandler(IBot bot,
 
     private async Task PostScamPreventionAsync()
     {
-        if (_client.GetChannel(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel channel) return;
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel channel) return;
         var reminders = await jsonFileReader.ReadAsync<List<Reminder>>(Path.Combine("Data", "Reminders.json"));
         if (reminders is null) return;
 
@@ -171,7 +172,7 @@ public class TaskHandler(IBot bot,
         var channels = updateHelper.GetChannels();
         foreach (var channelData in channels)
         {
-            if (_client.GetChannel(channelData.Value) is not SocketTextChannel channel) return;
+            if (await _client.GetChannelAsync(channelData.Value) is not SocketTextChannel channel) return;
 
             if (channel is SocketThreadChannel thread)
             {

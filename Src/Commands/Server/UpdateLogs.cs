@@ -6,9 +6,9 @@ using Kozma.net.Src.Handlers;
 
 namespace Kozma.net.Src.Commands.Server;
 
-public class Update(IEmbedHandler embedHandler, IUpdateHelper updateHelper) : InteractionModuleBase<SocketInteractionContext>
+public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) : InteractionModuleBase<SocketInteractionContext>
 {
-    private record Channel(string Name, int Count, string Time);
+    private sealed record Channel(string Name, int Count, string Time);
 
     [SlashCommand("update", "Kozma's Backpack staff only.")]
     [RequireUserPermission(GuildPermission.BanMembers | GuildPermission.KickMembers)]
@@ -41,7 +41,7 @@ public class Update(IEmbedHandler embedHandler, IUpdateHelper updateHelper) : In
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Update completed in {totalTime.Elapsed.TotalMinutes:F2} minutes").Build());
     }
 
-    private static void DisplayData(List<Channel> data)
+    private static void DisplayData(IReadOnlyCollection<Channel> data)
     {
         Console.WriteLine("{0,-20} {1,-10} {2,-10}", "Name", "Count", "Time (s)");
 

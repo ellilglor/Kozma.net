@@ -21,18 +21,18 @@ public class PunchService(KozmaDbContext dbContext, IConfiguration config) : IPu
             {
                 Id = id.ToString(),
                 Name = name,
-                Single = ticket == PunchPrices.Single ? cost : 0,
-                Double = ticket == PunchPrices.Double ? cost : 0,
-                Triple = ticket == PunchPrices.Triple ? cost : 0,
+                SingleTicket = ticket == PunchPrices.SingleTicket ? cost : 0,
+                DoubleTicket = ticket == PunchPrices.DoubleTicket ? cost : 0,
+                TripleTicket = ticket == PunchPrices.TripleTicket ? cost : 0,
                 Total = cost
             });
         }
         else
         {
             user.Total += cost;
-            if (ticket == PunchPrices.Single) user.Single += cost;
-            else if (ticket == PunchPrices.Double) user.Double += cost;
-            else user.Triple += cost;
+            if (ticket == PunchPrices.SingleTicket) user.SingleTicket += cost;
+            else if (ticket == PunchPrices.DoubleTicket) user.DoubleTicket += cost;
+            else user.TripleTicket += cost;
 
             if (user.Name != name) user.Name = name;
 

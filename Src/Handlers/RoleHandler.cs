@@ -15,14 +15,14 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     public async Task GiveRoleAsync(SocketGuildUser user, ulong roleId)
     {
-        var role = GetGuild().GetRole(roleId);
+        var role = await GetGuild().GetRoleAsync(roleId);
         await user.AddRoleAsync(role);
         logger.Log(LogColor.Moderation, $"{role.Name} was given to {user.Username}");
     }
 
     public async Task RemoveRoleAsync(SocketGuildUser user, ulong roleId)
     {
-        var role = GetGuild().GetRole(roleId);
+        var role = await GetGuild().GetRoleAsync(roleId);
         await user.RemoveRoleAsync(role);
         logger.Log(LogColor.Moderation, $"{role.Name} was removed from {user.Username}");
     }
@@ -53,8 +53,8 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         var guild = GetGuild();
         if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
 
-        var editRole = guild.GetRole(config.GetValue<ulong>("ids:editRole"));
-        var users = guild.Users.Where(u => u.Roles.Contains(editRole)).ToList(); // Should be empty but exists just in case
+        var editRole = await guild.GetRoleAsync(config.GetValue<ulong>("ids:editRole"));
+        var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == editRole.Id)).ToList(); // Should be empty but exists just in case
         foreach (var user in users)
         {
             await RemoveRoleAsync(user, config.GetValue<ulong>("ids:editRole"));

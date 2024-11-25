@@ -40,11 +40,11 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
         if (unboxed.Count == 0)
         {
             await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithDescription("Something went wrong while trying to open the box.").Build());
-            throw new Exception($"Something went wrong while trying to open {box}.");
+            throw new ArgumentOutOfRangeException($"Something went wrong while trying to open {box}.");
         }
 
         var items = string.Join(" & ", unboxed.Select(item => item.Name));
-        logger.Log(items.Contains('*') ? LogColor.Special : LogColor.Info, $"{interaction.User.Username} opened {box} and got {items}");
+        logger.Log(items.Contains('*', StringComparison.InvariantCulture) ? LogColor.Special : LogColor.Info, $"{interaction.User.Username} opened {box} and got {items}");
         if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
 
         foreach (var item in unboxed)

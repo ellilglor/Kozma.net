@@ -4,11 +4,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src;
 
-public class Bot : IBot
+public class Bot : IBot, IDisposable
 {
     private readonly DiscordSocketClient _client;
     private readonly IConfiguration _config;
     private readonly DateTime _ready;
+    private bool _disposed;
 
     public Bot(IConfiguration config)
     {
@@ -42,5 +43,24 @@ public class Bot : IBot
     public long GetReadyTimestamp()
     {
         return new DateTimeOffset(_ready).ToUnixTimeSeconds();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _client?.Dispose();
+            }
+
+            _disposed = true;
+        }
     }
 }

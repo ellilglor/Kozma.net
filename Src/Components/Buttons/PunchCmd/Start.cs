@@ -13,13 +13,13 @@ public class Start(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Inter
     public async Task ExecuteAsync()
     {
         var context = (SocketMessageComponent)Context.Interaction;
-        var item = punchHelper.ConvertToPunchOption(context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty))!;
+        var item = punchHelper.ConvertToPunchOption(context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty, StringComparison.OrdinalIgnoreCase))!;
         var itemData = punchHelper.GetItem((PunchOption)item)!;
-        var craftedUvs = context.Message.Embeds.First().Fields.Where(f => f.Name.Contains("UV")).ToList();
+        var craftedUvs = context.Message.Embeds.First().Fields.Where(f => f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
         var disableRollBtn = false;
 
         var fields = craftedUvs.Select(field => embedHandler.CreateField($"\U0001f513 {field.Name}", field.Value)).ToList();
-        fields.Add(embedHandler.CreateField("Crowns Spent", "0", inline: false));
+        fields.Add(embedHandler.CreateField("Crowns Spent", "0", isInline: false));
 
         var embed = embedHandler.GetEmbed(itemData.Name)
             .WithAuthor(punchHelper.GetAuthor())

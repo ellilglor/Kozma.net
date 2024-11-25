@@ -52,12 +52,12 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         return services
-            .AddScoped<ITradeLogService, TradeLogService>()
-            .AddScoped<IExchangeService, ExchangeService>()
-            .AddScoped<ICommandService, CommandService>()
-            .AddScoped<IUserService, UserService>()
-            .AddScoped<IUnboxService, UnboxService>()
-            .AddScoped<IPunchService, PunchService>()
-            .AddScoped<ITaskService, TaskService>();
+            .AddSingleton<ITradeLogService, TradeLogService>()
+            .AddSingleton<IExchangeService, ExchangeService>()
+            .AddSingleton<ICommandService, CommandService>()
+            .AddSingleton<IUserService, UserService>()
+            .AddSingleton<IUnboxService, UnboxService>()
+            .AddSingleton<IPunchService, PunchService>()
+            .AddSingleton<ITaskService, TaskService>();
     }
 }

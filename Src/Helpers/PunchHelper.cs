@@ -78,12 +78,12 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
             .Build();
     }
 
-    public string RollUv(ulong id, PunchItem item, List<string> uvs, bool crafting = false)
+    public string RollUv(ulong id, PunchItem item, IReadOnlyCollection<string> uvs, bool crafting = false)
     {
         var uvGrade = GetUvGrade(item.Type);
         var uvType = GetUvType(item.Type, crafting);
 
-        while (uvs.Any(uv => uv.Contains(uvType)))
+        while (uvs.Any(uv => uv.Contains(uvType, StringComparison.OrdinalIgnoreCase)))
         {
             uvType = GetUvType(item.Type, crafting);
         }
@@ -149,14 +149,14 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         }
     }
 
-    private record PunchReward(string Author, string Url);
+    private sealed record PunchReward(string Author, string Url);
 
-    public async Task<(string desc, string image)> CheckForGmAsync(string user, ItemType type, List<string> uvs)
+    public async Task<(string desc, string image)> CheckForGmAsync(string user, ItemType type, IReadOnlyCollection<string> uvs)
     {
         var won = type switch
         {
-            ItemType.Weapon => uvs.Count(uv => uv.Contains("Very High") && (uv.Contains("Charge") || uv.Contains("Attack"))) >= 2,
-            ItemType.Armor => uvs.Count(uv => uv.Contains("Max") && (uv.Contains("Shadow") || uv.Contains("Normal") || uv.Contains("Fire"))) >= 3,
+            ItemType.Weapon => HasRequiredUVs(uvs, 2, "Very High", "Charge", "Attack"),
+            ItemType.Armor => HasRequiredUVs(uvs, 3, "Max", "Shadow", "Normal", "Fire"),
             _ => false
         };
 
@@ -164,10 +164,14 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
 
         logger.Log(LogColor.Special, $"{user} rolled a GM item");
 
-        var rewards = await jsonFileReader.ReadAsync<List<PunchReward>>(Path.Combine("Data", "Punch.json"));
+        var rewards = await jsonFileReader.ReadAsync<IReadOnlyList<PunchReward>>(Path.Combine("Data", "Punch.json"));
         if (rewards is null) return ("Failed to get reward", string.Empty);
 
         var reward = rewards[_random.Next(rewards.Count)];
         return ($"Congratulations! You created a GM item.\nAs a reward you get a random Spiral Knights meme.\nAuthor: **{reward.Author}**", reward.Url);
     }
+
+    static bool HasRequiredUVs(IReadOnlyCollection<string> uvs, int requiredCount, string mustContain, params string[] options) =>
+    uvs.Count(uv => uv.Contains(mustContain, StringComparison.OrdinalIgnoreCase) &&
+                    options.Any(option => uv.Contains(option, StringComparison.OrdinalIgnoreCase))) >= requiredCount;
 }

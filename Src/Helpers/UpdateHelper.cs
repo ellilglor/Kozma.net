@@ -77,7 +77,7 @@ public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService
         {
             Id = message.Id.ToString(),
             Channel = channel,
-            Author = message.Author.Username.Contains("Knight Launcher") ? "Haven Server" : message.Author.Username,
+            Author = message.Author.Username.Contains("Knight Launcher", StringComparison.OrdinalIgnoreCase) ? "Haven Server" : message.Author.Username,
             Date = date,
             MessageUrl = message.GetJumpUrl(),
             Content = filtered,

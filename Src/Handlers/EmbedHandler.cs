@@ -32,13 +32,13 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         return GetEmbed(title).Build();
     }
 
-    public EmbedFieldBuilder CreateField(string name, string value, bool inline = true)
+    public EmbedFieldBuilder CreateField(string name, string value, bool isInline = true)
     {
-        return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(inline);
+        return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(isInline);
     }
 
-    public EmbedFieldBuilder CreateEmptyField(bool inline = true)
+    public EmbedFieldBuilder CreateEmptyField(bool isInline = true)
     {
-        return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(inline);
+        return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(isInline);
     }
 }

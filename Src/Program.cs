@@ -5,7 +5,7 @@ using Kozma.net.Src.Extensions;
 
 namespace Kozma.net.Src;
 
-public class Program
+internal sealed class Program
 {
     public static async Task Main()
     {
@@ -21,16 +21,12 @@ public class Program
 
     private static async Task StartBotAsync(ServiceProvider services)
     {
-        try
+        using (services)
         {
             await services.GetRequiredService<IInteractionHandler>().InitializeAsync();
             AttachClientEvents(services);
             await services.GetRequiredService<IBot>().StartAsync();
             await Task.Delay(-1);
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine(exception.Message);
         }
     }
 

@@ -14,8 +14,8 @@ public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Intera
         var position = int.Parse(number);
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
-        var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV")).ToList();
-        var otherFields = oldEmbed.Fields.Where(f => !f.Name.Contains("UV")).ToList();
+        var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
+        var otherFields = oldEmbed.Fields.Where(f => !f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
         var fields = new List<EmbedFieldBuilder>();
         var locked = "\U0001f512";
         var unlocked = "\U0001f513";
@@ -26,14 +26,14 @@ public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Intera
 
             if (i + 1 == position)
             {
-                fields.Add(embedHandler.CreateField(field.Name.Contains(locked) ? field.Name.Replace(locked, unlocked) : field.Name.Replace(unlocked, locked), field.Value));
+                fields.Add(embedHandler.CreateField(field.Name.Contains(locked, StringComparison.OrdinalIgnoreCase) ? field.Name.Replace(locked, unlocked, StringComparison.OrdinalIgnoreCase) : field.Name.Replace(unlocked, locked, StringComparison.OrdinalIgnoreCase), field.Value));
             }
             else
             {
                 fields.Add(embedHandler.CreateField(field.Name, field.Value));
             }
         }
-        var lockCount = fields.Count(f => f.Name.Contains(locked));
+        var lockCount = fields.Count(f => f.Name.Contains(locked, StringComparison.OrdinalIgnoreCase));
         fields.AddRange(otherFields.Select(field => embedHandler.CreateField(field.Name, field.Value, field.Name != "Crowns Spent")));
 
         var embed = embedHandler.GetEmbed(oldEmbed.Title)
