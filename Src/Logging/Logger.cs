@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
@@ -50,7 +51,7 @@ public partial class Logger(IBot bot,
 
         if (!result.IsSuccess)
         {
-            await HandleErrorAsync(command.Name, context.Interaction, result, location);
+            await HandleErrorAsync(command.Name, context.Interaction, (ExecuteResult)result, location);
             return;
         }
 
@@ -112,7 +113,7 @@ public partial class Logger(IBot bot,
         await commandService.UpdateOrSaveCommandAsync(command, isCommand);
     }
 
-    private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, IResult result, string location)
+    private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, ExecuteResult result, string location)
     {
         var interactionName = interaction.Type switch
         {
@@ -122,8 +123,7 @@ public partial class Logger(IBot bot,
         };
         if (string.IsNullOrEmpty(interactionName)) interactionName = command;
 
-        var error = (ExecuteResult)result;
-        var stackTrace = error.Exception.InnerException?.StackTrace;
+        var stackTrace = result.Exception.InnerException?.StackTrace;
         var fields = new List<EmbedFieldBuilder>
         {
             embedHandler.CreateField("Type", interaction.Type.ToString()),
@@ -133,13 +133,16 @@ public partial class Logger(IBot bot,
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"))));
 
         var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", EmbedColor.Error)
-            .WithDescription(string.Join("\n\n",
-                error.Exception.InnerException?.Message,
-                stackTrace?.Length < (int)DiscordCharLimit.EmbedDesc ? stackTrace : stackTrace?.Substring(0, (int)DiscordCharLimit.EmbedDesc)))
+            .WithDescription(string.Join("\n\n", result.Exception.InnerException?.Message, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
         await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
+        await InformUserAsync(interaction, result);
+    }
+
+    private async Task InformUserAsync(IDiscordInteraction interaction, ExecuteResult result)
+    {
         var description = result.Error switch
         {
             InteractionCommandError.UnmetPrecondition => "Unmet Precondition.",
@@ -155,7 +158,7 @@ public partial class Logger(IBot bot,
             .WithDescription(string.Join("\n\n", description, $"<@{config.GetValue<ulong>("ids:owner")}> has been notified"))
             .WithColor((uint)EmbedColor.Error);
 
-        Log(LogColor.Error, error.Exception.InnerException?.Message ?? description);
+        Log(LogColor.Error, result.Exception.InnerException?.Message ?? description);
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = userEmbed.Build();

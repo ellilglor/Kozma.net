@@ -1,4 +1,5 @@
 ﻿using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models;
 using System.Text;
 
@@ -43,7 +44,7 @@ public class UnboxTracker : IUnboxTracker
 
         foreach (var item in items)
         {
-            if (data.Length + item.Name.Length >= (int)DiscordCharLimit.EmbedDesc - 50)
+            if (data.Length + item.Name.Length >= ExtendedDiscordConfig.MaxEmbedDescChars - 50)
             {
                 data.AppendLine("**I have reached the character limit!**");
                 break;

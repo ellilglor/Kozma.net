@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models.Entities;
@@ -89,7 +90,7 @@ public partial class FindLogs(
 
                 foreach (var message in channel.Messages)
                 {
-                    if ((charCount + message.OriginalContent.Length > (int)DiscordCharLimit.EmbedTotal) || embeds.Count == (int)DiscordCharLimit.EmbedCount)
+                    if ((charCount + message.OriginalContent.Length > ExtendedDiscordConfig.MaxCharsAcrossEmbeds) || embeds.Count == DiscordConfig.MaxEmbedsPerMessage)
                     {
                         await user.SendMessageAsync(embeds: [.. embeds]);
                         embeds.Clear();
@@ -101,7 +102,7 @@ public partial class FindLogs(
                     embeds.Add(embedHandler.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
                         .WithUrl(message.MessageUrl)
                         .WithImageUrl(message.Image)
-                        .WithDescription(message.OriginalContent.Length > (int)DiscordCharLimit.EmbedDesc ? message.OriginalContent.Substring(0, (int)DiscordCharLimit.EmbedDesc) : message.OriginalContent)
+                        .WithDescription(message.OriginalContent.Length > ExtendedDiscordConfig.MaxEmbedDescChars ? message.OriginalContent.Substring(0, ExtendedDiscordConfig.MaxEmbedDescChars) : message.OriginalContent)
                         .Build());
                 }
 
