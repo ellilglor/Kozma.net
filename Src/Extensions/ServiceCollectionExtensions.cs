@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureHelpers(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IBoxHelper, BoxHelper>()
+            .AddSingleton<ICostCalculator, CostCalculator>()
             .AddSingleton<IPunchHelper, PunchHelper>()
             .AddSingleton<IUpdateHelper, UpdateHelper>()
             .AddSingleton<IContentHelper, ContentHelper>()

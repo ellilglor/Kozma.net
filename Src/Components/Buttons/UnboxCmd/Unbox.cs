@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
@@ -11,7 +12,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Components.Buttons.UnboxCmd;
 
-public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker, IUnboxService unboxService, IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IConfiguration config,
+    IEmbedHandler embedHandler,
+    ICostCalculator costCalculator,
+    IUnboxTracker unboxTracker,
+    IUnboxService unboxService,
+    IFileReader jsonFileReader,
+    IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction("unbox-*")]
     public async Task ExecuteAsync(string action)
@@ -23,7 +30,7 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
         {
             if (action == "again")
             {
-                var command = new Commands.Games.Unbox(config, embedHandler, boxHelper, unboxTracker, unboxService, logger);
+                var command = new Commands.Games.Unbox(config, embedHandler, costCalculator, unboxTracker, unboxService, jsonFileReader, logger);
                 await command.UnboxAsync(Context.Interaction, Context.User.Id, box, int.Parse(embed.Fields[0].Value) + 1);
             }
             else
@@ -43,16 +50,16 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
 
     private async Task DisplayStatsAsync(Embed embed, Box box)
     {
-        var boxData = boxHelper.GetBox(box)!;
+        var boxData = box.ToBoxData();
         var fields = new List<EmbedFieldBuilder>
-                {
-                    embedHandler.CreateField(embed.Fields[0].Name, embed.Fields[0].Value),
-                    embedHandler.CreateField(embed.Fields[1].Name, embed.Fields[1].Value),
-                    embedHandler.CreateEmptyField(),
-                    embedHandler.CreateField("Unique", $"{unboxTracker.GetItemCount(Context.User.Id, box)}"),
-                    embedHandler.CreateField("Info", $"[Link]({boxData.Page} 'page with distribution of probabilities')"),
-                    embedHandler.CreateEmptyField()
-                };
+        {
+            embedHandler.CreateField(embed.Fields[0].Name, embed.Fields[0].Value),
+            embedHandler.CreateField(embed.Fields[1].Name, embed.Fields[1].Value),
+            embedHandler.CreateEmptyField(),
+            embedHandler.CreateField("Unique", $"{unboxTracker.GetItemCount(Context.User.Id, box)}"),
+            embedHandler.CreateField("Info", $"[Link]({boxData.Page} 'page with distribution of probabilities')"),
+            embedHandler.CreateEmptyField()
+        };
 
         var statEmbed = embedHandler.GetEmbed("In this session you opened:")
             .WithAuthor(new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url))

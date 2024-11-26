@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
@@ -12,7 +13,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Games;
 
-public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker, IUnboxService unboxService, IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IConfiguration config,
+    IEmbedHandler embedHandler,
+    ICostCalculator costCalculator,
+    IUnboxTracker unboxTracker,
+    IUnboxService unboxService,
+    IFileReader jsonFileReader,
+    IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -26,9 +33,9 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
 
     public async Task UnboxAsync(SocketInteraction interaction, ulong userId, Box box, int opened = 1)
     {
-        var boxData = boxHelper.GetBox(box)!;
+        var boxData = box.ToBoxData();
         var author = new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url);
-        var cost = boxHelper.CalculateCost(opened, boxData);
+        var cost = costCalculator.CalculateBoxCost(opened, boxData);
         var fields = new List<EmbedFieldBuilder>
         {
             embedHandler.CreateField("Opened", opened.ToString()),
@@ -84,7 +91,7 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
 
     private async Task<List<ItemData>> OpenAsync(Box box)
     {
-        var items = await boxHelper.GetItemDataAsync(box);
+        var items = await GetItemDataAsync(box);
         var bonusBoxes = new List<Box>() { Box.Confection, Box.Lucky };
         var unboxed = new List<ItemData>();
         var prevOdds = 0.00;
@@ -135,5 +142,10 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
                 }
             default: return null;
         }
+    }
+
+    private async Task<List<ItemData>> GetItemDataAsync(Box box)
+    {
+        return await jsonFileReader.ReadAsync<List<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json")) ?? [];
     }
 }

@@ -1,14 +1,14 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Helpers;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Commands.Information;
 
-public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
+public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly Dictionary<LockboxOption, string> _lockboxes = BuildLockboxes();
 
@@ -30,12 +30,12 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
 
         if (box.HasValue && _lockboxes.TryGetValue(box.Value, out var match))
         {
-            var newTitle = box.ToString()!;
-            
+            var selectedBox = (LockboxOption)box;
+            var newTitle = selectedBox.ToString();
+
             if (box != LockboxOption.Colors)
             {
-                var boxEnum = boxHelper.ConvertLockboxOption(box.Value);
-                if (boxEnum.HasValue) embed.WithThumbnailUrl(boxHelper.GetBox(boxEnum.Value)?.Url ?? string.Empty);
+                embed.WithThumbnailUrl(selectedBox.ConvertToBox().ToBoxData().Url);
                 newTitle = string.Concat(newTitle, " Lockbox");
             }
 

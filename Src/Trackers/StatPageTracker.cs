@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
@@ -13,7 +14,7 @@ namespace Kozma.net.Src.Trackers;
 public class StatPageTracker(IBot bot,
     IConfiguration config,
     IEmbedHandler embedHandler,
-    IBoxHelper boxHelper,
+    ICostCalculator costCalculator,
     ICommandService commandService,
     IUserService userService,
     IUnboxService unboxService,
@@ -207,12 +208,12 @@ public class StatPageTracker(IBot bot,
         var index = 1;
         foreach (var box in data)
         {
-            var boxData = boxHelper.GetBox(box.Name)!;
+            var boxData = box.Name.ToBoxData();
 
             switch (boxData.Currency)
             {
                 case BoxCurrency.Energy: energy += boxData.Price; break;
-                case BoxCurrency.Dollar: dollars += boxHelper.CalculateCost(box.Count, boxData); break;
+                case BoxCurrency.Dollar: dollars += costCalculator.CalculateBoxCost(box.Count, boxData); break;
             }
 
             boxes.AppendLine($"{index} **{box.Name}**");
