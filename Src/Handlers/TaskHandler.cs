@@ -65,7 +65,7 @@ public class TaskHandler(IBot bot,
 
     private async Task UpdateActivityAsync()
     {
-        var random = _random.Next(0, 17);
+        var random = _random.Next(0, 18);
         var name = random switch
         {
             0 => "/help",
@@ -83,6 +83,7 @@ public class TaskHandler(IBot bot,
             13 => "Gun Guides: Ep. 10",
             14 => "Gatemap Viewer",
             15 => "m.jellycube_arena",
+            16 => "Soup making tutorial",
             _ => "Avengers: Age of Ulton"
         };
 

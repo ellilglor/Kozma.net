@@ -47,8 +47,8 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
             fields.Add(embedHandler.CreateField(uv[..index], uv[(index + 1)..]));
         }
 
-        var spent = int.Parse(oldFields.FirstOrDefault(f => f.Name.Contains("Crowns Spent", StringComparison.OrdinalIgnoreCase)).Value.Replace(".", ",", StringComparison.InvariantCulture), NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
-        fields.Add(embedHandler.CreateField("Crowns Spent", $"{spent + (int)cost:N0}", isInline: false));
+        var spent = int.Parse(oldFields.FirstOrDefault(f => f.Name.Contains("Crowns Spent", StringComparison.OrdinalIgnoreCase)).Value, NumberStyles.AllowThousands, CultureInfo.CurrentCulture);
+        fields.Add(embedHandler.CreateField("Crowns Spent", $"{(spent + (int)cost).ToString("N0", CultureInfo.CurrentCulture)}", isInline: false));
         UpdateRollCounter(oldFields, uvCount, fields);
 
         var (desc, image) = await punchHelper.CheckForGmAsync(Context.User.Username, itemData.Type, uvs);

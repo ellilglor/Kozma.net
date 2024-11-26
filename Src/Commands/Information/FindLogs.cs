@@ -168,16 +168,14 @@ public partial class FindLogs(
         {
             foreach (var type in uvTypes)
             {
-                if (string.Equals(input[i], type, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(input[i], type, StringComparison.OrdinalIgnoreCase)) continue;
+
+                foreach (var grade in uvGrades)
                 {
-                    foreach (var grade in uvGrades)
-                    {
-                        if (i + 1 < input.Length && string.Equals(input[i + 1], grade, StringComparison.OrdinalIgnoreCase))
-                        {
-                            var uv = grade == "very" && (i + 2 < input.Length && string.Equals(input[i + 2], "high", StringComparison.OrdinalIgnoreCase)) ? type + " very high" : type + " " + grade;
-                            items[0] = (items[0].Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).Replace("  ", " ", StringComparison.OrdinalIgnoreCase).Trim();
-                        }
-                    }
+                    if (i + 1 >= input.Length || !string.Equals(input[i + 1], grade, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    var uv = grade == "very" && (i + 2 < input.Length && string.Equals(input[i + 2], "high", StringComparison.OrdinalIgnoreCase)) ? type + " very high" : type + " " + grade;
+                    items[0] = (items[0].Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).Replace("  ", " ", StringComparison.OrdinalIgnoreCase).Trim();
                 }
             }
         }

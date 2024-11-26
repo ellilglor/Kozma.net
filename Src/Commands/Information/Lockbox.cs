@@ -137,10 +137,10 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
 
     private string? FindItem(string item)
     {
-        item = Pattern().Replace(item, string.Empty);
+        item = SpecialCharsRegex().Replace(item, string.Empty);
 
         var boxOdds = _lockboxes
-            .Where(box => Pattern().Replace(box.Value, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase))
+            .Where(box => SpecialCharsRegex().Replace(box.Value, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase))
             .Select(box =>
             {
                 var boxContent = new System.Text.StringBuilder();
@@ -148,13 +148,13 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
 
                 if (box.Key == LockboxOption.Iron)
                 {
-                    var pools = Pattern().Replace(box.Value, string.Empty).Split("80%");
+                    var pools = SpecialCharsRegex().Replace(box.Value, string.Empty).Split("80%");
                     boxContent.Append(pools[0].Contains(item, StringComparison.OrdinalIgnoreCase) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n");
                 }
 
                 var matchingLines = box.Value
                     .Split('\n')
-                    .Where(line => Pattern().Replace(line, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase));
+                    .Where(line => SpecialCharsRegex().Replace(line, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase));
 
                 var lineCount = 0;
 
@@ -175,6 +175,6 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
         return string.Join("", boxOdds);
     }
 
-    [GeneratedRegex("/['\"\\+\\[\\]()\\-{},]/g")]
-    private static partial Regex Pattern();
+    [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
+    private static partial Regex SpecialCharsRegex();
 }

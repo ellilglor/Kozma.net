@@ -46,7 +46,7 @@ public partial class ContentHelper : IContentHelper
             .Replace("vh", "very high", StringComparison.OrdinalIgnoreCase);
 #pragma warning restore CA1308 // Normalize strings to uppercase
 
-        filtered = SpecialCharacters().Replace(filtered, string.Empty);
+        filtered = SpecialCharsRegex().Replace(filtered, string.Empty);
 
         foreach (var filter in filters)
         {
@@ -63,5 +63,5 @@ public partial class ContentHelper : IContentHelper
     }
 
     [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
-    private static partial Regex SpecialCharacters();
+    private static partial Regex SpecialCharsRegex();
 }
