@@ -39,13 +39,9 @@ public class ExchangeService(KozmaDbContext dbContext, IBotLogger logger) : IExc
         }
     }
 
-    private async Task<Exchange?> GetExchangeAsync()
-    {
-        return await dbContext.Exchange.FirstOrDefaultAsync(); // Should only have 1 entry so ID is not needed
-    }
+    private async Task<Exchange?> GetExchangeAsync() =>
+        await dbContext.Exchange.FirstOrDefaultAsync(); // Should only have 1 entry so ID is not needed
 
-    private async Task LogNoRateAsync()
-    {
+    private async Task LogNoRateAsync() =>
         await logger.LogAsync("Failed to find exchange rate.", pingOwner: true);
-    }
 }

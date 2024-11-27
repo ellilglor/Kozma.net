@@ -28,18 +28,12 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         };
     }
 
-    public Embed GetAndBuildEmbed(string title)
-    {
-        return GetEmbed(title).Build();
-    }
+    public Embed GetAndBuildEmbed(string title) => 
+        GetEmbed(title).Build();
 
-    public EmbedFieldBuilder CreateField(string name, string value, bool isInline = true)
-    {
-        return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(isInline);
-    }
+    public EmbedFieldBuilder CreateField(string name, string value, bool isInline = true) =>
+        new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(isInline);
 
-    public EmbedFieldBuilder CreateEmptyField(bool isInline = true)
-    {
-        return new EmbedFieldBuilder().WithName(Emotes.Empty).WithValue(Emotes.Empty).WithIsInline(isInline);
-    }
+    public EmbedFieldBuilder CreateEmptyField(bool isInline = true) =>
+        new EmbedFieldBuilder().WithName(Emotes.Empty).WithValue(Emotes.Empty).WithIsInline(isInline);
 }

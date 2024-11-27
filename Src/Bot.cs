@@ -30,20 +30,14 @@ public class Bot : IBot, IDisposable
         await _client.StartAsync();
     }
 
-    public async Task UpdateActivityAsync(string activity, ActivityType type)
-    {
+    public async Task UpdateActivityAsync(string activity, ActivityType type) =>
         await _client.SetActivityAsync(new Game(activity, type));
-    }
 
-    public DiscordSocketClient GetClient()
-    {
-        return _client;
-    }
+    public DiscordSocketClient GetClient() =>
+        _client;
 
-    public long GetReadyTimestamp()
-    {
-        return new DateTimeOffset(_ready).ToUnixTimeSeconds();
-    }
+    public long GetReadyTimestamp() =>
+        new DateTimeOffset(_ready).ToUnixTimeSeconds();
 
     public void Dispose()
     {

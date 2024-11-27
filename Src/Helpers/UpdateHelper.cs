@@ -35,7 +35,8 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
         { "Materials", 880908641304182785 }
     };
 
-    public IReadOnlyDictionary<string, ulong> GetChannels() => _channels.AsReadOnly();
+    public IReadOnlyDictionary<string, ulong> GetChannels() => 
+        _channels.AsReadOnly();
 
     public async Task<int> UpdateLogsAsync(SocketTextChannel channel, int limit = 20, bool reset = false)
     {

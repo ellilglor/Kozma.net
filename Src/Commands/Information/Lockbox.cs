@@ -45,7 +45,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
 
         if (!string.IsNullOrEmpty(slimeCode))
         {
-            embed.WithTitle(GetSlimeboxDescription(slimeCode.ToUpper(CultureInfo.InvariantCulture)) ?? $"I didn't find a match for __{slimeCode}__.");
+            embed.WithTitle(GetSlimeboxDescription(slimeCode.ToUpper(CultureInfo.InvariantCulture)));
         }
 
         if (!string.IsNullOrEmpty(item))
@@ -96,7 +96,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
         };
     }
 
-    private static string? GetSlimeboxDescription(string slimeCode)
+    private static string GetSlimeboxDescription(string slimeCode)
     {
         return slimeCode switch
         {
@@ -131,7 +131,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
             "A1I" => "The A1I Slime lockbox contains the **Emerald** themed box.",
             "A1H" => "The A1H Slime lockbox contains the **Diamond** themed box.",
             "QQQ" => "The QQQ Slime lockbox contains **no special** themed box.",
-            _ => null
+            _ => $"I didn't find a match for __{slimeCode}__."
         };
     }
 

@@ -66,10 +66,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> CheckIfLogExistsAsync(ulong id)
-    {
-        return await dbContext.TradeLogs.FirstOrDefaultAsync(log => log.Id == id.ToString()) != null;
-    }
+    public async Task<bool> CheckIfLogExistsAsync(ulong id) =>
+        await dbContext.TradeLogs.FirstOrDefaultAsync(log => log.Id == id.ToString()) != null;
 
     private async Task DeleteLogsAsync(string channel)
     {
@@ -78,10 +76,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<int> GetTotalLogCountAsync()
-    {
-        return await dbContext.TradeLogs.CountAsync();
-    }
+    public async Task<int> GetTotalLogCountAsync() =>
+        await dbContext.TradeLogs.CountAsync();
 
     public async Task<IEnumerable<DbStat>> GetLogStatsAsync(bool authors, int total)
     {
@@ -157,10 +153,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         return (data, totalCount);
     }
 
-    public async Task<int> GetTotalSearchCountAsync()
-    {
-        return await dbContext.SearchedLogs.CountAsync();
-    }
+    public async Task<int> GetTotalSearchCountAsync() =>
+        await dbContext.SearchedLogs.CountAsync();
 
     public async Task<IEnumerable<SearchedLog>> GetSearchedLogsAsync(int limit)
     {

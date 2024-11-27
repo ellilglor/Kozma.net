@@ -5,15 +5,11 @@ namespace Kozma.net.Src.Services;
 
 public class TaskService(KozmaDbContext dbContext) : ITaskService
 {
-    public async Task<TimedTask?> GetTaskAsync(string name)
-    {
-        return await dbContext.TimedTasks.FirstOrDefaultAsync(t => t.Name == name);
-    }
+    public async Task<TimedTask?> GetTaskAsync(string name) =>
+        await dbContext.TimedTasks.FirstOrDefaultAsync(t => t.Name == name);
 
-    public async Task<List<TimedTask>> GetTasksAsync(string except)
-    {
-        return await dbContext.TimedTasks.Where(t => t.Name != except).ToListAsync();
-    }
+    public async Task<IEnumerable<TimedTask>> GetTasksAsync(string except) =>
+        await dbContext.TimedTasks.Where(t => t.Name != except).ToListAsync();
 
     public async Task UpdateTaskAsync(string name)
     {

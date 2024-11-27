@@ -56,7 +56,7 @@ public class Unbox(IConfiguration config,
 
         await SaveUnboxedAsync(userId, box, unboxed);
 
-        embed.WithDescription($"*{items}*").WithImageUrl(unboxed.First().Url);
+        embed.WithDescription($"*{items}*").WithImageUrl(unboxed[0].Url);
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji(Emotes.Repeat), customId: "unbox-again", style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji(Emotes.Book), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
@@ -71,7 +71,7 @@ public class Unbox(IConfiguration config,
         });
     }
 
-    private async Task SaveUnboxedAsync(ulong userId, Box box, List<ItemData> unboxed)
+    private async Task SaveUnboxedAsync(ulong userId, Box box, IReadOnlyList<ItemData> unboxed)
     {
         if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
 
@@ -96,7 +96,7 @@ public class Unbox(IConfiguration config,
         await Task.Delay(3000); // Give the gif time to play
     }
 
-    private async Task<List<ItemData>> OpenAsync(Box box)
+    private async Task<IReadOnlyList<ItemData>> OpenAsync(Box box)
     {
         var items = await GetItemDataAsync(box);
         var bonusBoxes = new List<Box>() { Box.Confection, Box.Lucky };
@@ -125,7 +125,7 @@ public class Unbox(IConfiguration config,
         return unboxed;
     }
 
-    private static ItemData? BonusRoll(Box box, List<ItemData> items, string unboxed, double roll)
+    private static ItemData? BonusRoll(Box box, IReadOnlyList<ItemData> items, string unboxed, double roll)
     {
         switch (box)
         {
@@ -151,8 +151,6 @@ public class Unbox(IConfiguration config,
         }
     }
 
-    private async Task<List<ItemData>> GetItemDataAsync(Box box)
-    {
-        return await jsonFileReader.ReadAsync<List<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json")) ?? [];
-    }
+    private async Task<IReadOnlyList<ItemData>> GetItemDataAsync(Box box) =>
+        await jsonFileReader.ReadAsync<IReadOnlyList<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json")) ?? [];
 }

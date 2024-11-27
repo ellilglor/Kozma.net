@@ -67,12 +67,8 @@ public partial class Logger(IBot bot,
         }
     }
 
-    public EmbedBuilder GetLogEmbed(string title, uint color)
-    {
-        return embedHandler.GetBasicEmbed(title)
-            .WithColor(color)
-            .WithCurrentTimestamp();
-    }
+    public EmbedBuilder GetLogEmbed(string title, uint color) =>
+        embedHandler.GetBasicEmbed(title).WithColor(color).WithCurrentTimestamp();
 
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
