@@ -11,46 +11,37 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
 {
     private static readonly Random _random = new();
 
-    public EmbedAuthorBuilder GetAuthor()
+    private static readonly Dictionary<PunchOption, PunchItem> _items = new()
     {
-        return new EmbedAuthorBuilder().WithName("Punch").WithIconUrl("https://media3.spiralknights.com/wiki-images/archive/1/1b/20200502113903!Punch-Mugshot.png");
-    }
+        { PunchOption.Brandish, new PunchItem("Brandish", ItemType.Weapon, "https://media3.spiralknights.com/wiki-images/2/22/Brandish-Equipped.png", 
+            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184252133406/sword.gif") },
+        { PunchOption.Mixmaster, new PunchItem("Overcharged Mixmaster", ItemType.Weapon, "https://media3.spiralknights.com/wiki-images/f/fd/Overcharged_Mixmaster-Equipped.png",
+            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185170686064/mixmaster.gif") },
+        { PunchOption.Bomb, new PunchItem("Blast Bomb", ItemType.Bomb, "https://media3.spiralknights.com/wiki-images/c/c2/Blast_Bomb-Equipped.png", 
+            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643183866253392/bomb.gif") },
+        { PunchOption.Shield, new PunchItem("Swiftstrike Buckler", ItemType.Shield, "https://media3.spiralknights.com/wiki-images/5/5b/Swiftstrike_Buckler-Equipped.png",
+                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184688337027/shield.gif") },
+        { PunchOption.Helmet, new PunchItem("Black Kat Cowl", ItemType.Armor, "https://media3.spiralknights.com/wiki-images/2/20/Black_Kat_Cowl-Equipped.png",
+                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185539776532/helm.gif") }
+    };
 
-    public PunchItem? GetItem(PunchOption item)
+    private static readonly Dictionary<string, PunchOption> _options = new()
     {
-        return item switch
-        {
-            PunchOption.Brandish => new PunchItem("Brandish", ItemType.Weapon,
-                "https://media3.spiralknights.com/wiki-images/2/22/Brandish-Equipped.png",
-                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184252133406/sword.gif"),
-            PunchOption.Mixmaster => new PunchItem("Overcharged Mixmaster", ItemType.Weapon,
-                "https://media3.spiralknights.com/wiki-images/f/fd/Overcharged_Mixmaster-Equipped.png",
-                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185170686064/mixmaster.gif"),
-            PunchOption.Bomb => new PunchItem("Blast Bomb", ItemType.Bomb,
-                "https://media3.spiralknights.com/wiki-images/c/c2/Blast_Bomb-Equipped.png",
-                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643183866253392/bomb.gif"),
-            PunchOption.Shield => new PunchItem("Swiftstrike Buckler", ItemType.Shield,
-                "https://media3.spiralknights.com/wiki-images/5/5b/Swiftstrike_Buckler-Equipped.png",
-                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184688337027/shield.gif"),
-            PunchOption.Helmet => new PunchItem("Black Kat Cowl", ItemType.Armor,
-                "https://media3.spiralknights.com/wiki-images/2/20/Black_Kat_Cowl-Equipped.png",
-                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185539776532/helm.gif"),
-            _ => null
-        };
-    }
+        { "Brandish", PunchOption.Brandish },
+        { "Overcharged Mixmaster", PunchOption.Mixmaster },
+        { "Blast Bomb", PunchOption.Bomb },
+        { "Swiftstrike Buckler", PunchOption.Shield },
+        { "Black Kat Cowl", PunchOption.Helmet }
+    };
 
-    public PunchOption? ConvertToPunchOption(string item)
-    {
-        return item switch
-        {
-            "Brandish" => PunchOption.Brandish,
-            "Overcharged Mixmaster" => PunchOption.Mixmaster,
-            "Blast Bomb" => PunchOption.Bomb,
-            "Swiftstrike Buckler" => PunchOption.Shield,
-            "Black Kat Cowl" => PunchOption.Helmet,
-            _ => null
-        };
-    }
+    public EmbedAuthorBuilder GetAuthor() =>
+        new EmbedAuthorBuilder().WithName("Punch").WithIconUrl("https://media3.spiralknights.com/wiki-images/archive/1/1b/20200502113903!Punch-Mugshot.png");
+
+    public PunchItem GetItem(PunchOption item) =>
+        _items.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid PunchOption");
+
+    public PunchOption ConvertToPunchOption(string item) =>
+        _options.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid option");
 
     public async Task SendWaitingAnimationAsync(EmbedBuilder embed, SocketInteraction interaction, string url, int delay)
     {
@@ -62,18 +53,18 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         await Task.Delay(delay); // Give the gif time to play
     }
 
-    public MessageComponent GetComponents(bool lock1, bool lock2, bool lock3, bool gamble1, bool gamble2, bool gamble3)
+    public MessageComponent GetComponents(int uvCount, int lockCount = 0)
     {
         return new ComponentBuilder()
             .WithButton(emote: new Emoji("\U0001F512"), customId: "punch-info-lock", style: ButtonStyle.Primary)
-            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-lock-1", style: ButtonStyle.Secondary, disabled: lock1)
-            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-lock-2", style: ButtonStyle.Secondary, disabled: lock2)
-            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-lock-3", style: ButtonStyle.Secondary, disabled: lock3)
+            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-lock-1", style: ButtonStyle.Secondary, disabled: uvCount < 1)
+            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-lock-2", style: ButtonStyle.Secondary, disabled: uvCount < 2)
+            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-lock-3", style: ButtonStyle.Secondary, disabled: uvCount < 3)
             .WithButton(emote: new Emoji("\U0001F4D8"), customId: "punch-info-stats", style: ButtonStyle.Primary)
             .WithButton(emote: new Emoji("\U0001F3B2"), customId: "punch-info-gamble", style: ButtonStyle.Primary, row: 2)
-            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-gamble-1", style: ButtonStyle.Secondary, disabled: gamble1)
-            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-gamble-2", style: ButtonStyle.Secondary, disabled: gamble2)
-            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-gamble-3", style: ButtonStyle.Secondary, disabled: gamble3)
+            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-gamble-1", style: ButtonStyle.Secondary, disabled: lockCount > 0)
+            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-gamble-2", style: ButtonStyle.Secondary, disabled: lockCount > 1)
+            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-gamble-3", style: ButtonStyle.Secondary, disabled: lockCount > 2)
             .WithButton(emote: new Emoji("❔"), customId: "punch-info-odds", style: ButtonStyle.Primary)
             .Build();
     }
@@ -172,6 +163,5 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
     }
 
     static bool HasRequiredUVs(IReadOnlyCollection<string> uvs, int requiredCount, string mustContain, params string[] options) =>
-    uvs.Count(uv => uv.Contains(mustContain, StringComparison.OrdinalIgnoreCase) &&
-                    options.Any(option => uv.Contains(option, StringComparison.OrdinalIgnoreCase))) >= requiredCount;
+        uvs.Count(uv => uv.Contains(mustContain, StringComparison.OrdinalIgnoreCase) &&options.Any(option => uv.Contains(option, StringComparison.OrdinalIgnoreCase))) >= requiredCount;
 }

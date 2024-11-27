@@ -37,7 +37,7 @@ public class Info(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchTr
         await ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = embed.Build();
-            msg.Components = punchHelper.GetComponents(uvFields.Count < 1, uvFields.Count < 2, uvFields.Count < 3, lockCount > 0, lockCount > 1, lockCount > 2);
+            msg.Components = punchHelper.GetComponents(uvFields.Count, lockCount);
         });
     }
 }

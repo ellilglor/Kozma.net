@@ -27,15 +27,9 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
         await CraftItemAsync(Context.Interaction, Context.User.Id, punchHelper.ConvertToPunchOption(item));
     }
 
-    public async Task CraftItemAsync(SocketInteraction interaction, ulong userId, PunchOption? item, int counter = 1)
+    public async Task CraftItemAsync(SocketInteraction interaction, ulong userId, PunchOption item, int counter = 1)
     {
-        if (item is null)
-        {
-            await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedHandler.GetAndBuildEmbed("Something went wrong while crafting"));
-            return;
-        }
-
-        var itemData = punchHelper.GetItem((PunchOption)item)!;
+        var itemData = punchHelper.GetItem(item);
         var craftUvs = CraftItem(userId, itemData);
         var fields = craftUvs.Select((uv, index) => embedHandler.CreateField($"UV #{index + 1}", uv)).ToList();
         fields.Add(embedHandler.CreateField("Crafted", counter.ToString(), isInline: false));

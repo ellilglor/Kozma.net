@@ -20,7 +20,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
         var count = int.Parse(number);
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
-        var itemData = punchHelper.GetItem((PunchOption)punchHelper.ConvertToPunchOption(oldEmbed.Title)!)!;
+        var itemData = punchHelper.GetItem(punchHelper.ConvertToPunchOption(oldEmbed.Title));
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("uv", StringComparison.OrdinalIgnoreCase)).ToList();
         var lockCount = uvFields.Count(f => f.Name.Contains("\U0001f512", StringComparison.OrdinalIgnoreCase));
         var cost = count == 1 ? PunchPrices.SingleTicket : count == 2 ? PunchPrices.DoubleTicket : PunchPrices.TripleTicket;
@@ -32,7 +32,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
 
         await ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed;
-            msg.Components = punchHelper.GetComponents(count < 1, count < 2, count < 3, lockCount > 0, lockCount > 1, lockCount > 2);
+            msg.Components = punchHelper.GetComponents(count, lockCount);
         });
     }
 
