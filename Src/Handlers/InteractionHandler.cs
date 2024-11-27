@@ -29,7 +29,7 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
         {
             var maintenanceEmbed = embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later.");
             await interaction.RespondAsync(embed: maintenanceEmbed, ephemeral: true);
-            logger.Log(LogColor.Info, interaction.User.Username);
+            logger.Log(LogLevel.Info, interaction.User.Username);
             return;
         }
 

@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Src.Data;
-using Kozma.net.Src.Enums;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Extensions;
 
 namespace Kozma.net.Src.Handlers;
@@ -25,7 +24,7 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         return new EmbedBuilder
         {
             Title = title.Substring(0, Math.Min(title.Length, ExtendedDiscordConfig.MaxEmbedTitleChars)),
-            Color = (uint)EmbedColor.Default
+            Color = Colors.Default
         };
     }
 

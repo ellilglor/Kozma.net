@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Enums;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
@@ -84,7 +84,7 @@ public partial class FindLogs(
                 var charCount = 0;
                 var embeds = new List<Embed>()
                 {
-                    embedHandler.GetBasicEmbed($"I found {count:N0} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor((uint)EmbedColor.Crown).Build()
+                    embedHandler.GetBasicEmbed($"I found {count:N0} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(Colors.Crown).Build()
                 };
 
                 foreach (var message in channel.Messages)
@@ -119,7 +119,7 @@ public partial class FindLogs(
     private async Task FinishInteractionAsync(string item, string copy, int matchCount, int months, bool checkVariants, SocketUser user)
     {
         var embed = embedHandler.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing __{copy}__")
-            .WithColor((uint)EmbedColor.Crown)
+            .WithColor(Colors.Crown)
             .WithDescription("By default I only look at tradelogs from the past **6 months**!\n" +
                 "If you want me to look past that use the `months` option.\n\n" +
                 "- Only want to see your item and no variants?\nSet `variants` to *NO*.\n" +
@@ -152,7 +152,7 @@ public partial class FindLogs(
         var embed = embedHandler.GetEmbed("I can't send you any messages!")
                 .WithDescription("Make sure you have the following enabled:\n" +
                 "*Allow direct messages from server members* in User Settings > Privacy & Safety\n\nAnd don't block me!")
-                .WithColor((uint)EmbedColor.Error)
+                .WithColor(Colors.Error)
                 .Build();
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);

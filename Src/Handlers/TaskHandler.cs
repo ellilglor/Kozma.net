@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Src.Data;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
@@ -122,11 +122,11 @@ public class TaskHandler(IBot bot,
 
             await exchangeService.UpdateExchangeAsync(rate);
             await channel.SendMessageAsync(embed: embed.Build());
-            logger.Log(LogColor.Moderation, "Posted latest Energy Market");
+            logger.Log(LogLevel.Moderation, "Posted latest Energy Market");
         }
         catch (Exception ex)
         {
-            logger.Log(LogColor.Error, ex.Message);
+            logger.Log(LogLevel.Error, ex.Message);
             await logger.LogAsync($"error while fetching data from energy market api\n{ex.Message}", pingOwner: true);
         }
     }
@@ -143,7 +143,7 @@ public class TaskHandler(IBot bot,
 
         await wtsChannel.SendMessageAsync(embed: embed);
         await wtbChannel.SendMessageAsync(embed: embed);
-        logger.Log(LogColor.Moderation, "Posted slowmode reminders");
+        logger.Log(LogLevel.Moderation, "Posted slowmode reminders");
     }
 
     private async Task PostScamPreventionAsync()
@@ -160,14 +160,14 @@ public class TaskHandler(IBot bot,
                     .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl()));
 
         await channel.SendMessageAsync(embed: embed.Build());
-        logger.Log(LogColor.Moderation, "Posted scam prevention reminder");
+        logger.Log(LogLevel.Moderation, "Posted scam prevention reminder");
     }
 
     private async Task CheckForNewLogsAsync()
     {
         var message = "Checking for new tradelogs";
-        logger.Log(LogColor.Moderation, message);
-        await logger.LogAsync(embed: logger.GetLogEmbed(message, EmbedColor.Moderation).Build());
+        logger.Log(LogLevel.Moderation, message);
+        await logger.LogAsync(embed: logger.GetLogEmbed(message, Colors.Moderation).Build());
 
         var channels = updateHelper.GetChannels();
         foreach (var channelData in channels)
@@ -186,7 +186,7 @@ public class TaskHandler(IBot bot,
 
     private async Task PostStillConnectedAsync()
     {
-        var embed = logger.GetLogEmbed($"Connected since <t:{bot.GetReadyTimestamp()}:f> with {_client.Latency}ms latency.", EmbedColor.Moderation);
+        var embed = logger.GetLogEmbed($"Connected since <t:{bot.GetReadyTimestamp()}:f> with {_client.Latency}ms latency.", Colors.Moderation);
 
         await logger.LogAsync(embed: embed.Build());
     }

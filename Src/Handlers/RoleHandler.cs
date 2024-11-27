@@ -17,14 +17,14 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
     {
         var role = await GetGuild().GetRoleAsync(roleId);
         await user.AddRoleAsync(role);
-        logger.Log(LogColor.Moderation, $"{role.Name} was given to {user.Username}");
+        logger.Log(LogLevel.Moderation, $"{role.Name} was given to {user.Username}");
     }
 
     public async Task RemoveRoleAsync(SocketGuildUser user, ulong roleId)
     {
         var role = await GetGuild().GetRoleAsync(roleId);
         await user.RemoveRoleAsync(role);
-        logger.Log(LogColor.Moderation, $"{role.Name} was removed from {user.Username}");
+        logger.Log(LogLevel.Moderation, $"{role.Name} was removed from {user.Username}");
     }
 
     public async Task HandleTradeCooldownAsync(SocketUserMessage message, ulong roleId)
@@ -48,7 +48,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         }
         if (task.UpdatedAt.AddHours(_offlineMutesCheckInterval) > currentDate) return;
 
-        logger.Log(LogColor.Moderation, "Checking if people need to be muted");
+        logger.Log(LogLevel.Moderation, "Checking if people need to be muted");
 
         var guild = GetGuild();
         if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
@@ -67,7 +67,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     public async Task CheckExpiredMutesAsync()
     {
-        logger.Log(LogColor.Moderation, "Checking expired mutes");
+        logger.Log(LogLevel.Moderation, "Checking expired mutes");
         var sellMutes = await userService.GetAndDeleteExpiredMutesAsync<SellMute>();
         var buyMutes = await userService.GetAndDeleteExpiredMutesAsync<BuyMute>();
 

@@ -1,4 +1,4 @@
-﻿namespace Kozma.net.Src.Data;
+﻿namespace Kozma.net.Src.Data.Classes;
 
 public static class Emotes
 {

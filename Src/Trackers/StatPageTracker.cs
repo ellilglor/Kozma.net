@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Src.Data;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;

@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Src.Data;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models;
@@ -154,7 +154,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
 
         if (!won) return (string.Empty, string.Empty);
 
-        logger.Log(LogColor.Special, $"{user} rolled a GM item");
+        logger.Log(LogLevel.Special, $"{user} rolled a GM item");
 
         var rewards = await jsonFileReader.ReadAsync<IReadOnlyList<PunchReward>>(Path.Combine("Data", "Punch.json"));
         if (rewards is null) return ("Failed to get reward", string.Empty);

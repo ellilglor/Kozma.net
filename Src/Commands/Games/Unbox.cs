@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -52,13 +52,9 @@ public class Unbox(IConfiguration config,
         }
 
         var items = string.Join(" & ", unboxed.Select(item => item.Name));
-        logger.Log(items.Contains('*', StringComparison.InvariantCulture) ? LogColor.Special : LogColor.Info, $"{interaction.User.Username} opened {box} and got {items}");
-        if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
+        logger.Log(items.Contains('*', StringComparison.InvariantCulture) ? LogLevel.Special : LogLevel.Info, $"{interaction.User.Username} opened {box} and got {items}");
 
-        foreach (var item in unboxed)
-        {
-            unboxTracker.AddEntry(userId, box, item.Name);
-        }
+        await SaveUnboxedAsync(userId, box, unboxed);
 
         embed.WithDescription($"*{items}*").WithImageUrl(unboxed.First().Url);
         var components = new ComponentBuilder()
@@ -73,6 +69,16 @@ public class Unbox(IConfiguration config,
             msg.Embed = embed.Build();
             msg.Components = components.Build();
         });
+    }
+
+    private async Task SaveUnboxedAsync(ulong userId, Box box, List<ItemData> unboxed)
+    {
+        if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
+
+        foreach (var item in unboxed)
+        {
+            unboxTracker.AddEntry(userId, box, item.Name);
+        }
     }
 
     private async Task SendOpeningAnimationAsync(SocketInteraction interaction, EmbedAuthorBuilder author, string url)

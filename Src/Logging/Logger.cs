@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -19,17 +20,17 @@ public partial class Logger(IBot bot,
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
-    public void Log(LogColor level, string message)
+    public void Log(LogLevel level, string message)
     {
         var color = level switch
         {
-            LogColor.Command => "\u001b[34m",
-            LogColor.Button => "\u001b[36m",
-            LogColor.Moderation => "\u001b[35m",
-            LogColor.Info => "\u001b[33m",
-            LogColor.Discord => "\u001b[90m",
-            LogColor.Special => "\u001b[32m",
-            LogColor.Error => "\u001b[31m",
+            LogLevel.Command => "\u001b[34m",
+            LogLevel.Button => "\u001b[36m",
+            LogLevel.Moderation => "\u001b[35m",
+            LogLevel.Info => "\u001b[33m",
+            LogLevel.Discord => "\u001b[90m",
+            LogLevel.Special => "\u001b[32m",
+            LogLevel.Error => "\u001b[31m",
             _ => "\u001b[37m"
         };
 
@@ -66,10 +67,10 @@ public partial class Logger(IBot bot,
         }
     }
 
-    public EmbedBuilder GetLogEmbed(string title, EmbedColor color)
+    public EmbedBuilder GetLogEmbed(string title, uint color)
     {
         return embedHandler.GetBasicEmbed(title)
-            .WithColor((uint)color)
+            .WithColor(color)
             .WithCurrentTimestamp();
     }
 
@@ -86,13 +87,13 @@ public partial class Logger(IBot bot,
             embedHandler.CreateField(location, interaction.UserLocale),
         };
 
-        var embed = GetLogEmbed(string.Empty, EmbedColor.Default)
+        var embed = GetLogEmbed(string.Empty, Colors.Default)
             .WithDescription(desc)
             .WithFields(fields)
             .WithAuthor(new EmbedAuthorBuilder().WithName(interaction.User.Username).WithIconUrl(interaction.User.GetDisplayAvatarUrl()))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"));
 
-        Log(LogColor.Command, $"{interaction.User.Username} used /{command} in {location}");
+        Log(LogLevel.Command, $"{interaction.User.Username} used /{command} in {location}");
         await LogAsync(embed: embed.Build());
     }
 
@@ -104,7 +105,7 @@ public partial class Logger(IBot bot,
             case "clear-messages": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "clear", isCommand: true); break;
         }
 
-        Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
+        Log(LogLevel.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
     }
 
     private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand, bool isUnbox = true)
@@ -132,7 +133,7 @@ public partial class Logger(IBot bot,
         };
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"))));
 
-        var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", EmbedColor.Error)
+        var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", Colors.Error)
             .WithDescription(string.Join("\n\n", result.Exception.InnerException?.Message, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
@@ -156,9 +157,9 @@ public partial class Logger(IBot bot,
         };
         var userEmbed = embedHandler.GetEmbed("Something went wrong while executing this command.")
             .WithDescription(string.Join("\n\n", description, $"<@{config.GetValue<ulong>("ids:owner")}> has been notified"))
-            .WithColor((uint)EmbedColor.Error);
+            .WithColor(Colors.Error);
 
-        Log(LogColor.Error, result.Exception.InnerException?.Message ?? description);
+        Log(LogLevel.Error, result.Exception.InnerException?.Message ?? description);
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = userEmbed.Build();
@@ -168,7 +169,7 @@ public partial class Logger(IBot bot,
 
     public Task HandleDiscordLog(LogMessage msg)
     {
-        Log(LogColor.Discord, $"{msg.Source}\t{msg.Message}");
+        Log(LogLevel.Discord, $"{msg.Source}\t{msg.Message}");
         // TODO logasync if error
 
         if (msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
