@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 
@@ -17,8 +18,6 @@ public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Intera
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
         var otherFields = oldEmbed.Fields.Where(f => !f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
         var fields = new List<EmbedFieldBuilder>();
-        var locked = "\U0001f512";
-        var unlocked = "\U0001f513";
 
         for (int i = 0; i < uvFields.Count; i++)
         {
@@ -26,14 +25,14 @@ public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Intera
 
             if (i + 1 == position)
             {
-                fields.Add(embedHandler.CreateField(field.Name.Contains(locked, StringComparison.OrdinalIgnoreCase) ? field.Name.Replace(locked, unlocked, StringComparison.OrdinalIgnoreCase) : field.Name.Replace(unlocked, locked, StringComparison.OrdinalIgnoreCase), field.Value));
+                fields.Add(embedHandler.CreateField(field.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase) ? field.Name.Replace(Emotes.Locked, Emotes.Unlocked, StringComparison.OrdinalIgnoreCase) : field.Name.Replace(Emotes.Unlocked, Emotes.Locked, StringComparison.OrdinalIgnoreCase), field.Value));
             }
             else
             {
                 fields.Add(embedHandler.CreateField(field.Name, field.Value));
             }
         }
-        var lockCount = fields.Count(f => f.Name.Contains(locked, StringComparison.OrdinalIgnoreCase));
+        var lockCount = fields.Count(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase));
         fields.AddRange(otherFields.Select(field => embedHandler.CreateField(field.Name, field.Value, field.Name != "Crowns Spent")));
 
         var embed = embedHandler.GetEmbed(oldEmbed.Title)

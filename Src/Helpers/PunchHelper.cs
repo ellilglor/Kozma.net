@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models;
@@ -56,16 +57,16 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
     public MessageComponent GetComponents(int uvCount, int lockCount = 0)
     {
         return new ComponentBuilder()
-            .WithButton(emote: new Emoji("\U0001F512"), customId: "punch-info-lock", style: ButtonStyle.Primary)
-            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-lock-1", style: ButtonStyle.Secondary, disabled: uvCount < 1)
-            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-lock-2", style: ButtonStyle.Secondary, disabled: uvCount < 2)
-            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-lock-3", style: ButtonStyle.Secondary, disabled: uvCount < 3)
-            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "punch-info-stats", style: ButtonStyle.Primary)
-            .WithButton(emote: new Emoji("\U0001F3B2"), customId: "punch-info-gamble", style: ButtonStyle.Primary, row: 2)
-            .WithButton(emote: new Emoji("1️⃣"), customId: "punch-gamble-1", style: ButtonStyle.Secondary, disabled: lockCount > 0)
-            .WithButton(emote: new Emoji("2️⃣"), customId: "punch-gamble-2", style: ButtonStyle.Secondary, disabled: lockCount > 1)
-            .WithButton(emote: new Emoji("3️⃣"), customId: "punch-gamble-3", style: ButtonStyle.Secondary, disabled: lockCount > 2)
-            .WithButton(emote: new Emoji("❔"), customId: "punch-info-odds", style: ButtonStyle.Primary)
+            .WithButton(emote: new Emoji(Emotes.Locked), customId: "punch-info-lock", style: ButtonStyle.Primary)
+            .WithButton(emote: new Emoji(Emotes.One), customId: "punch-lock-1", style: ButtonStyle.Secondary, disabled: uvCount < 1)
+            .WithButton(emote: new Emoji(Emotes.Two), customId: "punch-lock-2", style: ButtonStyle.Secondary, disabled: uvCount < 2)
+            .WithButton(emote: new Emoji(Emotes.Three), customId: "punch-lock-3", style: ButtonStyle.Secondary, disabled: uvCount < 3)
+            .WithButton(emote: new Emoji(Emotes.Book), customId: "punch-info-stats", style: ButtonStyle.Primary)
+            .WithButton(emote: new Emoji(Emotes.Dice), customId: "punch-info-gamble", style: ButtonStyle.Primary, row: 2)
+            .WithButton(emote: new Emoji(Emotes.One), customId: "punch-gamble-1", style: ButtonStyle.Secondary, disabled: lockCount > 0)
+            .WithButton(emote: new Emoji(Emotes.Two), customId: "punch-gamble-2", style: ButtonStyle.Secondary, disabled: lockCount > 1)
+            .WithButton(emote: new Emoji(Emotes.Three), customId: "punch-gamble-3", style: ButtonStyle.Secondary, disabled: lockCount > 2)
+            .WithButton(emote: new Emoji(Emotes.QMark), customId: "punch-info-odds", style: ButtonStyle.Primary)
             .Build();
     }
 

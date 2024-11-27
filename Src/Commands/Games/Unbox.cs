@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -61,9 +62,9 @@ public class Unbox(IConfiguration config,
 
         embed.WithDescription($"*{items}*").WithImageUrl(unboxed.First().Url);
         var components = new ComponentBuilder()
-            .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
-        if (opened == 69) components.WithButton(emote: new Emoji("\U0001F4B0"), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
+            .WithButton(emote: new Emoji(Emotes.Repeat), customId: "unbox-again", style: ButtonStyle.Secondary)
+            .WithButton(emote: new Emoji(Emotes.Book), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
+        if (opened == 69) components.WithButton(emote: new Emoji(Emotes.Money), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
 
         await SendOpeningAnimationAsync(interaction, author, boxData.Gif);
 

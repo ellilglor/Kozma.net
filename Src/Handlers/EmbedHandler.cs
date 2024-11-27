@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 
@@ -40,6 +41,6 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
 
     public EmbedFieldBuilder CreateEmptyField(bool isInline = true)
     {
-        return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(isInline);
+        return new EmbedFieldBuilder().WithName(Emotes.Empty).WithValue(Emotes.Empty).WithIsInline(isInline);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
@@ -22,7 +23,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
         var oldEmbed = context.Message.Embeds.First();
         var itemData = punchHelper.GetItem(punchHelper.ConvertToPunchOption(oldEmbed.Title));
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("uv", StringComparison.OrdinalIgnoreCase)).ToList();
-        var lockCount = uvFields.Count(f => f.Name.Contains("\U0001f512", StringComparison.OrdinalIgnoreCase));
+        var lockCount = uvFields.Count(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase));
         var cost = count == 1 ? PunchPrices.SingleTicket : count == 2 ? PunchPrices.DoubleTicket : PunchPrices.TripleTicket;
 
         var embed = await BuildEmbedAsync(itemData, count, cost, uvFields, oldEmbed.Fields);
@@ -65,13 +66,13 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
     private List<string> RollForUvs(int count, IReadOnlyCollection<EmbedField> uvFields, PunchItem item, ulong id)
     {
         var uvs = uvFields
-            .Where(f => f.Name.Contains("\U0001f512", StringComparison.OrdinalIgnoreCase))
+            .Where(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase))
             .Select((uv, index) => $"{uv.Name.Replace(NumRegex().Match(uv.Name).Value, (index + 1).ToString(), StringComparison.InvariantCulture)}:{uv.Value}")
             .ToList();
 
         for (int i = uvs.Count; i < count; i++)
         {
-            uvs.Add($"\U0001f513 UV #{i + 1}:{punchHelper.RollUv(id, item, uvs)}");
+            uvs.Add($"{Emotes.Unlocked} UV #{i + 1}:{punchHelper.RollUv(id, item, uvs)}");
         }
 
         return uvs;

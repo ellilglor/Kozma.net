@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -121,10 +122,10 @@ public class StatPageTracker(IBot bot,
 
         var page = _users[id];
         return new ComponentBuilder()
-            .WithButton(label: "◀◀", customId: "stats-first", style: ButtonStyle.Primary, disabled: page == 0)
-            .WithButton(label: "◀", customId: "stats-prev", style: ButtonStyle.Primary, disabled: page == 0)
-            .WithButton(label: "▶", customId: "stats-next", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
-            .WithButton(label: "▶▶", customId: "stats-last", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
+            .WithButton(label: Emotes.First, customId: "stats-first", style: ButtonStyle.Primary, disabled: page == 0)
+            .WithButton(label: Emotes.Previous, customId: "stats-prev", style: ButtonStyle.Primary, disabled: page == 0)
+            .WithButton(label: Emotes.Next, customId: "stats-next", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
+            .WithButton(label: Emotes.Last, customId: "stats-last", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
             .Build();
     }
 
@@ -165,8 +166,8 @@ public class StatPageTracker(IBot bot,
             var embed = embedHandler.GetBasicEmbed($"Servers ({i / 2 + 1}/{totalEmbeds})");
             var fields = new List<EmbedFieldBuilder>
             {
-                embedHandler.CreateField("\u200B", serverPages[i]),
-                embedHandler.CreateField("\u200B", i + 1 < serverPages.Count ? serverPages[i + 1] : "\u200B"),
+                embedHandler.CreateField(Emotes.Empty, serverPages[i]),
+                embedHandler.CreateField(Emotes.Empty, i + 1 < serverPages.Count ? serverPages[i + 1] : Emotes.Empty),
                 embedHandler.CreateEmptyField(),
                 embedHandler.CreateField("Total", $"{_client.Guilds.Count:N0}"),
                 embedHandler.CreateField("Unique Users", $"{userCount:N0}")

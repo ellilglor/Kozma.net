@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Trackers;
@@ -16,7 +17,7 @@ public class Info(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchTr
         var oldEmbed = context.Message.Embeds.First();
         var fields = oldEmbed.Fields.Select(f => embedHandler.CreateField(f.Name, f.Value, !f.Name.Contains("Crowns", StringComparison.OrdinalIgnoreCase)));
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
-        var lockCount = uvFields.Count(f => f.Name.Contains("\U0001f512", StringComparison.OrdinalIgnoreCase));
+        var lockCount = uvFields.Count(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase));
         var desc = choice switch
         {
             "stats" => punchTracker.GetData(Context.User.Id, oldEmbed.Title),

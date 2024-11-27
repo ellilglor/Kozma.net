@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Src.Data;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
@@ -104,21 +105,19 @@ public class TaskHandler(IBot bot,
             var data = JsonSerializer.Deserialize<EnergyMarketData>(json, _marketOptions) ?? throw new ArgumentNullException();
             // TODO: log when not up to date?
 
-            var crown = "<:kbpcrowns:1092398578053431366>";
-            var energy = "<:kbpenergy:1092398618939506718>";
             var buyAverage = data.BuyOffers.Sum(x => x.Price * x.Volume) / data.BuyOffers.Sum(x => x.Volume);
             var sellAverage = data.SellOffers.Sum(x => x.Price * x.Volume) / data.SellOffers.Sum(x => x.Volume);
             var rate = (buyAverage + (sellAverage - buyAverage) / 2) / 100;
 
             var fields = new List<EmbedFieldBuilder>
             {
-                { embedHandler.CreateField($"Top Offers to Buy {energy} 100", data.BuyOffers.Aggregate("", (current, offer) => current + $"\n{crown} {offer.Price:N0} x {offer.Volume:N0}")) },
+                { embedHandler.CreateField($"Top Offers to Buy {Emotes.Energy} 100", data.BuyOffers.Aggregate("", (current, offer) => current + $"\n{Emotes.Crown} {offer.Price:N0} x {offer.Volume:N0}")) },
                 { embedHandler.CreateEmptyField() },
-                { embedHandler.CreateField($"Top Offers to Sell {energy} 100", data.SellOffers.Aggregate("", (current, offer) => current + $"\n{crown} {offer.Price:N0} x {offer.Volume:N0}")) },
+                { embedHandler.CreateField($"Top Offers to Sell {Emotes.Energy} 100", data.SellOffers.Aggregate("", (current, offer) => current + $"\n{Emotes.Crown} {offer.Price:N0} x {offer.Volume:N0}")) },
             };
 
             var embed = embedHandler.GetBasicEmbed(data.Datetime.ToString("ddd, dd MMM yyyy"))
-                .WithDescription($"**Last trade price: {crown} {data.LastPrice:N0}**\n**Recommended conversion rate: {crown} {rate} per {energy} 1**")
+                .WithDescription($"**Last trade price: {Emotes.Crown} {data.LastPrice:N0}**\n**Recommended conversion rate: {Emotes.Crown} {rate} per {Emotes.Energy} 1**")
                 .WithFields(fields);
 
             await exchangeService.UpdateExchangeAsync(rate);
@@ -139,7 +138,7 @@ public class TaskHandler(IBot bot,
 
         var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the __{config.GetValue<int>("timers:slowmodeHours")} hour slowmode__ in this channel.")
             .WithDescription("You can edit your posts through the **/tradepostedit** command.\nWe apologise for any inconvenience this may cause.")
-            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField("\u200B", "Interested in what an item has sold for in the past?\nUse the **/findlogs** command.") })
+            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(Emotes.Empty, "Interested in what an item has sold for in the past?\nUse the **/findlogs** command.") })
             .Build();
 
         await wtsChannel.SendMessageAsync(embed: embed);
