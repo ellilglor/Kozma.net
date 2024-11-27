@@ -1,13 +1,12 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Kozma.net.Src.Helpers;
-
-public partial class ContentHelper : IContentHelper
+namespace Kozma.net.Src.Extensions;
+public static partial class StringExtensions
 {
     private sealed record TermFilter(string Before, string After, string? Exclude);
 
-    private readonly List<TermFilter> filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
+    private static readonly List<TermFilter> Filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
         new TermFilter("totem", "somnambulists totem", "somnambulists"),
         new TermFilter("orbit gun", "orbitgun", null),
         new TermFilter("orbitgun", "celestial orbitgun", "celestial"),
@@ -38,7 +37,7 @@ public partial class ContentHelper : IContentHelper
         new TermFilter("btb", "barbarous thorn blade", null),
         new TermFilter("reciever", "receiver", null)];
 
-    public string FilterContent(string content)
+    public static string CleanUp(this string content)
     {
 #pragma warning disable CA1308 // Normalize strings to uppercase -> can't do this yet because legacy code from js version
         var filtered = content
@@ -48,7 +47,7 @@ public partial class ContentHelper : IContentHelper
 
         filtered = SpecialCharsRegex().Replace(filtered, string.Empty);
 
-        foreach (var filter in filters)
+        foreach (var filter in Filters)
         {
             if (filtered.Contains(filter.Before, StringComparison.OrdinalIgnoreCase))
             {

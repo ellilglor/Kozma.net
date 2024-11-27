@@ -1,12 +1,13 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Helpers;
 
-public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService tradeLogService) : IUpdateHelper
+public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHelper
 {
     private static readonly SemaphoreSlim _dbLock = new(1, 1);
 
@@ -34,10 +35,7 @@ public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService
         { "Materials", 880908641304182785 }
     };
 
-    public Dictionary<string, ulong> GetChannels()
-    {
-        return _channels;
-    }
+    public IReadOnlyDictionary<string, ulong> GetChannels() => _channels.AsReadOnly();
 
     public async Task<int> UpdateLogsAsync(SocketTextChannel channel, int limit = 20, bool reset = false)
     {
@@ -66,9 +64,9 @@ public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService
         return logs.Count;
     }
 
-    private TradeLog ConvertMessage(IMessage message, string channel)
+    private static TradeLog ConvertMessage(IMessage message, string channel)
     {
-        var filtered = contentHelper.FilterContent(message.Content);
+        var filtered = message.Content.CleanUp();
         var copy = message.Content;
         var date = DateRegex().Match(filtered) is Match match && match.Success ? DateTime.Parse(match.Value) : message.CreatedAt.DateTime;
         if (message.Attachments.Count > 1) copy += "\n\n*This message had multiple images*\n*Click the date to look at them*";

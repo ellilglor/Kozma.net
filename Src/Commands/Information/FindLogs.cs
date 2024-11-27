@@ -16,7 +16,6 @@ namespace Kozma.net.Src.Commands.Information;
 public partial class FindLogs(
     IEmbedHandler embedHandler,
     ITradeLogService tradeLogService,
-    IContentHelper contentHelper,
     IFileReader jsonFileReader,
     IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
@@ -32,7 +31,7 @@ public partial class FindLogs(
         var checkVariants = string.IsNullOrEmpty(variants) || variants == "variant-search";
         var checkClean = !string.IsNullOrEmpty(clean) && clean == "clean-search";
         var checkMixed = string.IsNullOrEmpty(mixed) || mixed == "mixed-search";
-        var altered = contentHelper.FilterContent(item);
+        var altered = item.CleanUp();
 
         var embed = embedHandler.GetEmbed($"Searching for __{item}__, I will dm you what I can find.")
             .WithDescription("### Info & tips when searching:\n- **Slime boxes**:\ncombination followed by *slime lockbox*\nExample: QQQ Slime Lockbox\n" +

@@ -43,7 +43,6 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ICostCalculator, CostCalculator>()
             .AddSingleton<IPunchHelper, PunchHelper>()
             .AddSingleton<IUpdateHelper, UpdateHelper>()
-            .AddSingleton<IContentHelper, ContentHelper>()
             .AddSingleton<IFileReader, JsonFileReader>()
             .AddSingleton<IUnboxTracker, UnboxTracker>()
             .AddSingleton<IPunchTracker, PunchTracker>()
