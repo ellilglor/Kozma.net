@@ -85,7 +85,7 @@ public class TaskHandler(IBot bot,
             14 => "Gatemap Viewer",
             15 => "m.jellycube_arena",
             16 => "Soup making tutorial",
-            _ => "Avengers: Age of Ulton"
+            _ => "Avengers: Age of Ultron"
         };
 
         await bot.UpdateActivityAsync(name, type: random < 11 ? ActivityType.Listening : ActivityType.Watching);

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Data.Classes;
 
 namespace Kozma.net.Src.Handlers;
 
@@ -27,15 +28,25 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
     {
         if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {
-            var maintenanceEmbed = embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later.");
-            await interaction.RespondAsync(embed: maintenanceEmbed, ephemeral: true);
+            await interaction.RespondAsync(embed: embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later."), ephemeral: true);
             logger.Log(LogLevel.Info, interaction.User.Username);
             return;
         }
 
         await interaction.DeferAsync(ephemeral: true);
 
-        // TODO: check if banned from server
+        if (interaction.GuildId != config.GetValue<ulong>("ids:server") && interaction.User.Id != config.GetValue<ulong>("ids:owner"))
+        {
+            var guild = _client.GetGuild(config.GetValue<ulong>("ids:server"));
+            var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
+
+            if (isBanned)
+            {
+                var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
+                await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
+                return;
+            }
+        }
 
         var context = new SocketInteractionContext(_client, interaction);
         await handler.ExecuteCommandAsync(context, services);
