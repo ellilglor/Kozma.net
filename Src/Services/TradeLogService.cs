@@ -102,8 +102,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         foreach (var file in folder)
         {
             var fileName = Path.GetFileName(file);
-            var items = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "Items", fileName));
-            regexCache[fileName] = new Regex(string.Join("|", items!.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var items = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "Items", fileName));
+            regexCache[fileName] = new Regex(string.Join("|", items.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
         foreach (var group in channels)

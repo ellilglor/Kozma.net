@@ -13,21 +13,21 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
     private readonly DiscordSocketClient _client = bot.GetClient();
     private readonly double _offlineMutesCheckInterval = 3;
 
-    public async Task GiveRoleAsync(SocketGuildUser user, ulong roleId)
+    public async Task GiveRoleAsync(IGuildUser user, ulong roleId)
     {
         var role = await GetGuild().GetRoleAsync(roleId);
         await user.AddRoleAsync(role);
         logger.Log(LogLevel.Moderation, $"{role.Name} was given to {user.Username}");
     }
 
-    public async Task RemoveRoleAsync(SocketGuildUser user, ulong roleId)
+    public async Task RemoveRoleAsync(IGuildUser user, ulong roleId)
     {
         var role = await GetGuild().GetRoleAsync(roleId);
         await user.RemoveRoleAsync(role);
         logger.Log(LogLevel.Moderation, $"{role.Name} was removed from {user.Username}");
     }
 
-    public async Task HandleTradeCooldownAsync(SocketUserMessage message, ulong roleId)
+    public async Task HandleTradeCooldownAsync(IMessage message, ulong roleId)
     {
         if (message.Author is not SocketGuildUser user) return;
         if (user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) return;
@@ -83,7 +83,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
     {
         foreach (var m in mutes)
         {
-            if (guild.GetUser(ulong.Parse(m.Id)) is not SocketGuildUser user) continue; // User left the server
+            if (guild.GetUser(ulong.Parse(m.Id)) is not IGuildUser user) continue; // User left the server
             await RemoveRoleAsync(user, roleId);
         }
     }
@@ -93,7 +93,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     private async Task CheckMessagesAsync(SocketGuild guild, ulong channelId, ulong roleId, DateTime d)
     {
-        if (guild.GetChannel(channelId) is not SocketTextChannel channel) return;
+        if (guild.GetChannel(channelId) is not IMessageChannel channel) return;
         var messages = await channel.GetMessagesAsync(25).FlattenAsync();
 
         foreach (var message in messages)
@@ -102,11 +102,11 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
             if (message.Author.IsBot || message.Author is not SocketGuildUser user) continue;
             if (user.Roles.Any(r => r.Id == roleId || r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) continue;
 
-            await MuteUserAsync(user, (SocketUserMessage)message, roleId);
+            await MuteUserAsync(user, message, roleId);
         }
     }
 
-    private async Task MuteUserAsync(SocketGuildUser user, SocketUserMessage message, ulong roleId)
+    private async Task MuteUserAsync(IGuildUser user, IMessage message, ulong roleId)
     {
         bool success;
         if (roleId == config.GetValue<ulong>("ids:wtsRole")) success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new SellMute() { Id = user.Id.ToString(), Name = user.Username });

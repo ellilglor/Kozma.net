@@ -1,6 +1,5 @@
 ﻿using Discord.Interactions;
 using Discord;
-using Discord.WebSocket;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Handlers;
 
@@ -23,7 +22,7 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) 
         var tasks = channels.Select(async (channelData) =>
         {
             var (name, id) = channelData;
-            if (Context.Guild.GetChannel(id) is not SocketTextChannel channel) return;
+            if (Context.Guild.GetChannel(id) is not IMessageChannel channel) return;
             var channelTime = System.Diagnostics.Stopwatch.StartNew();
             var count = await updateHelper.UpdateLogsAsync(channel, limit: int.MaxValue, reset: true);
 

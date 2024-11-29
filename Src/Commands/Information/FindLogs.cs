@@ -65,7 +65,7 @@ public partial class FindLogs(
         if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("nog blaster");
         if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("recipe");
 
-        var commonFeatured = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json")) ?? [];
+        var commonFeatured = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json"));
         var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
         var matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
         var matchCount = matches.Sum(collection => collection.Messages.Count);
@@ -128,7 +128,7 @@ public partial class FindLogs(
                 $"If you notice a problem please contact <@{config.GetValue<ulong>("ids:owner")}>!\n" +
                 $"Did you know we have our own [**Discord server**]({config.GetValue<string>("serverInvite")} 'Kozma's Backpack Discord server')?");
 
-        var spreadsheet = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "FindLogs", "Spreadsheet.json")) ?? [];
+        var spreadsheet = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "Spreadsheet.json"));
         if (spreadsheet.Any(equipment => item.Contains(equipment, StringComparison.OrdinalIgnoreCase)))
         {
             embed.AddField("** **", $"__{copy}__ can be found on the [**merchant sheet**](https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#).");
@@ -187,7 +187,7 @@ public partial class FindLogs(
         var exceptions = new List<string> { "drakon", "maskeraith", "nog" };
         if (exceptions.Any(keyword => item.Contains(keyword, StringComparison.OrdinalIgnoreCase))) return;
 
-        var equipmentFamilies = await jsonFileReader.ReadAsync<Dictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "EquipmentFamilies.json")) ?? [];
+        var equipmentFamilies = await jsonFileReader.ReadAsync<IReadOnlyDictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "EquipmentFamilies.json"));
         var family = equipmentFamilies.FirstOrDefault(f => f.Value.Any(name => item.Contains(name, StringComparison.OrdinalIgnoreCase)));
 
         if (!family.Equals(default(KeyValuePair<string, List<string>>)))
@@ -201,7 +201,7 @@ public partial class FindLogs(
             return;
         }
 
-        var colorSets = await jsonFileReader.ReadAsync<Dictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "Colors.json")) ?? [];
+        var colorSets = await jsonFileReader.ReadAsync<IReadOnlyDictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "Colors.json"));
         foreach (var set in colorSets)
         {
             foreach (var color in set.Value)

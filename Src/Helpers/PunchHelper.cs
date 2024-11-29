@@ -157,8 +157,6 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         logger.Log(LogLevel.Special, $"{user} rolled a GM item");
 
         var rewards = await jsonFileReader.ReadAsync<IReadOnlyList<PunchReward>>(Path.Combine("Data", "Punch.json"));
-        if (rewards is null) return ("Failed to get reward", string.Empty);
-
         var reward = rewards[_random.Next(rewards.Count)];
         return ($"Congratulations! You created a GM item.\nAs a reward you get a random Spiral Knights meme.\nAuthor: **{reward.Author}**", reward.Url);
     }

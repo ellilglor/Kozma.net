@@ -152,5 +152,5 @@ public class Unbox(IConfiguration config,
     }
 
     private async Task<IReadOnlyList<ItemData>> GetItemDataAsync(Box box) =>
-        await jsonFileReader.ReadAsync<IReadOnlyList<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json")) ?? [];
+        await jsonFileReader.ReadAsync<IReadOnlyList<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json"));
 }

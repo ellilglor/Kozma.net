@@ -13,7 +13,7 @@ public class Help(IEmbedHandler embedHandler, IConfiguration config, IFileReader
     [SlashCommand("help", "Explains all commands.")]
     public async Task ExecuteAsync()
     {
-        var info = await jsonFileReader.ReadAsync<IEnumerable<CommandInfo>>(Path.Combine("Data", "Help.json")) ?? [];
+        var info = await jsonFileReader.ReadAsync<IEnumerable<CommandInfo>>(Path.Combine("Data", "Help.json"));
         var fields = info.Select(cmd => embedHandler.CreateField(cmd.Command, cmd.Description, isInline: false)).ToList();
 
         var embed = embedHandler.GetEmbed("Here are all my commands:")

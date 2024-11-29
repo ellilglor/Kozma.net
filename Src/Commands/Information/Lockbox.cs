@@ -52,7 +52,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
         {
             var desc = FindItem(item);
 
-            embed.WithTitle(!string.IsNullOrEmpty(desc) ? $"These lockboxes contain __{item}__:" : $"I didn't find a box containing __{item}__.")
+            embed.WithTitle(string.IsNullOrEmpty(desc) ? $"I didn't find a box containing __{item}__.": $"These lockboxes contain __{item}__:")
                 .WithDescription(desc);
         }
 

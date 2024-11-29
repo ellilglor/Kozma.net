@@ -30,7 +30,7 @@ public class MessageHandler(IConfiguration config, IRoleHandler roleHandler) : I
         }
     }
 
-    private static async Task HandleHavenMessageAsync(SocketUserMessage message)
+    private static async Task HandleHavenMessageAsync(IMessage message)
     {
         switch (message.Channel.Id)
         {

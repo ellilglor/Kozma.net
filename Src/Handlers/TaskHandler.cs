@@ -23,7 +23,7 @@ public class TaskHandler(IBot bot,
     private sealed record TaskConfig(double Interval, Func<Task> ExecuteAsync);
     private sealed record Reminder(string Title, string Description);
     private sealed record Offer(int Price, int Volume);
-    private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, List<Offer> BuyOffers, List<Offer> SellOffers);
+    private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IEnumerable<Offer> BuyOffers, IEnumerable<Offer> SellOffers);
 
     private readonly DiscordSocketClient _client = bot.GetClient();
     private readonly Dictionary<string, TaskConfig> _tasks = new();
@@ -95,7 +95,7 @@ public class TaskHandler(IBot bot,
     {
         try
         {
-            if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not SocketTextChannel channel) return;
+            if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not IMessageChannel channel) return;
 
             using var client = new HttpClient();
             var response = await client.GetAsync(new Uri(config.GetValue<string>("energyMarket")!));
@@ -133,8 +133,8 @@ public class TaskHandler(IBot bot,
 
     private async Task PostSlowModeReminderAsync()
     {
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel wtsChannel) return;
-        if (await _client.GetChannelAsync (config.GetValue<ulong>("ids:wtbChannel")) is not SocketTextChannel wtbChannel) return;
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel wtsChannel) return;
+        if (await _client.GetChannelAsync (config.GetValue<ulong>("ids:wtbChannel")) is not IMessageChannel wtbChannel) return;
 
         var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the __{config.GetValue<int>("timers:slowmodeHours")} hour slowmode__ in this channel.")
             .WithDescription("You can edit your posts through the **/tradepostedit** command.\nWe apologise for any inconvenience this may cause.")
@@ -148,11 +148,10 @@ public class TaskHandler(IBot bot,
 
     private async Task PostScamPreventionAsync()
     {
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not SocketTextChannel channel) return;
-        var reminders = await jsonFileReader.ReadAsync<List<Reminder>>(Path.Combine("Data", "Reminders.json"));
-        if (reminders is null) return;
-
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel channel) return;
+        var reminders = await jsonFileReader.ReadAsync<IReadOnlyList<Reminder>>(Path.Combine("Data", "Reminders.json"));
         var reminder = reminders[_random.Next(reminders.Count)];
+
         var embed = embedHandler.GetBasicEmbed("Trading Guidelines")
             .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(reminder.Title, reminder.Description) })
             .WithFooter(new EmbedFooterBuilder()
@@ -172,9 +171,9 @@ public class TaskHandler(IBot bot,
         var channels = updateHelper.GetChannels();
         foreach (var channelData in channels)
         {
-            if (await _client.GetChannelAsync(channelData.Value) is not SocketTextChannel channel) return;
+            if (await _client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) return;
 
-            if (channel is SocketThreadChannel thread)
+            if (channel is IThreadChannel thread)
             {
                 await thread.ModifyAsync(t => t.Archived = true);
                 await thread.ModifyAsync(t => t.Archived = false);

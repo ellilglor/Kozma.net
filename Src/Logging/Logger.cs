@@ -40,7 +40,7 @@ public partial class Logger(IBot bot,
     public async Task LogAsync(string? message = null, Embed? embed = null, bool pingOwner = false)
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ISocketMessageChannel channel) return;
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not IMessageChannel channel) return;
         var msg = pingOwner ? string.Join(" ", $"<@{config.GetValue<ulong>("ids:owner")}>", message) : message;
 
         await channel.SendMessageAsync(msg, embed: embed);
@@ -62,7 +62,7 @@ public partial class Logger(IBot bot,
         switch (context.Interaction.Type)
         {
             case InteractionType.ApplicationCommand: await HandleCommandAsync(command.Name, context.Interaction, location); break;
-            case InteractionType.MessageComponent: await HandleComponentAsync((SocketMessageComponent)context.Interaction, location); break;
+            case InteractionType.MessageComponent: await HandleComponentAsync((IComponentInteraction)context.Interaction, location); break;
             default: await Task.CompletedTask; break;
         }
     }
@@ -93,7 +93,7 @@ public partial class Logger(IBot bot,
         await LogAsync(embed: embed.Build());
     }
 
-    private async Task HandleComponentAsync(SocketMessageComponent interaction, string location)
+    private async Task HandleComponentAsync(IComponentInteraction interaction, string location)
     {
         switch (interaction.Data.CustomId)
         {
@@ -114,8 +114,8 @@ public partial class Logger(IBot bot,
     {
         var interactionName = interaction.Type switch
         {
-            InteractionType.ApplicationCommand => (interaction as SocketSlashCommand)?.CommandName,
-            InteractionType.MessageComponent => (interaction as SocketMessageComponent)?.Data.CustomId,
+            InteractionType.ApplicationCommand => (interaction as SocketCommandBase)?.CommandName,
+            InteractionType.MessageComponent => (interaction as IComponentInteraction)?.Data.CustomId,
             _ => command
         };
         if (string.IsNullOrEmpty(interactionName)) interactionName = command;
@@ -168,7 +168,7 @@ public partial class Logger(IBot bot,
         Log(LogLevel.Discord, $"{msg.Source}\t{msg.Message}");
         // TODO logasync if error
 
-        if (msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
+        if (msg.Message != null && msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
         
         return Task.CompletedTask;
     }

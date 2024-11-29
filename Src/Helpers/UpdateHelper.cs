@@ -14,6 +14,7 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
     private readonly Dictionary<string, ulong> _channels = new()
     {
         { "special-listings", 807369188133306408 },
+        { "2024-flash-sales", 1305211055819194470 },
         { "2023-flash-sales", 1174278238009294858 },
         { "2022-flash-sales", 1029020424929038386 },
         { "2021-flash-sales", 909112948956483625 },
@@ -38,7 +39,7 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
     public IReadOnlyDictionary<string, ulong> GetChannels() => 
         _channels.AsReadOnly();
 
-    public async Task<int> UpdateLogsAsync(SocketTextChannel channel, int limit = 20, bool reset = false)
+    public async Task<int> UpdateLogsAsync(IMessageChannel channel, int limit = 20, bool reset = false)
     {
         var messages = await channel.GetMessagesAsync(limit).FlattenAsync();
         var logs = new List<TradeLog>();
