@@ -20,22 +20,8 @@ public partial class Logger(IBot bot,
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
-    public void Log(LogLevel level, string message)
-    {
-        var color = level switch
-        {
-            LogLevel.Command => "\u001b[34m",
-            LogLevel.Button => "\u001b[36m",
-            LogLevel.Moderation => "\u001b[35m",
-            LogLevel.Info => "\u001b[33m",
-            LogLevel.Discord => "\u001b[90m",
-            LogLevel.Special => "\u001b[32m",
-            LogLevel.Error => "\u001b[31m",
-            _ => "\u001b[37m"
-        };
-
-        Console.WriteLine($"{color}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
-    }
+    public void Log(LogLevel level, string message) =>
+        Console.WriteLine($"{level.Color()}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
 
     public async Task LogAsync(string? message = null, Embed? embed = null, bool pingOwner = false)
     {

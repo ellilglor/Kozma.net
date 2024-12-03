@@ -3,8 +3,9 @@ using Kozma.net.Src.Models;
 
 namespace Kozma.net.Src.Extensions;
 
-public static class BoxExtensions
+public static class EnumExtensions
 {
+    // Box extensions
     private const string LockboxSheetUrl = "https://docs.google.com/spreadsheets/d/14FQWsNevL-7Uiiy-Q3brif8FaEaH7zGGR2Lv_JkOyr8/htmlview#";
     private const string BaseGifUrl = "https://cdn.discordapp.com/attachments/1069643121622777876/";
 
@@ -28,5 +29,36 @@ public static class BoxExtensions
 
     public static BoxData ToBoxData(this Box box) =>
         BoxDataMapping.TryGetValue(box, out var data) ? data : throw new InvalidOperationException($"Box '{box}' is not a valid box type.");
-}
 
+    // Lockbox extensions
+    private static readonly Dictionary<LockboxOption, Box> LockboxOptionMapping = new()
+    {
+        { LockboxOption.Copper, Box.Copper },
+        { LockboxOption.Steel, Box.Steel },
+        { LockboxOption.Silver, Box.Silver },
+        { LockboxOption.Platinum, Box.Platinum },
+        { LockboxOption.Gold, Box.Gold },
+        { LockboxOption.Titanium, Box.Titanium },
+        { LockboxOption.Iron, Box.Iron },
+        { LockboxOption.Mirrored, Box.Mirrored },
+        { LockboxOption.Slime, Box.Slime },
+    };
+
+    public static Box ConvertToBox(this LockboxOption box) =>
+        LockboxOptionMapping.TryGetValue(box, out var data) ? data : throw new InvalidOperationException($"Lockbox '{box}' is not a valid lockbox type.");
+
+    // Logcolor extensions
+    private static readonly Dictionary<LogLevel, string> LogLevelMapping = new()
+    {
+        { LogLevel.Command, "\u001b[34m" },
+        { LogLevel.Button, "\u001b[36m" },
+        { LogLevel.Moderation, "\u001b[35m" },
+        { LogLevel.Info, "\u001b[33m" },
+        { LogLevel.Discord, "\u001b[90m" },
+        { LogLevel.Special, "\u001b[32m" },
+        { LogLevel.Error, "\u001b[31m" }
+    };
+
+    public static string Color(this LogLevel level) =>
+        LogLevelMapping.TryGetValue(level, out var color) ? color : "\u001b[37m";
+}
