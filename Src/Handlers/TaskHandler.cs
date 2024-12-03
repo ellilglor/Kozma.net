@@ -179,14 +179,11 @@ public class TaskHandler(IBot bot,
                 await thread.ModifyAsync(t => t.Archived = false);
             }
 
-            await updateHelper.UpdateLogsAsync(channel);
+            var logs = await updateHelper.GetLogsAsync(channel);
+            if (logs.Count > 0) await updateHelper.UpdateLogsAsync(logs);
         }
     }
 
-    private async Task PostStillConnectedAsync()
-    {
-        var embed = logger.GetLogEmbed($"Connected since <t:{bot.GetReadyTimestamp()}:f> with {_client.Latency}ms latency.", Colors.Moderation);
-
-        await logger.LogAsync(embed: embed.Build());
-    }
+    private async Task PostStillConnectedAsync() =>
+        await logger.LogAsync(embed: logger.GetLogEmbed($"Connected since <t:{bot.GetReadyTimestamp()}:f> with {_client.Latency}ms latency.", Colors.Moderation).Build());
 }

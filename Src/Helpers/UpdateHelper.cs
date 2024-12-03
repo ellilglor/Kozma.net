@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
@@ -9,8 +8,6 @@ namespace Kozma.net.Src.Helpers;
 
 public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHelper
 {
-    private static readonly SemaphoreSlim _dbLock = new(1, 1);
-
     private readonly Dictionary<string, ulong> _channels = new()
     {
         { "special-listings", 807369188133306408 },
@@ -39,7 +36,7 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
     public IReadOnlyDictionary<string, ulong> GetChannels() => 
         _channels.AsReadOnly();
 
-    public async Task<int> UpdateLogsAsync(IMessageChannel channel, int limit = 20, bool reset = false)
+    public async Task<IReadOnlyCollection<TradeLog>> GetLogsAsync(IMessageChannel channel, int limit = 20)
     {
         var messages = await channel.GetMessagesAsync(limit).FlattenAsync();
         var logs = new List<TradeLog>();
@@ -47,24 +44,16 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
         foreach (var message in messages)
         {
             if (string.IsNullOrEmpty(message.Content)) continue;
-            if (!reset && await tradeLogService.CheckIfLogExistsAsync(message.Id)) break;
+            if (limit != int.MaxValue && await tradeLogService.CheckIfLogExistsAsync(message.Id)) break;
 
             logs.Add(ConvertMessage(message, channel.Name));
         }
 
-        if (logs.Count == 0) return 0;
-
-        await _dbLock.WaitAsync();
-        try
-        {
-            await tradeLogService.UpdateLogsAsync(logs, reset, channel.Name);
-        }
-        finally
-        {
-            _dbLock.Release();
-        }
-        return logs.Count;
+        return logs;
     }
+
+    public async Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs, bool reset = false, string? channel = null) =>
+        await tradeLogService.UpdateLogsAsync(logs, reset, channel);
 
     private static TradeLog ConvertMessage(IMessage message, string channel)
     {

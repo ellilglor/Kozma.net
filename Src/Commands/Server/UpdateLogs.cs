@@ -2,12 +2,13 @@
 using Discord;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Handlers;
+using Kozma.net.Src.Models.Entities;
 
 namespace Kozma.net.Src.Commands.Server;
 
 public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) : InteractionModuleBase<SocketInteractionContext>
 {
-    private sealed record Channel(string Name, int Count, string Time);
+    private sealed record Channel(string Name, IReadOnlyCollection<TradeLog> Logs, string Time);
 
     [SlashCommand("update", "Kozma's Backpack staff only.")]
     [RequireUserPermission(GuildPermission.BanMembers | GuildPermission.KickMembers)]
@@ -24,16 +25,21 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) 
             var (name, id) = channelData;
             if (Context.Guild.GetChannel(id) is not IMessageChannel channel) return;
             var channelTime = System.Diagnostics.Stopwatch.StartNew();
-            var count = await updateHelper.UpdateLogsAsync(channel, limit: int.MaxValue, reset: true);
+            var logs = await updateHelper.GetLogsAsync(channel, limit: int.MaxValue);
 
             channelTime.Stop();
             var elapsed = $"{channelTime.Elapsed.TotalSeconds:F2}";
-            data.Add(new Channel(name, count, elapsed));
+            data.Add(new Channel(name, logs, elapsed));
 
             await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Finished {name} in {elapsed} seconds").Build());
         }).ToList();
 
         await Task.WhenAll(tasks);
+
+        foreach (var channel in data) 
+        { 
+            await updateHelper.UpdateLogsAsync(channel.Logs, reset: true, channel: channel.Name);
+        }
 
         totalTime.Stop();
         DisplayData(data);
@@ -48,7 +54,7 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) 
 
         foreach (var channel in data)
         {
-            Console.WriteLine("{0,-20} {1,-10} {2,-10}", channel.Name, channel.Count, channel.Time);
+            Console.WriteLine("{0,-20} {1,-10} {2,-10}", channel.Name, channel.Logs.Count, channel.Time);
         }
     }
 }

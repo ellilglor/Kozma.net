@@ -1,10 +1,11 @@
 ﻿using Discord;
-using Discord.WebSocket;
+using Kozma.net.Src.Models.Entities;
 
 namespace Kozma.net.Src.Helpers;
 
 public interface IUpdateHelper
 {
-    public IReadOnlyDictionary<string, ulong> GetChannels();
-    public Task<int> UpdateLogsAsync(IMessageChannel channel, int limit = 20, bool reset = false);
+    IReadOnlyDictionary<string, ulong> GetChannels();
+    Task<IReadOnlyCollection<TradeLog>> GetLogsAsync(IMessageChannel channel, int limit = 20);
+    Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs, bool reset = false, string? channel = null);
 }
