@@ -1,20 +1,16 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src;
 
 public class Bot : IBot, IDisposable
 {
     private readonly DiscordSocketClient _client;
-    private readonly IConfiguration _config;
     private readonly DateTime _ready;
     private bool _disposed;
 
-    public Bot(IConfiguration config)
+    public Bot()
     {
-        _config = config;
-
         DiscordSocketConfig intents = new()
         {
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
@@ -26,7 +22,7 @@ public class Bot : IBot, IDisposable
 
     public async Task StartAsync()
     {
-        await _client.LoginAsync(TokenType.Bot, _config.GetValue<string>("botToken"));
+        await _client.LoginAsync(TokenType.Bot, DotNetEnv.Env.GetString("botToken"));
         await _client.StartAsync();
     }
 

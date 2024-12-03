@@ -7,6 +7,7 @@ using Kozma.net.Src.Trackers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using DotNetEnv;
 
 namespace Kozma.net.Src.Extensions;
 
@@ -14,16 +15,17 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureCoreServices(this IServiceCollection services)
     {
+        Env.TraversePath().Load();
+
         IConfiguration config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddUserSecrets<Program>()
             .Build();
 
         return services.AddSingleton(config)
             .AddSingleton<IBot, Bot>()
             .AddSingleton<IBotLogger, Logger>()
             .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
-            .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(config.GetValue<string>("dbToken") ?? string.Empty, config.GetValue<string>("database") ?? string.Empty));
+            .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(Env.GetString("dbToken"), Env.GetString("database")));
     }
 
     public static IServiceCollection ConfigureHandlers(this IServiceCollection services)

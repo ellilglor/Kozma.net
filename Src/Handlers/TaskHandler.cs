@@ -98,7 +98,7 @@ public class TaskHandler(IBot bot,
             if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not IMessageChannel channel) return;
 
             using var client = new HttpClient();
-            var response = await client.GetAsync(new Uri(config.GetValue<string>("energyMarket")!));
+            var response = await client.GetAsync(new Uri(DotNetEnv.Env.GetString("energyMarket")));
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
