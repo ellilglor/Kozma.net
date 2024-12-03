@@ -5,7 +5,7 @@ namespace Kozma.net.Src.Services;
 
 public interface IPunchService
 {
-    public Task UpdateOrSaveGamblerAsync(ulong id, string name, PunchPrices ticket);
-    public Task<long> GetTotalSpentAsync();
-    public Task<IEnumerable<DbStat>> GetGamblersAsync(int limit, long total);
+    Task UpdateOrSaveGamblerAsync(ulong id, string name, PunchPrices ticket);
+    Task<long> GetTotalSpentAsync();
+    Task<IEnumerable<DbStat>> GetGamblersAsync(int limit, long total);
 }

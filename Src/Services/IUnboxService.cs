@@ -5,7 +5,7 @@ namespace Kozma.net.Src.Services;
 
 public interface IUnboxService
 {
-    public Task UpdateOrSaveBoxAsync(Box box);
-    public Task<int> GetBoxOpenedCountAsync();
-    public Task<IEnumerable<UnboxStat>> GetBoxesAsync(int total);
+    Task UpdateOrSaveBoxAsync(Box box);
+    Task<int> GetBoxOpenedCountAsync();
+    Task<IEnumerable<UnboxStat>> GetBoxesAsync(int total);
 }
