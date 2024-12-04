@@ -1,48 +1,54 @@
 ﻿using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 
 namespace Kozma.net.Src.Trackers;
 
-public class UnboxTracker : IUnboxTracker
+public class UnboxTracker(IMemoryCache cache) : IUnboxTracker
 {
-    private readonly Dictionary<ulong, Dictionary<Box, List<TrackerItem>>> _items = [];
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
 
-    public void SetPlayer(ulong id, Box key)
-    {
-        CheckIfIdIsPresent(id, key);
-        _items[id][key] = [];
-    }
+    public void SetPlayer(ulong id, Box key) =>
+        cache.Set(CreateCacheKey(id, key), new List<TrackerItem>(), _cacheOptions);
 
     public void AddEntry(ulong id, Box key, string value)
     {
-        CheckIfIdIsPresent(id, key);
-        var item = _items[id][key].Find(i => i.Name == value);
+        string cacheKey = CreateCacheKey(id, key);
 
-        if (item is null)
+        if (!cache.TryGetValue(cacheKey, out List<TrackerItem>? items) || items is null)
         {
-            _items[id][key].Add(new TrackerItem(value, 1));
+            items = [new TrackerItem(value, 1)];
         }
         else
         {
-            _items[id][key][_items[id][key].IndexOf(item)] = item with { Count = item.Count + 1 };
+            int index = items.FindIndex(i => i.Name == value);
+
+            if (index == -1)
+            {
+                items.Add(new TrackerItem(value, 1));
+            }
+            else
+            {
+                items[index] = items[index] with { Count = items[index].Count + 1 };
+            }
         }
+
+        cache.Set(cacheKey, items, _cacheOptions);
     }
 
     public string GetData(ulong id, Box key)
     {
-        CheckIfIdIsPresent(id, key);
-
-        if (!_items[id].TryGetValue(key, out List<TrackerItem>? unboxed) || unboxed.Count == 0)
+        if (!cache.TryGetValue(CreateCacheKey(id, key), out List<TrackerItem>? items) || items is null)
         {
-            return "The bot has restarted and this data is lost!";
+            return "This data no longer exists";
         }
 
         var data = new StringBuilder();
-        var items = unboxed.OrderByDescending(i => i.Count);
+        var unboxed = items.OrderByDescending(i => i.Count);
 
-        foreach (var item in items)
+        foreach (var item in unboxed)
         {
             if (data.Length + item.Name.Length >= ExtendedDiscordConfig.MaxEmbedDescChars - 50)
             {
@@ -58,13 +64,14 @@ public class UnboxTracker : IUnboxTracker
 
     public int GetItemCount(ulong id, Box key)
     {
-        CheckIfIdIsPresent(id, key);
-        return _items[id][key].Count;
+        if (!cache.TryGetValue(CreateCacheKey(id, key), out List<TrackerItem>? items) || items is null)
+        {
+            return 0;
+        }
+
+        return items.Count;
     }
 
-    private void CheckIfIdIsPresent(ulong id, Box key)
-    {
-        if (!_items.ContainsKey(id)) _items[id] = [];
-        if (!_items[id].ContainsKey(key)) _items[id][key] = [];
-    }
+    private static string CreateCacheKey(ulong id, Box key) =>
+        id + "_" + key;
 }

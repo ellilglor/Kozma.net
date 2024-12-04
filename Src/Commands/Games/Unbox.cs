@@ -52,7 +52,7 @@ public class Unbox(IConfiguration config,
         }
 
         var items = string.Join(" & ", unboxed.Select(item => item.Name));
-        logger.Log(items.Contains('*', StringComparison.InvariantCulture) ? LogLevel.Special : LogLevel.Info, $"{interaction.User.Username} opened {box} and got {items}");
+        logger.Log(items.Contains('*', StringComparison.InvariantCulture) ? LogLevel.Special : LogLevel.Info, $"{interaction.User.Username} opened {box} => {items}");
 
         await SaveUnboxedAsync(userId, box, unboxed);
 
