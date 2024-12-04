@@ -15,7 +15,7 @@ public class UnboxTracker(IMemoryCache cache) : IUnboxTracker
 
     public void AddEntry(ulong id, Box key, string value)
     {
-        string cacheKey = CreateCacheKey(id, key);
+        var cacheKey = CreateCacheKey(id, key);
 
         if (!cache.TryGetValue(cacheKey, out List<TrackerItem>? items) || items is null)
         {

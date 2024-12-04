@@ -1,57 +1,75 @@
 ﻿using Kozma.net.Src.Models;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 
 namespace Kozma.net.Src.Trackers;
 
-public class PunchTracker : IPunchTracker
+public class PunchTracker(IMemoryCache cache) : IPunchTracker
 {
-    private readonly Dictionary<ulong, Dictionary<string, Dictionary<string, List<TrackerItem>>>> _uvs = [];
-    private readonly string _types = "Types";
-    private readonly string _grades = "Grades";
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
+    private const string _types = "Types";
+    private const string _grades = "Grades";
 
     public void SetPlayer(ulong id, string key)
     {
-        CheckIfIdIsPresent(id, key);
-        SetItem(id, key);
+        var empty = new Dictionary<string, List<TrackerItem>>()
+        {
+            { _types, [] },
+            { _grades, [] }
+        };
+
+        cache.Set(CreateCacheKey(id, key), empty, _cacheOptions);
     }
 
     public void AddEntry(ulong id, string key, string type, string grade)
     {
-        CheckIfIdIsPresent(id, key);
-        var existingType = _uvs[id][key][_types].Find(t => t.Name == type);
-        var existingGrade = _uvs[id][key][_grades].Find(g => g.Name == grade);
+        var cacheKey = CreateCacheKey(id, key);
 
-        if (existingType is null)
+        if (!cache.TryGetValue(cacheKey, out Dictionary<string, List<TrackerItem>>? uvs) || uvs is null)
         {
-            _uvs[id][key][_types].Add(new TrackerItem(type, 1));
+            uvs = new Dictionary<string, List<TrackerItem>>()
+            {
+                { _types, [new TrackerItem(type, 1)] },
+                { _grades, [new TrackerItem(grade, 1)] }
+            };
         }
         else
         {
-            _uvs[id][key][_types][_uvs[id][key][_types].IndexOf(existingType)] = existingType with { Count = existingType.Count + 1 };
+            var typeIndex = uvs[_types].FindIndex(t => t.Name == type);
+            var gradeIndex = uvs[_grades].FindIndex(g => g.Name == grade);
+
+            if (typeIndex == -1)
+            {
+                uvs[_types].Add(new TrackerItem(type, 1));
+            }
+            else
+            {
+                uvs[_types][typeIndex] = uvs[_types][typeIndex] with { Count = uvs[_types][typeIndex].Count + 1 };
+            }
+
+            if (gradeIndex == -1)
+            {
+                uvs[_grades].Add(new TrackerItem(grade, 1));
+            }
+            else
+            {
+                uvs[_grades][gradeIndex] = uvs[_grades][gradeIndex] with { Count = uvs[_grades][gradeIndex].Count + 1 };
+            }
         }
 
-        if (existingGrade is null)
-        {
-            _uvs[id][key][_grades].Add(new TrackerItem(grade, 1));
-        }
-        else
-        {
-            _uvs[id][key][_grades][_uvs[id][key][_grades].IndexOf(existingGrade)] = existingGrade with { Count = existingGrade.Count + 1 };
-        }
+        cache.Set(cacheKey, uvs, _cacheOptions);
     }
 
     public string GetData(ulong id, string key)
     {
-        CheckIfIdIsPresent(id, key);
-
-        if (!_uvs[id].TryGetValue(key, out Dictionary<string, List<TrackerItem>>? rolled) || rolled[_types].Count == 0)
+        if (!cache.TryGetValue(CreateCacheKey(id, key), out Dictionary<string, List<TrackerItem>>? uvs) || uvs is null)
         {
-            return "The bot has restarted and this data is lost!";
+            return "This data no longer exists";
         }
 
         var data = new StringBuilder("**In this session you rolled:**\n");
-        var types = rolled[_types].OrderByDescending(i => i.Count);
-        var grades = rolled[_grades].OrderByDescending(i => i.Count);
+        var types = uvs[_types].OrderByDescending(i => i.Count);
+        var grades = uvs[_grades].OrderByDescending(i => i.Count);
 
         data.AppendJoin("\n", types.Select(t => $"{t.Name}: {t.Count}"));
         data.AppendLine("\n\n**And got these grades:**");
@@ -60,16 +78,6 @@ public class PunchTracker : IPunchTracker
         return data.ToString();
     }
 
-    private void CheckIfIdIsPresent(ulong id, string key)
-    {
-        if (!_uvs.ContainsKey(id)) _uvs[id] = [];
-        if (!_uvs[id].ContainsKey(key)) SetItem(id, key);
-    }
-
-    private void SetItem(ulong id, string key)
-    {
-        _uvs[id][key] = [];
-        _uvs[id][key][_types] = [];
-        _uvs[id][key][_grades] = [];
-    }
+    private static string CreateCacheKey(ulong id, string key) =>
+        id + "_" + key;
 }
