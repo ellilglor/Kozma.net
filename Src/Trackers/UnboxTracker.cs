@@ -40,13 +40,10 @@ public class UnboxTracker(IMemoryCache cache) : IUnboxTracker
 
     public string GetData(ulong id, Box key)
     {
-        if (!cache.TryGetValue(CreateCacheKey(id, key), out List<TrackerItem>? items) || items is null)
-        {
-            return "This data no longer exists";
-        }
+        if (!cache.TryGetValue(CreateCacheKey(id, key), out List<TrackerItem>? items) || items is null) return "This data no longer exists";
 
         var data = new StringBuilder();
-        var unboxed = items.OrderByDescending(i => i.Count);
+        var unboxed = items.OrderBy(i => !i.Name.Contains('*', StringComparison.InvariantCulture)).ThenByDescending(i => i.Count);
 
         foreach (var item in unboxed)
         {
