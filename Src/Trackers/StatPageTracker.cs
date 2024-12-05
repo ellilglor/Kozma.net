@@ -7,6 +7,7 @@ using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 
@@ -14,6 +15,7 @@ namespace Kozma.net.Src.Trackers;
 
 public class StatPageTracker(IBot bot,
     IConfiguration config,
+    IMemoryCache cache,
     IEmbedHandler embedHandler,
     ICostCalculator costCalculator,
     ICommandService commandService,
@@ -23,16 +25,18 @@ public class StatPageTracker(IBot bot,
     ITradeLogService tradeLogService) : IStatPageTracker
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
-    private List<Embed> _pages = [];
-    private readonly Dictionary<ulong, int> _users = [];
     private bool _buildingInProgess;
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
+    private const string _cacheKey = "stat_pages";
 
     public async Task BuildPagesAsync()
     {
+        if (cache.TryGetValue(_cacheKey, out List<Embed>? _)) return;
+
         var timer = System.Diagnostics.Stopwatch.StartNew();
+        var finalPages = new List<Embed>();
         var pages = new List<EmbedBuilder>();
         _buildingInProgess = true;
-        _pages = [];
 
         var userCountTask = GetUserCountAsync();
         var commandUsageTask = commandService.GetCommandUsageAsync(isGame: false);
@@ -93,45 +97,47 @@ public class StatPageTracker(IBot bot,
                 .WithText($"{i + 1}/{pages.Count}")
                 .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl());
 
-            _pages.Add(pages[i].Build());
+            finalPages.Add(pages[i].Build());
         }
 
+        cache.Set(_cacheKey, finalPages, _cacheOptions);
         _buildingInProgess = false;
     }
 
     public Embed GetPage(ulong id, string action = "")
     {
         if (_buildingInProgess) return embedHandler.GetAndBuildEmbed("Pages are being built, please try again later.");
-        CheckIfIdIsPresent(id);
+        if (!cache.TryGetValue(_cacheKey, out List<Embed>? pages) || pages is null) return embedHandler.GetAndBuildEmbed("Pages don't exist anymore, rerun /stats");
+
+        if (!cache.TryGetValue(id, out int currentPage))
+        {
+            currentPage = 0;
+        }
 
         switch (action)
         {
-            case "first": _users[id] = 0; break;
-            case "prev" when _users[id] > 0: _users[id]--; break;
-            case "next" when _users[id] < _pages.Count - 1: _users[id]++; break;
-            case "last": _users[id] = _pages.Count - 1; break;
-            default: _users[id] = 0; break;
+            case "first": currentPage = 0; break;
+            case "prev" when currentPage > 0: currentPage--; break;
+            case "next" when currentPage < pages.Count - 1: currentPage++; break;
+            case "last": currentPage = pages.Count - 1; break;
+            default: currentPage = 0; break;
         }
 
-        return _pages[_users[id]];
+        cache.Set(id, currentPage, _cacheOptions);
+        return pages[currentPage];
     }
 
     public MessageComponent GetComponents(ulong id)
     {
-        CheckIfIdIsPresent(id);
+        if (!cache.TryGetValue(id, out int page)) page = 0;
+        if (!cache.TryGetValue(_cacheKey, out List<Embed>? pages) || pages is null) pages = [];
 
-        var page = _users[id];
         return new ComponentBuilder()
             .WithButton(label: Emotes.First, customId: "stats-first", style: ButtonStyle.Primary, disabled: page == 0)
             .WithButton(label: Emotes.Previous, customId: "stats-prev", style: ButtonStyle.Primary, disabled: page == 0)
-            .WithButton(label: Emotes.Next, customId: "stats-next", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
-            .WithButton(label: Emotes.Last, customId: "stats-last", style: ButtonStyle.Primary, disabled: page >= _pages.Count - 1)
+            .WithButton(label: Emotes.Next, customId: "stats-next", style: ButtonStyle.Primary, disabled: page >= pages.Count - 1)
+            .WithButton(label: Emotes.Last, customId: "stats-last", style: ButtonStyle.Primary, disabled: page >= pages.Count - 1)
             .Build();
-    }
-
-    private void CheckIfIdIsPresent(ulong id)
-    {
-        if (!_users.ContainsKey(id)) _users[id] = 0;
     }
 
     private async Task<int> GetUserCountAsync()
