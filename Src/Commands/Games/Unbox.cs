@@ -10,11 +10,13 @@ using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Services;
 using Kozma.net.Src.Trackers;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Games;
 
 public class Unbox(IConfiguration config,
+    IMemoryCache cache,
     IEmbedHandler embedHandler,
     ICostCalculator costCalculator,
     IUnboxTracker unboxTracker,
@@ -150,7 +152,14 @@ public class Unbox(IConfiguration config,
             default: return null;
         }
     }
+    private async Task<IReadOnlyList<ItemData>> GetItemDataAsync(Box box)
+    {
+        if (!cache.TryGetValue(box, out IReadOnlyList<ItemData>? items) || items is null)
+        {
+            items = await jsonFileReader.ReadAsync<IReadOnlyList<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json"));
+            cache.Set(box, items, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+        }
 
-    private async Task<IReadOnlyList<ItemData>> GetItemDataAsync(Box box) =>
-        await jsonFileReader.ReadAsync<IReadOnlyList<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json"));
+        return items;
+    }
 }
