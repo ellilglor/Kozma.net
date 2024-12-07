@@ -7,13 +7,14 @@ using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Commands.Information;
 
-public partial class FindLogs(
+public partial class FindLogs(IMemoryCache cache,
     IEmbedHandler embedHandler,
     ITradeLogService tradeLogService,
     IFileReader jsonFileReader,
@@ -51,27 +52,38 @@ public partial class FindLogs(
 
     public async Task SearchLogsAsync(string item, string original, int months, bool checkVariants, bool checkClean, bool checkMixed, SocketUser? user = null)
     {
-        var items = new List<string>() { item };
-        var reverse = new List<string>();
-        var ignore = new List<string>();
-        var stopHere = DateTime.Now.AddMonths(-months);
+        var cacheKey = $"{item}_{original}_{months}_{checkVariants}_{checkClean}_{checkMixed}";
         var cmdUser = user ?? Context.User;
-        var cleanFilter = new List<string>() { "ctr high", "ctr very high", "asi high", "asi very high", "normal high", "normal max", "shadow high", "shadow max", "fire high", "fire max", "shock high", "shock max" };
 
-        AttachUvsToBack(items);
-        if (checkVariants) await AddVariantsAsync(items);
-        if (items[0].Contains("ctr", StringComparison.OrdinalIgnoreCase) && items[0].Contains("asi", StringComparison.OrdinalIgnoreCase)) items.ForEach(item => reverse.Add(SwapUvs(item)));
-        if (checkClean) items.ForEach(item => cleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
-        if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("nog blaster");
-        if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("recipe");
+        var totalTime = System.Diagnostics.Stopwatch.StartNew();
 
-        var commonFeatured = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json"));
-        var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
-        var matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
+        if (!cache.TryGetValue(cacheKey, out IEnumerable<LogGroups>? matches) || matches is null)
+        {
+            var reverse = new List<string>();
+            var ignore = new List<string>();
+            var items = new List<string>() { item };
+            var stopHere = DateTime.Now.AddMonths(-months);
+            var cleanFilter = new List<string>() { "ctr high", "ctr very high", "asi high", "asi very high", "normal high", "normal max", "shadow high", "shadow max", "fire high", "fire max", "shock high", "shock max" };
+
+            AttachUvsToBack(items);
+            if (checkVariants) await AddVariantsAsync(items);
+            if (items[0].Contains("ctr", StringComparison.OrdinalIgnoreCase) && items[0].Contains("asi", StringComparison.OrdinalIgnoreCase)) items.ForEach(item => reverse.Add(SwapUvs(item)));
+            if (checkClean) items.ForEach(item => cleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
+            if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("nog blaster");
+            if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("recipe");
+
+            var commonFeatured = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json"));
+            var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
+            matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
+
+            cache.Set(cacheKey, matches, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });
+        }
+
+        totalTime.Stop();
+        Console.WriteLine($"{totalTime.Elapsed.TotalMilliseconds}");
         var matchCount = matches.Sum(collection => collection.Messages.Count);
-
         var sentMatchesSuccesfully = await SendMatchesAsync(matches, cmdUser);
-        if (sentMatchesSuccesfully) await FinishInteractionAsync(items[0], original, matchCount, months, checkVariants, cmdUser);
+        if (sentMatchesSuccesfully) await FinishInteractionAsync(item, original, matchCount, months, checkVariants, cmdUser);
     }
 
     private async Task<bool> SendMatchesAsync(IEnumerable<LogGroups> matches, SocketUser user)
