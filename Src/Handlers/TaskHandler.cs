@@ -32,7 +32,7 @@ public class TaskHandler(IBot bot,
 
     public async Task LaunchTasksAsync()
     {
-        _tasks.Add("energyMarket", new TaskConfig(12, PostEnergyMarketAsync));
+        _tasks.Add("energyMarket", new TaskConfig(6, PostEnergyMarketAsync));
         _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
         _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
         _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
