@@ -55,8 +55,6 @@ public partial class FindLogs(IMemoryCache cache,
         var cacheKey = $"{item}_{original}_{months}_{checkVariants}_{checkClean}_{checkMixed}";
         var cmdUser = user ?? Context.User;
 
-        var totalTime = System.Diagnostics.Stopwatch.StartNew();
-
         if (!cache.TryGetValue(cacheKey, out IEnumerable<LogGroups>? matches) || matches is null)
         {
             var reverse = new List<string>();
@@ -79,8 +77,6 @@ public partial class FindLogs(IMemoryCache cache,
             cache.Set(cacheKey, matches, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });
         }
 
-        totalTime.Stop();
-        Console.WriteLine($"{totalTime.Elapsed.TotalMilliseconds}");
         var matchCount = matches.Sum(collection => collection.Messages.Count);
         var sentMatchesSuccesfully = await SendMatchesAsync(matches, cmdUser);
         if (sentMatchesSuccesfully) await FinishInteractionAsync(item, original, matchCount, months, checkVariants, cmdUser);

@@ -4,6 +4,7 @@ using Kozma.net.Src.Handlers;
 
 namespace Kozma.net.Src.Commands.Server;
 
+[DontAutoRegister]
 public class Test(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("test", "Kozma's Backpack staff only.")]

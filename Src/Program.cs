@@ -39,7 +39,7 @@ internal sealed class Program
         var interactionHandler = services.GetRequiredService<IInteractionHandler>();
 
         client.Log += services.GetRequiredService<IBotLogger>().HandleDiscordLog;
-        client.Ready += interactionHandler.RegisterCommandsAsync;
+        //client.Ready += interactionHandler.RegisterCommandsAsync;
         client.Ready += services.GetRequiredService<IRoleHandler>().CheckTradeMessagesAsync;
         client.Ready += services.GetRequiredService<ITaskHandler>().LaunchTasksAsync;
         client.InteractionCreated += interactionHandler.HandleInteractionAsync;

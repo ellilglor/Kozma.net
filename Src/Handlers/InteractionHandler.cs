@@ -8,20 +8,28 @@ using Kozma.net.Src.Data.Classes;
 
 namespace Kozma.net.Src.Handlers;
 
-public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration config, IEmbedHandler embedHandler, IServiceProvider services, InteractionService handler) : IInteractionHandler
+public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration config, IEmbedHandler embedHandler, IServiceProvider services, InteractionService service) : IInteractionHandler
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
     public async Task InitializeAsync()
     {
-        await handler.AddModulesAsync(Assembly.GetEntryAssembly(), services);
-        handler.InteractionExecuted += logger.HandlePostInteractionAsync;
+        await service.AddModulesAsync(Assembly.GetEntryAssembly(), services);
+        service.InteractionExecuted += logger.HandlePostInteractionAsync;
     }
 
     public async Task RegisterCommandsAsync()
     {
-        // TODO: register commands
-        await Task.CompletedTask;
+        await service.RegisterCommandsGloballyAsync();
+
+        // Guild specific commands have [DontAutoRegister] attribute so they can be registered separately
+        var kozmaCommands = service.Modules
+            .Where(x => (x.IsSlashGroup && x.IsTopLevelGroup || !x.IsSubModule) && x.DontAutoRegister)
+            .ToArray();
+
+        await service.AddModulesToGuildAsync(config.GetValue<ulong>("ids:server"), deleteMissing: true, kozmaCommands);
+
+        logger.Log(LogLevel.Discord, "Commands have been registered");
     }
 
     public async Task HandleInteractionAsync(SocketInteraction interaction)
@@ -49,6 +57,6 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
         }
 
         var context = new SocketInteractionContext(_client, interaction);
-        await handler.ExecuteCommandAsync(context, services);
+        await service.ExecuteCommandAsync(context, services);
     }
 }

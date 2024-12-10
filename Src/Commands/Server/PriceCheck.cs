@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Server;
 
+[DontAutoRegister]
 public class PriceCheck(IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("pricecheck", "Kozma's Backpack staff only.")]

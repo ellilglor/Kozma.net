@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Server;
 
+[DontAutoRegister]
 public class TradeEdit(IConfiguration config, IEmbedHandler embedHandler, IRoleHandler roleHandler) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("tradepostedit", "Gives you 2 minutes to edit your tradeposts.")]

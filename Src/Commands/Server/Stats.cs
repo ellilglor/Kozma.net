@@ -4,6 +4,7 @@ using Kozma.net.Src.Trackers;
 
 namespace Kozma.net.Src.Commands.Server;
 
+[DontAutoRegister]
 public class Stats(IStatPageTracker pageTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("stats", "Kozma's Backpack staff only.")]

@@ -6,6 +6,7 @@ using Kozma.net.Src.Models.Entities;
 
 namespace Kozma.net.Src.Commands.Server;
 
+[DontAutoRegister]
 public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     private sealed record Channel(string Name, IReadOnlyCollection<TradeLog> Logs, string Time);
