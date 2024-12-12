@@ -28,7 +28,7 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         };
     }
 
-    public Embed GetAndBuildEmbed(string title) => 
+    public Embed GetAndBuildEmbed(string title) =>
         GetEmbed(title).Build();
 
     public EmbedFieldBuilder CreateField(string name, string value, bool isInline = true) =>

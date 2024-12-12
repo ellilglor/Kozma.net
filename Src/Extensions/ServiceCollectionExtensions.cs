@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using DotNetEnv;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
@@ -7,7 +8,6 @@ using Kozma.net.Src.Trackers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using DotNetEnv;
 
 namespace Kozma.net.Src.Extensions;
 

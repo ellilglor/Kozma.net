@@ -26,7 +26,7 @@ public class ExchangeService(KozmaDbContext dbContext, IMemoryCache cache, IBotL
                 return -1;
             }
         }
-        
+
         return rate;
     }
 

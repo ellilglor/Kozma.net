@@ -133,5 +133,5 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
     }
 
     static bool HasRequiredUVs(IReadOnlyCollection<string> uvs, int requiredCount, string mustContain, params string[] options) =>
-        uvs.Count(uv => uv.Contains(mustContain, StringComparison.OrdinalIgnoreCase) &&options.Any(option => uv.Contains(option, StringComparison.OrdinalIgnoreCase))) >= requiredCount;
+        uvs.Count(uv => uv.Contains(mustContain, StringComparison.OrdinalIgnoreCase) && options.Any(option => uv.Contains(option, StringComparison.OrdinalIgnoreCase))) >= requiredCount;
 }

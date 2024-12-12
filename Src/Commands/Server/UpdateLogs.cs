@@ -1,7 +1,7 @@
-﻿using Discord.Interactions;
-using Discord;
-using Kozma.net.Src.Helpers;
+﻿using Discord;
+using Discord.Interactions;
 using Kozma.net.Src.Handlers;
+using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models.Entities;
 
 namespace Kozma.net.Src.Commands.Server;
@@ -37,8 +37,8 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) 
 
         await Task.WhenAll(tasks);
 
-        foreach (var channel in data) 
-        { 
+        foreach (var channel in data)
+        {
             await updateHelper.UpdateLogsAsync(channel.Logs, reset: true, channel: channel.Name);
         }
 

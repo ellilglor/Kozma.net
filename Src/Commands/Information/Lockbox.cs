@@ -52,7 +52,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
         {
             var desc = FindItem(item);
 
-            embed.WithTitle(string.IsNullOrEmpty(desc) ? $"I didn't find a box containing __{item}__.": $"These lockboxes contain __{item}__:")
+            embed.WithTitle(string.IsNullOrEmpty(desc) ? $"I didn't find a box containing __{item}__." : $"These lockboxes contain __{item}__:")
                 .WithDescription(desc);
         }
 
@@ -60,7 +60,8 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
             .WithButton(label: "Lockboxes", url: "https://docs.google.com/spreadsheets/d/14FQWsNevL-7Uiiy-Q3brif8FaEaH7zGGR2Lv_JkOyr8/htmlview", style: ButtonStyle.Link)
             .WithButton(label: "Slime Lockboxes", url: "https://docs.google.com/spreadsheets/d/1f9KQlDcQcoK3K2z6hc7ZTWD_SnrikdTkTXGppneq0YU/htmlview", style: ButtonStyle.Link);
 
-        await ModifyOriginalResponseAsync(msg => {
+        await ModifyOriginalResponseAsync(msg =>
+        {
             msg.Embed = embed.Build();
             msg.Components = components.Build();
         });
@@ -71,7 +72,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
         return new Dictionary<LockboxOption, string>
         {
             { LockboxOption.Colors, "- **97.85%** for Cool, Regal, Military, Heavy, Fancy, Dusky or Toasty.\n- **1.96%** for Divine or Volcanic\n- **0.19%** for Prismatic." },
-            { LockboxOption.Copper, "- **1.92%** for a Shadow Key.\n- **76.78%** for Binoculars, Flower, Headband or Plume.\n- **19.19%** for Long Feather or Pipe." + 
+            { LockboxOption.Copper, "- **1.92%** for a Shadow Key.\n- **76.78%** for Binoculars, Flower, Headband or Plume.\n- **19.19%** for Long Feather or Pipe." +
                 "\n- **3.84%** for Wolver tail or Prismatic glow-eyes.\n- **0.19%** for Twinkle Aura or Twilight Aura." },
             { LockboxOption.Steel, "- **1.92%** for a Shadow Key.\n- **76.78%** for Bolted Vee, Wide Vee, Mecha Wings or Game Face.\n- **19.19%** for Vertical Vents or Spike Mohawk." +
                 "\n- **3.84%** for Ankle Booster or Aero Fin.\n- **0.19%** for Shoulder Booster or Flame Aura." },

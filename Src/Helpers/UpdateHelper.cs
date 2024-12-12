@@ -33,7 +33,7 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
         { "Materials", 880908641304182785 }
     };
 
-    public IReadOnlyDictionary<string, ulong> GetChannels() => 
+    public IReadOnlyDictionary<string, ulong> GetChannels() =>
         _channels.AsReadOnly();
 
     public async Task<IReadOnlyCollection<TradeLog>> GetLogsAsync(IMessageChannel channel, int limit = 20)

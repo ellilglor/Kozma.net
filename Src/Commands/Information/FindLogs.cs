@@ -116,7 +116,8 @@ public partial class FindLogs(IMemoryCache cache,
             }
 
             return true;
-        } catch
+        }
+        catch
         {
             await SendErrorEmbedAsync();
             return false;
@@ -147,7 +148,8 @@ public partial class FindLogs(IMemoryCache cache,
         try
         {
             await user.SendMessageAsync(embed: embed.Build(), components: components.Build());
-        } catch
+        }
+        catch
         {
             await SendErrorEmbedAsync();
         }
@@ -223,7 +225,8 @@ public partial class FindLogs(IMemoryCache cache,
                 if (set.Key == "obsidian" || set.Key.Contains("rose", StringComparison.OrdinalIgnoreCase))
                 {
                     set.Value.ForEach(value => items.Add($"{template} {value}".Trim()));
-                } else
+                }
+                else
                 {
                     set.Value.ForEach(value => items.Add($"{value} {template}".Trim()));
                 }

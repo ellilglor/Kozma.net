@@ -32,7 +32,8 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
         await punchService.UpdateOrSaveGamblerAsync(Context.User.Id, Context.User.Username, cost);
         await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), Context.Interaction, itemData.Gif, 1500);
 
-        await ModifyOriginalResponseAsync(msg => {
+        await ModifyOriginalResponseAsync(msg =>
+        {
             msg.Embed = embed;
             msg.Components = punchHelper.GetComponents(count, lockCount);
         });

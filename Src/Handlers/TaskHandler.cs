@@ -139,7 +139,7 @@ public class TaskHandler(IBot bot,
     private async Task PostSlowModeReminderAsync()
     {
         if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel wtsChannel) return;
-        if (await _client.GetChannelAsync (config.GetValue<ulong>("ids:wtbChannel")) is not IMessageChannel wtbChannel) return;
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtbChannel")) is not IMessageChannel wtbChannel) return;
 
         var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the __{config.GetValue<int>("timers:slowmodeHours")} hour slowmode__ in this channel.")
             .WithDescription("You can edit your posts through the **/tradepostedit** command.\nWe apologise for any inconvenience this may cause.")

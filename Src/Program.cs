@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Kozma.net.Src.Logging;
+﻿using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Extensions;
+using Kozma.net.Src.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kozma.net.Src;
 

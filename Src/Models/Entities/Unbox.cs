@@ -1,7 +1,7 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using Kozma.net.Src.Enums;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.EntityFrameworkCore;
-using Kozma.net.Src.Enums;
 
 namespace Kozma.net.Src.Models.Entities;
 

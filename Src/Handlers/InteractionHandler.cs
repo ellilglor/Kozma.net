@@ -1,10 +1,10 @@
 ﻿using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Enums;
+using Kozma.net.Src.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
-using Kozma.net.Src.Logging;
-using Kozma.net.Src.Enums;
-using Kozma.net.Src.Data.Classes;
 
 namespace Kozma.net.Src.Handlers;
 
