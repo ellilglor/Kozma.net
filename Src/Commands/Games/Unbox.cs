@@ -87,12 +87,11 @@ public class Unbox(IConfiguration config,
     {
         var embed = embedHandler.GetEmbed(string.Empty)
             .WithAuthor(author)
-            .WithImageUrl(url)
-            .Build();
+            .WithImageUrl(url);
 
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
-            msg.Embed = embed;
+            msg.Embed = embed.Build();
             msg.Components = new ComponentBuilder().Build();
         });
         await Task.Delay(3000); // Give the gif time to play

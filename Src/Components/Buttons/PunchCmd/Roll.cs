@@ -3,6 +3,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
@@ -21,7 +22,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
         var count = int.Parse(number);
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
-        var itemData = punchHelper.GetItem(punchHelper.ConvertToPunchOption(oldEmbed.Title));
+        var itemData = oldEmbed.Title.ConvertToPunchOption().ToPunchItem();
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("uv", StringComparison.OrdinalIgnoreCase)).ToList();
         var lockCount = uvFields.Count(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase));
         var cost = count == 1 ? PunchPrices.SingleTicket : count == 2 ? PunchPrices.DoubleTicket : PunchPrices.TripleTicket;

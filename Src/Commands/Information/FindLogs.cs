@@ -42,10 +42,9 @@ public partial class FindLogs(IMemoryCache cache,
                 "So when you lookup *brandish* it will also match on *Combuster* & *Acheron*\n" +
                 "- **Color Themes**:\ncertain colors with (expected) similar value are grouped for more results." +
                 " Some examples include *Divine* & *Volcanic*, tech colors, standard colors, etc.\n" +
-                "- **Sprite pods**:\ntype out as seen in game\nExample: Drakon Pod (Divine)")
-            .Build();
+                "- **Sprite pods**:\ntype out as seen in game\nExample: Drakon Pod (Divine)");
 
-        await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
+        await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
         if (Context.User.Id != config.GetValue<ulong>("ids:owner")) await tradeLogService.UpdateOrSaveItemAsync(altered);
         await SearchLogsAsync(altered, item, months, checkVariants, checkClean, checkMixed);
     }
@@ -160,10 +159,9 @@ public partial class FindLogs(IMemoryCache cache,
         var embed = embedHandler.GetEmbed("I can't send you any messages!")
                 .WithDescription("Make sure you have the following enabled:\n" +
                 "*Allow direct messages from server members* in User Settings > Privacy & Safety\n\nAnd don't block me!")
-                .WithColor(Colors.Error)
-                .Build();
+                .WithColor(Colors.Error);
 
-        await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
+        await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
     }
 
     private static void AttachUvsToBack(List<string> items)
@@ -172,7 +170,7 @@ public partial class FindLogs(IMemoryCache cache,
         var uvGrades = new List<string>() { "low", "med", "high", "very", "max" };
         var input = items[0].Split(" ");
 
-        for (var i = 0; i < input.Length; i++)
+        for (int i = 0; i < input.Length; i++)
         {
             foreach (var type in uvTypes)
             {

@@ -58,12 +58,11 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
 
         var components = new ComponentBuilder()
             .WithButton(label: "Lockboxes", url: "https://docs.google.com/spreadsheets/d/14FQWsNevL-7Uiiy-Q3brif8FaEaH7zGGR2Lv_JkOyr8/htmlview", style: ButtonStyle.Link)
-            .WithButton(label: "Slime Lockboxes", url: "https://docs.google.com/spreadsheets/d/1f9KQlDcQcoK3K2z6hc7ZTWD_SnrikdTkTXGppneq0YU/htmlview", style: ButtonStyle.Link)
-            .Build();
+            .WithButton(label: "Slime Lockboxes", url: "https://docs.google.com/spreadsheets/d/1f9KQlDcQcoK3K2z6hc7ZTWD_SnrikdTkTXGppneq0YU/htmlview", style: ButtonStyle.Link);
 
         await ModifyOriginalResponseAsync(msg => {
             msg.Embed = embed.Build();
-            msg.Components = components;
+            msg.Components = components.Build();
         });
     }
 
@@ -154,19 +153,17 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
 
                 var matchingLines = box.Value
                     .Split('\n')
-                    .Where(line => SpecialCharsRegex().Replace(line, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase));
+                    .Where(line => SpecialCharsRegex().Replace(line, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
-                var lineCount = 0;
-
-                foreach (var line in matchingLines)
+                for (int i = 0; i < matchingLines.Count; i++)
                 {
-                    if (box.Key == LockboxOption.Iron && lineCount == 1)
+                    if (box.Key == LockboxOption.Iron && i == 1)
                     {
-                        boxContent.Append("**Inside 80% pool:**\n");
+                        boxContent.Append("**Inside 80% pool:**\n"); // Item appears in both pools => example: "wings"
                     }
 
-                    boxContent.Append($"{line.TrimStart()}\n");
-                    lineCount++;
+                    boxContent.Append($"{matchingLines[i].TrimStart()}\n");
                 }
 
                 return boxContent.ToString();

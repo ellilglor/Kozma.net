@@ -48,7 +48,7 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
             var guild = _client.GetGuild(config.GetValue<ulong>("ids:server"));
             var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
 
-            if (isBanned)
+            if (isBanned) // :)
             {
                 var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
                 await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());

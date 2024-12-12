@@ -12,43 +12,14 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
 {
     private static readonly Random _random = new();
 
-    private static readonly Dictionary<PunchOption, PunchItem> _items = new()
-    {
-        { PunchOption.Brandish, new PunchItem("Brandish", ItemType.Weapon, "https://media3.spiralknights.com/wiki-images/2/22/Brandish-Equipped.png", 
-            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184252133406/sword.gif") },
-        { PunchOption.Mixmaster, new PunchItem("Overcharged Mixmaster", ItemType.Weapon, "https://media3.spiralknights.com/wiki-images/f/fd/Overcharged_Mixmaster-Equipped.png",
-            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185170686064/mixmaster.gif") },
-        { PunchOption.Bomb, new PunchItem("Blast Bomb", ItemType.Bomb, "https://media3.spiralknights.com/wiki-images/c/c2/Blast_Bomb-Equipped.png", 
-            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643183866253392/bomb.gif") },
-        { PunchOption.Shield, new PunchItem("Swiftstrike Buckler", ItemType.Shield, "https://media3.spiralknights.com/wiki-images/5/5b/Swiftstrike_Buckler-Equipped.png",
-                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184688337027/shield.gif") },
-        { PunchOption.Helmet, new PunchItem("Black Kat Cowl", ItemType.Armor, "https://media3.spiralknights.com/wiki-images/2/20/Black_Kat_Cowl-Equipped.png",
-                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185539776532/helm.gif") }
-    };
-
-    private static readonly Dictionary<string, PunchOption> _options = new()
-    {
-        { "Brandish", PunchOption.Brandish },
-        { "Overcharged Mixmaster", PunchOption.Mixmaster },
-        { "Blast Bomb", PunchOption.Bomb },
-        { "Swiftstrike Buckler", PunchOption.Shield },
-        { "Black Kat Cowl", PunchOption.Helmet }
-    };
-
     public EmbedAuthorBuilder GetAuthor() =>
         new EmbedAuthorBuilder().WithName("Punch").WithIconUrl("https://media3.spiralknights.com/wiki-images/archive/1/1b/20200502113903!Punch-Mugshot.png");
-
-    public PunchItem GetItem(PunchOption item) =>
-        _items.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid PunchOption");
-
-    public PunchOption ConvertToPunchOption(string item) =>
-        _options.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid option");
 
     public async Task SendWaitingAnimationAsync(EmbedBuilder embed, SocketInteraction interaction, string url, int delay)
     {
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
-            msg.Embed = embed.WithAuthor(GetAuthor()).WithImageUrl(url).Build(); ;
+            msg.Embed = embed.WithAuthor(GetAuthor()).WithImageUrl(url).Build();
             msg.Components = new ComponentBuilder().Build();
         });
         await Task.Delay(delay); // Give the gif time to play

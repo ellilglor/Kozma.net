@@ -21,11 +21,12 @@ public static class ServiceCollectionExtensions
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
 
-        return services.AddSingleton(config)
+        return services
+            .AddMemoryCache()
+            .AddSingleton(config)
             .AddSingleton<IBot, Bot>()
             .AddSingleton<IBotLogger, Logger>()
             .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
-            .AddMemoryCache()
             .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(Env.GetString("dbToken"), Env.GetString("database")));
     }
 

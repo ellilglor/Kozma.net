@@ -21,7 +21,7 @@ public class ConvertCurrency(IEmbedHandler embedHandler, IExchangeService exchan
         {
             Currency.crowns => $"{amount:N0} Crowns is equal to roughly {converted:N0} Energy.",
             Currency.energy => $"{amount:N0} Energy is equal to roughly {converted:N0} Crowns.",
-            _ => "The provided currency was invalid."
+            _ => throw new ArgumentException("The provided currency was invalid")
         };
 
         var embed = embedHandler.GetEmbed(title)

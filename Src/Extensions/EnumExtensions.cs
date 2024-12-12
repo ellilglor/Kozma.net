@@ -47,6 +47,24 @@ public static class EnumExtensions
     public static Box ConvertToBox(this LockboxOption box) =>
         LockboxOptionMapping.TryGetValue(box, out var data) ? data : throw new InvalidOperationException($"Lockbox '{box}' is not a valid lockbox type.");
 
+    // PunchOption extensions
+    private static readonly Dictionary<PunchOption, PunchItem> PunchOptionMapping = new()
+    {
+        { PunchOption.Brandish, new PunchItem("Brandish", ItemType.Weapon, "https://media3.spiralknights.com/wiki-images/2/22/Brandish-Equipped.png",
+            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184252133406/sword.gif") },
+        { PunchOption.Mixmaster, new PunchItem("Overcharged Mixmaster", ItemType.Weapon, "https://media3.spiralknights.com/wiki-images/f/fd/Overcharged_Mixmaster-Equipped.png",
+            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185170686064/mixmaster.gif") },
+        { PunchOption.Bomb, new PunchItem("Blast Bomb", ItemType.Bomb, "https://media3.spiralknights.com/wiki-images/c/c2/Blast_Bomb-Equipped.png",
+            "https://cdn.discordapp.com/attachments/1069643121622777876/1069643183866253392/bomb.gif") },
+        { PunchOption.Shield, new PunchItem("Swiftstrike Buckler", ItemType.Shield, "https://media3.spiralknights.com/wiki-images/5/5b/Swiftstrike_Buckler-Equipped.png",
+                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643184688337027/shield.gif") },
+        { PunchOption.Helmet, new PunchItem("Black Kat Cowl", ItemType.Armor, "https://media3.spiralknights.com/wiki-images/2/20/Black_Kat_Cowl-Equipped.png",
+                "https://cdn.discordapp.com/attachments/1069643121622777876/1069643185539776532/helm.gif") }
+    };
+
+    public static PunchItem ToPunchItem(this PunchOption item) =>
+        PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid PunchOption");
+
     // Logcolor extensions
     private static readonly Dictionary<LogLevel, string> LogLevelMapping = new()
     {

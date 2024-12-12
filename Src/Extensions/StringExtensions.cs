@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Kozma.net.Src.Enums;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Extensions;
@@ -63,4 +64,16 @@ public static partial class StringExtensions
 
     [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
     private static partial Regex SpecialCharsRegex();
+
+    private static readonly Dictionary<string, PunchOption> PunchOptionMapping = new()
+    {
+        { "Brandish", PunchOption.Brandish },
+        { "Overcharged Mixmaster", PunchOption.Mixmaster },
+        { "Blast Bomb", PunchOption.Bomb },
+        { "Swiftstrike Buckler", PunchOption.Shield },
+        { "Black Kat Cowl", PunchOption.Helmet }
+    };
+
+    public static PunchOption ConvertToPunchOption(this string item) =>
+        PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid option");
 }

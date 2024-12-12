@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 
@@ -13,7 +14,7 @@ public class Start(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Inter
     public async Task ExecuteAsync()
     {
         var context = (SocketMessageComponent)Context.Interaction;
-        var itemData = punchHelper.GetItem(punchHelper.ConvertToPunchOption(context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty, StringComparison.OrdinalIgnoreCase)));
+        var itemData = context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty, StringComparison.OrdinalIgnoreCase).ConvertToPunchOption().ToPunchItem();
         var craftedUvs = context.Message.Embeds.First().Fields.Where(f => f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
 
         var fields = craftedUvs.Select(field => embedHandler.CreateField($"{Emotes.Unlocked} {field.Name}", field.Value)).ToList();

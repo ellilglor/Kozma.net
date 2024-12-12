@@ -12,7 +12,6 @@ public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Intera
     [ComponentInteraction("punch-lock-*")]
     public async Task ExecuteAsync(string number)
     {
-        var position = int.Parse(number);
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
         var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -23,7 +22,7 @@ public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Intera
         {
             var field = uvFields[i];
 
-            if (i + 1 == position)
+            if (i + 1 == int.Parse(number))
             {
                 fields.Add(embedHandler.CreateField(field.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase) ? field.Name.Replace(Emotes.Locked, Emotes.Unlocked, StringComparison.OrdinalIgnoreCase) : field.Name.Replace(Emotes.Unlocked, Emotes.Locked, StringComparison.OrdinalIgnoreCase), field.Value));
             }

@@ -14,22 +14,19 @@ public class Help(IEmbedHandler embedHandler, IConfiguration config, IFileReader
     public async Task ExecuteAsync()
     {
         var info = await jsonFileReader.ReadAsync<IEnumerable<CommandInfo>>(Path.Combine("Data", "Help.json"));
-        var fields = info.Select(cmd => embedHandler.CreateField(cmd.Command, cmd.Description, isInline: false)).ToList();
 
         var embed = embedHandler.GetEmbed("Here are all my commands:")
             .WithDescription($"*If you notice a problem please contact <@{config.GetValue<string>("ids:owner")}>*")
-            .WithFields(fields)
-            .Build();
+            .WithFields(info.Select(cmd => embedHandler.CreateField(cmd.Command, cmd.Description, isInline: false)).ToList());
 
         var components = new ComponentBuilder()
             .WithButton(label: "Github", url: config.GetValue<string>("github"), style: ButtonStyle.Link)
-            .WithButton(label: "Discord server", url: config.GetValue<string>("serverInvite"), style: ButtonStyle.Link)
-            .Build();
+            .WithButton(label: "Discord server", url: config.GetValue<string>("serverInvite"), style: ButtonStyle.Link);
 
         await ModifyOriginalResponseAsync(msg =>
         {
-            msg.Embed = embed;
-            msg.Components = components;
+            msg.Embed = embed.Build();
+            msg.Components = components.Build();
         });
     }
 }

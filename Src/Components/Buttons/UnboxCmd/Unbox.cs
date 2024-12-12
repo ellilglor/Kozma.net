@@ -66,9 +66,8 @@ public class Unbox(IConfiguration config,
         var statEmbed = embedHandler.GetEmbed("In this session you opened:")
             .WithAuthor(new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url))
             .WithDescription(unboxTracker.GetData(Context.User.Id, box))
-            .WithFields(fields)
-            .Build();
+            .WithFields(fields);
 
-        await ModifyOriginalResponseAsync(msg => msg.Embed = statEmbed);
+        await ModifyOriginalResponseAsync(msg => msg.Embed = statEmbed.Build());
     }
 }

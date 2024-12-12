@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
@@ -24,12 +25,12 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
             Choice("Black Kat Cowl", "Black Kat Cowl")] string item)
     {
         punchTracker.SetPlayer(Context.User.Id, item);
-        await CraftItemAsync(Context.Interaction, Context.User.Id, punchHelper.ConvertToPunchOption(item));
+        await CraftItemAsync(Context.Interaction, Context.User.Id, item.ConvertToPunchOption());
     }
 
     public async Task CraftItemAsync(SocketInteraction interaction, ulong userId, PunchOption item, int counter = 1)
     {
-        var itemData = punchHelper.GetItem(item);
+        var itemData = item.ToPunchItem();
         var craftUvs = CraftItem(userId, itemData);
         var fields = craftUvs.Select((uv, index) => embedHandler.CreateField($"UV #{index + 1}", uv)).ToList();
         fields.Add(embedHandler.CreateField("Crafted", counter.ToString(), isInline: false));

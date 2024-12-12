@@ -17,11 +17,9 @@ public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandle
 
     private async Task RespondAsync(SocketInteraction interaction)
     {
-        var embed = embedHandler.GetAndBuildEmbed("Clearing messages.");
-
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
-            msg.Embed = embed;
+            msg.Embed = embedHandler.GetAndBuildEmbed("Clearing messages.");
             msg.Components = new ComponentBuilder().Build();
         });
     }

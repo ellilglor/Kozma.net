@@ -23,7 +23,7 @@ public class TaskHandler(IBot bot,
     private sealed record TaskConfig(double Interval, Func<Task> ExecuteAsync);
     private sealed record Reminder(string Title, string Description);
     private sealed record Offer(int Price, int Volume);
-    private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IEnumerable<Offer> BuyOffers, IEnumerable<Offer> SellOffers);
+    private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IReadOnlyCollection<Offer> BuyOffers, IReadOnlyCollection<Offer> SellOffers);
 
     private readonly DiscordSocketClient _client = bot.GetClient();
     private readonly Dictionary<string, TaskConfig> _tasks = new();
@@ -105,9 +105,7 @@ public class TaskHandler(IBot bot,
             var data = JsonSerializer.Deserialize<EnergyMarketData>(json, _marketOptions) ?? throw new ArgumentNullException();
             // TODO: log when not up to date?
 
-            var buyAverage = data.BuyOffers.Sum(x => x.Price * x.Volume) / data.BuyOffers.Sum(x => x.Volume);
-            var sellAverage = data.SellOffers.Sum(x => x.Price * x.Volume) / data.SellOffers.Sum(x => x.Volume);
-            var rate = (buyAverage + (sellAverage - buyAverage) / 2) / 100;
+            var rate = CalculateExchangeRate(data.BuyOffers, data.SellOffers);
 
             var fields = new List<EmbedFieldBuilder>
             {
@@ -129,6 +127,13 @@ public class TaskHandler(IBot bot,
             logger.Log(LogLevel.Error, ex.Message);
             await logger.LogAsync($"error while fetching data from energy market api\n{ex.Message}", pingOwner: true);
         }
+    }
+
+    private static int CalculateExchangeRate(IReadOnlyCollection<Offer> buyOffers, IReadOnlyCollection<Offer> sellOffers)
+    {
+        var buyAverage = buyOffers.Sum(x => x.Price * x.Volume) / buyOffers.Sum(x => x.Volume);
+        var sellAverage = sellOffers.Sum(x => x.Price * x.Volume) / sellOffers.Sum(x => x.Volume);
+        return (buyAverage + (sellAverage - buyAverage) / 2) / 100;
     }
 
     private async Task PostSlowModeReminderAsync()

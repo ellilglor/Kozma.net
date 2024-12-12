@@ -8,6 +8,7 @@ using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Kozma.net.Src.Logging;
 
@@ -49,7 +50,7 @@ public partial class Logger(IBot bot,
         {
             case InteractionType.ApplicationCommand: await HandleCommandAsync(command.Name, context.Interaction, location); break;
             case InteractionType.MessageComponent: await HandleComponentAsync((IComponentInteraction)context.Interaction, location); break;
-            default: await Task.CompletedTask; break;
+            default: return;
         }
     }
 
@@ -60,9 +61,6 @@ public partial class Logger(IBot bot,
     {
         await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), isUnbox: command == "unbox");
 
-        var desc = string.Empty;
-        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));
-
         var fields = new List<EmbedFieldBuilder>
         {
             embedHandler.CreateField("Action", $"/{command}"),
@@ -70,10 +68,10 @@ public partial class Logger(IBot bot,
         };
 
         var embed = GetLogEmbed(string.Empty, Colors.Default)
-            .WithDescription(desc)
-            .WithFields(fields)
+            .WithDescription(interaction.Data is SocketSlashCommandData data && data.Options.Count > 0 ? ExtractOptions(data.Options) : string.Empty)
             .WithAuthor(new EmbedAuthorBuilder().WithName(interaction.User.Username).WithIconUrl(interaction.User.GetDisplayAvatarUrl()))
-            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"));
+            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
+            .WithFields(fields);
 
         Log(LogLevel.Command, $"{interaction.User.Username} used /{command} in {location}");
         await LogAsync(embed: embed.Build());
@@ -113,16 +111,19 @@ public partial class Logger(IBot bot,
             embedHandler.CreateField("Location", location),
             embedHandler.CreateField("Locale", interaction.UserLocale),
         };
-        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"))));
+        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
 
         var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", Colors.Error)
             .WithDescription(string.Join("\n\n", result.Exception.InnerException?.Message, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
-        await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
+        await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
         await InformUserAsync(interaction, result);
     }
+
+    private static string ExtractOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options) =>
+        string.Join("\n", options.Select(o => $"- **{o.Name}**: {o.Value}"));
 
     private async Task InformUserAsync(IDiscordInteraction interaction, ExecuteResult result)
     {

@@ -23,9 +23,8 @@ public class Bookchance(IEmbedHandler embedHandler) : InteractionModuleBase<Sock
         var embed = embedHandler.GetEmbed($"After killing {kats} Black {(kats > 1 ? "kats" : "kat")} you have a {chance:P2} chance of getting at least 1 Book of Dark Rituals.")
             .WithDescription("*Disclaimer: The chance to get a book stays the same for each kat, so killing 250 kats does not guarantee a drop.*")
             .WithThumbnailUrl("https://media3.spiralknights.com/wiki-images/9/91/Crafting-Book_of_Dark_Rituals.png")
-            .WithFields(fields)
-            .Build();
+            .WithFields(fields);
 
-        await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
+        await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
     }
 }

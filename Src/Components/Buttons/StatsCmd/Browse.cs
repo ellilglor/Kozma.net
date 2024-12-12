@@ -8,13 +8,10 @@ public class Browse(IStatPageTracker pageTracker) : InteractionModuleBase<Socket
     [ComponentInteraction("stats-*")]
     public async Task ExecuteAsync(string action)
     {
-        var embed = pageTracker.GetPage(Context.User.Id, action);
-        var components = pageTracker.GetComponents(Context.User.Id);
-
         await ModifyOriginalResponseAsync(msg =>
         {
-            msg.Embed = embed;
-            msg.Components = components;
+            msg.Embed = pageTracker.GetPage(Context.User.Id, action);
+            msg.Components = pageTracker.GetComponents(Context.User.Id);
         });
     }
 }
