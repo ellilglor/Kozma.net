@@ -8,7 +8,6 @@ using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Kozma.net.Src.Logging;
 
@@ -150,14 +149,13 @@ public partial class Logger(IBot bot,
         });
     }
 
-    public Task HandleDiscordLog(LogMessage msg)
+    public async Task HandleDiscordLog(LogMessage msg)
     {
-        Log(LogLevel.Discord, $"{msg.Source}\t{msg.Message}");
-        // TODO logasync if error
+        var message = $"{msg.Source}\t{msg.Message}";
+        Log(LogLevel.Discord, message);
 
+        if (msg.Severity == LogSeverity.Critical || msg.Severity == LogSeverity.Error) await LogAsync(message, pingOwner: true);
         if (msg.Message != null && msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
-        
-        return Task.CompletedTask;
     }
 
     [GeneratedRegex(@"(pricecheck|stats|test|update)")]
