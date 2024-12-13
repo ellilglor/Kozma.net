@@ -216,7 +216,8 @@ public partial class FindLogs(IMemoryCache cache,
             {
                 if (!item.Contains(color, StringComparison.OrdinalIgnoreCase)) continue;
                 if (set.Key == "gems" && GemExceptionRegex().IsMatch(item)) break;
-                if (set.Key == "snipes" && (item.Contains("slime", StringComparison.OrdinalIgnoreCase) || item.Contains("plume", StringComparison.OrdinalIgnoreCase))) break;
+                if (set.Key == "snipes" && (item.Contains("slime", StringComparison.OrdinalIgnoreCase) ||
+                    item.Contains("plume", StringComparison.OrdinalIgnoreCase) || item.Contains("pepper", StringComparison.OrdinalIgnoreCase))) break;
 
                 var template = item.Replace(color, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
                 if (color == "rose" && ((template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase)) || RoseColorRegex().IsMatch(template))) break;
