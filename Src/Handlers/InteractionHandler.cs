@@ -34,12 +34,12 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
 
     public async Task HandleInteractionAsync(SocketInteraction interaction)
     {
-        if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
+        /*if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {
             await interaction.RespondAsync(embed: embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later."), ephemeral: true);
             logger.Log(LogLevel.Info, interaction.User.Username);
             return;
-        }
+        }*/
 
         await interaction.DeferAsync(ephemeral: true);
 

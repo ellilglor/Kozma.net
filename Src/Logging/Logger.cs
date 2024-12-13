@@ -152,7 +152,7 @@ public partial class Logger(IBot bot,
     public async Task HandleDiscordLog(LogMessage msg)
     {
         var message = $"{msg.Source}\t{msg.Message}";
-        Log(LogLevel.Discord, message);
+        if (!string.IsNullOrEmpty(msg.Message)) Log(LogLevel.Discord, message);
 
         if (msg.Severity == LogSeverity.Critical || msg.Severity == LogSeverity.Error) await LogAsync(message, pingOwner: true);
         if (msg.Message != null && msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);

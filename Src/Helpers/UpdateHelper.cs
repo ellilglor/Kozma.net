@@ -36,7 +36,7 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
     public IReadOnlyDictionary<string, ulong> GetChannels() =>
         _channels.AsReadOnly();
 
-    public async Task<IReadOnlyCollection<TradeLog>> GetLogsAsync(IMessageChannel channel, int limit = 20)
+    public async Task<IReadOnlyCollection<TradeLog>> GetLogsAsync(IMessageChannel channel, int limit = 50)
     {
         var messages = await channel.GetMessagesAsync(limit).FlattenAsync();
         var logs = new List<TradeLog>();
