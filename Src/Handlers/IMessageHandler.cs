@@ -1,6 +1,8 @@
-﻿namespace Kozma.net.Src.Handlers;
+﻿using Discord.WebSocket;
+
+namespace Kozma.net.Src.Handlers;
 
 public interface IMessageHandler
 {
-    void Initialize();
+    Task HandleMessageAsync(SocketMessage rawMessage);
 }

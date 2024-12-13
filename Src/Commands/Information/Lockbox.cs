@@ -1,13 +1,14 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Helpers;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Kozma.net.Commands.Information;
+namespace Kozma.net.Src.Commands.Information;
 
-public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) : InteractionModuleBase<SocketInteractionContext>
+public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly Dictionary<LockboxOption, string> _lockboxes = BuildLockboxes();
 
@@ -29,40 +30,40 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
 
         if (box.HasValue && _lockboxes.TryGetValue(box.Value, out var match))
         {
-            var newTitle = box.ToString()!;
-            
+            var selectedBox = (LockboxOption)box;
+            var newTitle = selectedBox.ToString();
+
             if (box != LockboxOption.Colors)
             {
-                var boxEnum = boxHelper.ConvertLockboxOption(box.Value);
-                if (boxEnum.HasValue) embed.WithThumbnailUrl(boxHelper.GetBox(boxEnum.Value)?.Url ?? string.Empty);
+                embed.WithThumbnailUrl(selectedBox.ConvertToBox().ToBoxData().Url);
                 newTitle = string.Concat(newTitle, " Lockbox");
             }
 
-            embed.WithTitle($"{newTitle.ToUpper()}:")
+            embed.WithTitle($"{newTitle.ToUpper(CultureInfo.InvariantCulture)}:")
                 .WithDescription(match);
         }
 
         if (!string.IsNullOrEmpty(slimeCode))
         {
-            embed.WithTitle(GetSlimeboxDescription(slimeCode.ToLower()) ?? $"I didn't find a match for __{slimeCode}__.");
+            embed.WithTitle(GetSlimeboxDescription(slimeCode.ToUpper(CultureInfo.InvariantCulture)));
         }
 
         if (!string.IsNullOrEmpty(item))
         {
             var desc = FindItem(item);
 
-            embed.WithTitle(!string.IsNullOrEmpty(desc) ? $"These lockboxes contain __{item}__:" : $"I didn't find a box containing __{item}__.")
+            embed.WithTitle(string.IsNullOrEmpty(desc) ? $"I didn't find a box containing __{item}__." : $"These lockboxes contain __{item}__:")
                 .WithDescription(desc);
         }
 
         var components = new ComponentBuilder()
             .WithButton(label: "Lockboxes", url: "https://docs.google.com/spreadsheets/d/14FQWsNevL-7Uiiy-Q3brif8FaEaH7zGGR2Lv_JkOyr8/htmlview", style: ButtonStyle.Link)
-            .WithButton(label: "Slime Lockboxes", url: "https://docs.google.com/spreadsheets/d/1f9KQlDcQcoK3K2z6hc7ZTWD_SnrikdTkTXGppneq0YU/htmlview", style: ButtonStyle.Link)
-            .Build();
+            .WithButton(label: "Slime Lockboxes", url: "https://docs.google.com/spreadsheets/d/1f9KQlDcQcoK3K2z6hc7ZTWD_SnrikdTkTXGppneq0YU/htmlview", style: ButtonStyle.Link);
 
-        await ModifyOriginalResponseAsync(msg => {
+        await ModifyOriginalResponseAsync(msg =>
+        {
             msg.Embed = embed.Build();
-            msg.Components = components;
+            msg.Components = components.Build();
         });
     }
 
@@ -71,7 +72,7 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
         return new Dictionary<LockboxOption, string>
         {
             { LockboxOption.Colors, "- **97.85%** for Cool, Regal, Military, Heavy, Fancy, Dusky or Toasty.\n- **1.96%** for Divine or Volcanic\n- **0.19%** for Prismatic." },
-            { LockboxOption.Copper, "- **1.92%** for a Shadow Key.\n- **76.78%** for Binoculars, Flower, Headband or Plume.\n- **19.19%** for Long Feather or Pipe." + 
+            { LockboxOption.Copper, "- **1.92%** for a Shadow Key.\n- **76.78%** for Binoculars, Flower, Headband or Plume.\n- **19.19%** for Long Feather or Pipe." +
                 "\n- **3.84%** for Wolver tail or Prismatic glow-eyes.\n- **0.19%** for Twinkle Aura or Twilight Aura." },
             { LockboxOption.Steel, "- **1.92%** for a Shadow Key.\n- **76.78%** for Bolted Vee, Wide Vee, Mecha Wings or Game Face.\n- **19.19%** for Vertical Vents or Spike Mohawk." +
                 "\n- **3.84%** for Ankle Booster or Aero Fin.\n- **0.19%** for Shoulder Booster or Flame Aura." },
@@ -95,7 +96,7 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
         };
     }
 
-    private static string? GetSlimeboxDescription(string slimeCode)
+    private static string GetSlimeboxDescription(string slimeCode)
     {
         return slimeCode switch
         {
@@ -109,63 +110,61 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
             "007" => "The 007 Slime lockbox contains **no special** themed box.",
             "008" => "The 008 Slime lockbox contains **no special** themed box.",
             "009" => "The 009 Slime lockbox contains **no special** themed box.",
-            "40g" => "The 40G Slime lockbox contains the **Hunter** themed box.",
-            "41c" => "The 41C Slime lockbox contains the **Dangerous** themed box.",
-            "40n" => "The 40N Slime lockbox contains the **Glacial** themed box.",
-            "41d" => "The 41D Slime lockbox contains the **Hazardous** themed box.",
-            "50e" => "The 50E Slime lockbox contains the **Wicked** themed box.",
+            "40G" => "The 40G Slime lockbox contains the **Hunter** themed box.",
+            "41C" => "The 41C Slime lockbox contains the **Dangerous** themed box.",
+            "40N" => "The 40N Slime lockbox contains the **Glacial** themed box.",
+            "41D" => "The 41D Slime lockbox contains the **Hazardous** themed box.",
+            "50E" => "The 50E Slime lockbox contains the **Wicked** themed box.",
             "509" => "The 509 Slime lockbox contains the **Shadow** themed box.",
-            "a1j" => "The A1J Slime lockbox contains the **Pearl** themed box.",
-            "a16" => "The A16 Slime lockbox contains the **Opal** themed box.",
-            "a1a" => "The A1A Slime lockbox contains the **Amethyst** themed box.",
-            "a18" => "The A18 Slime lockbox contains the **Turquoise** themed box.",
-            "a10" => "The A10 Slime lockbox contains the **Ruby** themed box.",
-            "a12" => "The A12 Slime lockbox contains the **Peridot** themed box.",
-            "a1b" => "The A1B Slime lockbox contains **no special** themed box.",
+            "A1J" => "The A1J Slime lockbox contains the **Pearl** themed box.",
+            "A16" => "The A16 Slime lockbox contains the **Opal** themed box.",
+            "A1A" => "The A1A Slime lockbox contains the **Amethyst** themed box.",
+            "A18" => "The A18 Slime lockbox contains the **Turquoise** themed box.",
+            "A10" => "The A10 Slime lockbox contains the **Ruby** themed box.",
+            "A12" => "The A12 Slime lockbox contains the **Peridot** themed box.",
+            "A1b" => "The A1B Slime lockbox contains **no special** themed box.",
             "403" => "The 403 Slime lockbox contains **no special** themed box.",
-            "b1b" => "The B1B Slime lockbox contains the **Aquamarine** themed box.",
-            "a17" => "The A17 Slime lockbox contains the **Citrine** themed box.",
-            "a19" => "The A19 Slime lockbox contains the **Garnet** themed box.",
-            "a14" => "The A14 Slime lockbox contains the **Sapphire** themed box.",
-            "a1i" => "The A1I Slime lockbox contains the **Emerald** themed box.",
-            "a1h" => "The A1H Slime lockbox contains the **Diamond** themed box.",
-            "qqq" => "The QQQ Slime lockbox contains **no special** themed box.",
-            _ => null
+            "B1B" => "The B1B Slime lockbox contains the **Aquamarine** themed box.",
+            "A17" => "The A17 Slime lockbox contains the **Citrine** themed box.",
+            "A19" => "The A19 Slime lockbox contains the **Garnet** themed box.",
+            "A14" => "The A14 Slime lockbox contains the **Sapphire** themed box.",
+            "A1I" => "The A1I Slime lockbox contains the **Emerald** themed box.",
+            "A1H" => "The A1H Slime lockbox contains the **Diamond** themed box.",
+            "QQQ" => "The QQQ Slime lockbox contains **no special** themed box.",
+            _ => $"I didn't find a match for __{slimeCode}__."
         };
     }
 
     private string? FindItem(string item)
     {
-        item = Pattern().Replace(item, string.Empty);
+        item = SpecialCharsRegex().Replace(item, string.Empty);
 
         var boxOdds = _lockboxes
-            .Where(box => Pattern().Replace(box.Value, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase))
+            .Where(box => SpecialCharsRegex().Replace(box.Value, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase))
             .Select(box =>
             {
                 var boxContent = new System.Text.StringBuilder();
-                boxContent.Append($"\n\n__**{box.Key.ToString().ToUpper()} LOCKBOX:**__\n");
+                boxContent.Append($"\n\n__**{box.Key.ToString().ToUpper(CultureInfo.InvariantCulture)} LOCKBOX:**__\n");
 
                 if (box.Key == LockboxOption.Iron)
                 {
-                    var pools = Pattern().Replace(box.Value, string.Empty).ToLower().Split("80%");
-                    boxContent.Append(pools[0].Contains(item) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n");
+                    var pools = SpecialCharsRegex().Replace(box.Value, string.Empty).Split("80%");
+                    boxContent.Append(pools[0].Contains(item, StringComparison.OrdinalIgnoreCase) ? "**Inside 20% pool:**\n" : "**Inside 80% pool:**\n");
                 }
 
                 var matchingLines = box.Value
                     .Split('\n')
-                    .Where(line => Pattern().Replace(line, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase));
+                    .Where(line => SpecialCharsRegex().Replace(line, string.Empty).Contains(item, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
-                var lineCount = 0;
-
-                foreach (var line in matchingLines)
+                for (int i = 0; i < matchingLines.Count; i++)
                 {
-                    if (box.Key == LockboxOption.Iron && lineCount == 1)
+                    if (box.Key == LockboxOption.Iron && i == 1)
                     {
-                        boxContent.Append("**Inside 80% pool:**\n");
+                        boxContent.Append("**Inside 80% pool:**\n"); // Item appears in both pools => example: "wings"
                     }
 
-                    boxContent.Append($"{line.TrimStart()}\n");
-                    lineCount++;
+                    boxContent.Append($"{matchingLines[i].TrimStart()}\n");
                 }
 
                 return boxContent.ToString();
@@ -174,6 +173,6 @@ public partial class Lockbox(IEmbedHandler embedHandler, IBoxHelper boxHelper) :
         return string.Join("", boxOdds);
     }
 
-    [GeneratedRegex("/['\"\\+\\[\\]()\\-{},]/g")]
-    private static partial Regex Pattern();
+    [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
+    private static partial Regex SpecialCharsRegex();
 }

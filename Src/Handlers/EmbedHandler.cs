@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Src.Enums;
+using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Extensions;
 
 namespace Kozma.net.Src.Handlers;
 
@@ -22,23 +23,17 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
     {
         return new EmbedBuilder
         {
-            Title = title.Length > (int)DiscordCharLimit.EmbedTitle ? title.Substring(0, (int)DiscordCharLimit.EmbedTitle) : title,
-            Color = (uint)EmbedColor.Default
+            Title = title.Substring(0, Math.Min(title.Length, ExtendedDiscordConfig.MaxEmbedTitleChars)),
+            Color = Colors.Default
         };
     }
 
-    public Embed GetAndBuildEmbed(string title)
-    {
-        return GetEmbed(title).Build();
-    }
+    public Embed GetAndBuildEmbed(string title) =>
+        GetEmbed(title).Build();
 
-    public EmbedFieldBuilder CreateField(string name, string value, bool inline = true)
-    {
-        return new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(inline);
-    }
+    public EmbedFieldBuilder CreateField(string name, string value, bool isInline = true) =>
+        new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(isInline);
 
-    public EmbedFieldBuilder CreateEmptyField(bool inline = true)
-    {
-        return new EmbedFieldBuilder().WithName("\u200b").WithValue("\u200b").WithIsInline(inline);
-    }
+    public EmbedFieldBuilder CreateEmptyField(bool isInline = true) =>
+        new EmbedFieldBuilder().WithName(Emotes.Empty).WithValue(Emotes.Empty).WithIsInline(isInline);
 }

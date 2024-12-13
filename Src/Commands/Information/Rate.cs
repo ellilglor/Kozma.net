@@ -1,5 +1,5 @@
 ﻿using Discord.Interactions;
-using Kozma.net.Src.Enums;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +26,7 @@ public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, 
             }
             else
             {
-                embed.WithColor((uint)EmbedColor.Error);
+                embed.WithColor(Colors.Error);
             }
         }
         else

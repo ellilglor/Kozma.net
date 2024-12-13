@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
@@ -24,21 +25,15 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
             Choice("Black Kat Cowl", "Black Kat Cowl")] string item)
     {
         punchTracker.SetPlayer(Context.User.Id, item);
-        await CraftItemAsync(Context.Interaction, Context.User.Id, punchHelper.ConvertToPunchOption(item));
+        await CraftItemAsync(Context.Interaction, Context.User.Id, item.ConvertToPunchOption());
     }
 
-    public async Task CraftItemAsync(SocketInteraction interaction, ulong userId, PunchOption? item, int counter = 1)
+    public async Task CraftItemAsync(SocketInteraction interaction, ulong userId, PunchOption item, int counter = 1)
     {
-        if (item is null)
-        {
-            await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedHandler.GetAndBuildEmbed("Something went wrong while crafting"));
-            return;
-        }
-
-        var itemData = punchHelper.GetItem((PunchOption)item)!;
+        var itemData = item.ToPunchItem();
         var craftUvs = CraftItem(userId, itemData);
         var fields = craftUvs.Select((uv, index) => embedHandler.CreateField($"UV #{index + 1}", uv)).ToList();
-        fields.Add(embedHandler.CreateField("Crafted", counter.ToString(), inline: false));
+        fields.Add(embedHandler.CreateField("Crafted", counter.ToString(), isInline: false));
 
         var (desc, image) = await punchHelper.CheckForGmAsync(interaction.User.Username, itemData.Type, craftUvs);
         var embed = embedHandler.GetEmbed($"You crafted: {itemData.Name}")

@@ -1,42 +1,35 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 
-namespace Kozma.net.Logging;
+namespace Kozma.net.Src.Logging;
 
-public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embedHandler, IUserService userService, ICommandService commandService) : IBotLogger
+public partial class Logger(IBot bot,
+    IConfiguration config,
+    IEmbedHandler embedHandler,
+    IRateLimitHandler rateLimitHandler,
+    IUserService userService,
+    ICommandService commandService) : IBotLogger
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
-    public void Log(LogColor level, string message)
-    {
-        var color = level switch
-        {
-            LogColor.Command => "\u001b[34m",
-            LogColor.Button => "\u001b[36m",
-            LogColor.Moderation => "\u001b[35m",
-            LogColor.Info => "\u001b[33m",
-            LogColor.Special => "\u001b[32m",
-            LogColor.Error => "\u001b[31m",
-            _ => "\u001b[37m"
-        };
+    public void Log(LogLevel level, string message) =>
+        Console.WriteLine($"{level.Color()}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
 
-        Console.WriteLine($"{color}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
-    }
-
-    public async Task LogAsync(string? message = null, Embed? embed = null)
+    public async Task LogAsync(string? message = null, Embed? embed = null, bool pingOwner = false)
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ISocketMessageChannel channel) return;
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not IMessageChannel channel) return;
+        var msg = pingOwner ? string.Join(" ", $"<@{config.GetValue<ulong>("ids:owner")}>", message) : message;
 
-        await channel.SendMessageAsync(message, embed: embed);
+        await channel.SendMessageAsync(msg, embed: embed);
     }
 
     public async Task HandlePostInteractionAsync(ICommandInfo command, IInteractionContext context, IResult result)
@@ -45,7 +38,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
 
         if (!result.IsSuccess)
         {
-            await HandleErrorAsync(command.Name, context.Interaction, result, location);
+            await HandleErrorAsync(command.Name, context.Interaction, (ExecuteResult)result, location);
             return;
         }
 
@@ -55,24 +48,17 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         switch (context.Interaction.Type)
         {
             case InteractionType.ApplicationCommand: await HandleCommandAsync(command.Name, context.Interaction, location); break;
-            case InteractionType.MessageComponent: await HandleComponentAsync((SocketMessageComponent)context.Interaction, location); break;
-            default: await Task.CompletedTask; break;
+            case InteractionType.MessageComponent: await HandleComponentAsync((IComponentInteraction)context.Interaction, location); break;
+            default: return;
         }
     }
 
-    public EmbedBuilder GetLogEmbed(string title, EmbedColor color)
-    {
-        return embedHandler.GetBasicEmbed(title)
-            .WithColor((uint)color)
-            .WithCurrentTimestamp();
-    }
+    public EmbedBuilder GetLogEmbed(string title, uint color) =>
+        embedHandler.GetBasicEmbed(title).WithColor(color).WithCurrentTimestamp();
 
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
-        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), string.Equals(command, "unbox"));
-
-        var desc = string.Empty;
-        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) desc = string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"));
+        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), isUnbox: command == "unbox");
 
         var fields = new List<EmbedFieldBuilder>
         {
@@ -80,17 +66,17 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             embedHandler.CreateField(location, interaction.UserLocale),
         };
 
-        var embed = GetLogEmbed(string.Empty, EmbedColor.Default)
-            .WithDescription(desc)
-            .WithFields(fields)
+        var embed = GetLogEmbed(string.Empty, Colors.Default)
+            .WithDescription(interaction.Data is SocketSlashCommandData data && data.Options.Count > 0 ? ExtractOptions(data.Options) : string.Empty)
             .WithAuthor(new EmbedAuthorBuilder().WithName(interaction.User.Username).WithIconUrl(interaction.User.GetDisplayAvatarUrl()))
-            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"));
+            .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
+            .WithFields(fields);
 
-        Log(LogColor.Command, $"{interaction.User.Username} used /{command} in {location}");
+        Log(LogLevel.Command, $"{interaction.User.Username} used /{command} in {location}");
         await LogAsync(embed: embed.Build());
     }
 
-    private async Task HandleComponentAsync(SocketMessageComponent interaction, string location)
+    private async Task HandleComponentAsync(IComponentInteraction interaction, string location)
     {
         switch (interaction.Data.CustomId)
         {
@@ -98,7 +84,7 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
             case "clear-messages": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "clear", isCommand: true); break;
         }
 
-        Log(LogColor.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
+        Log(LogLevel.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
     }
 
     private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand, bool isUnbox = true)
@@ -107,34 +93,39 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         await commandService.UpdateOrSaveCommandAsync(command, isCommand);
     }
 
-    private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, IResult result, string location)
+    private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, ExecuteResult result, string location)
     {
         var interactionName = interaction.Type switch
         {
-            InteractionType.ApplicationCommand => (interaction as SocketSlashCommand)?.CommandName,
-            InteractionType.MessageComponent => (interaction as SocketMessageComponent)?.Data.CustomId,
+            InteractionType.ApplicationCommand => (interaction as SocketCommandBase)?.CommandName,
+            InteractionType.MessageComponent => (interaction as IComponentInteraction)?.Data.CustomId,
             _ => command
         };
         if (string.IsNullOrEmpty(interactionName)) interactionName = command;
 
-        var error = (ExecuteResult)result;
-        var stackTrace = error.Exception.InnerException?.StackTrace;
+        var stackTrace = result.Exception.InnerException?.StackTrace;
         var fields = new List<EmbedFieldBuilder>
         {
             embedHandler.CreateField("Type", interaction.Type.ToString()),
             embedHandler.CreateField("Location", location),
             embedHandler.CreateField("Locale", interaction.UserLocale),
         };
-        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", string.Join("\n", data.Options.Select(o => $"- **{o.Name}**: {o.Value}"))));
+        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
 
-        var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", EmbedColor.Error)
-            .WithDescription(string.Join("\n\n",
-                error.Exception.InnerException?.Message,
-                stackTrace?.Length < (int)DiscordCharLimit.EmbedDesc ? stackTrace : stackTrace?.Substring(0, (int)DiscordCharLimit.EmbedDesc)))
+        var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", Colors.Error)
+            .WithDescription(string.Join("\n\n", result.Exception.InnerException?.Message, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
-        await LogAsync($"<@{config.GetValue<ulong>("ids:owner")}>", errorEmbed.Build());
 
+        await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
+        await InformUserAsync(interaction, result);
+    }
+
+    private static string ExtractOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options) =>
+        string.Join("\n", options.Select(o => $"- **{o.Name}**: {o.Value}"));
+
+    private async Task InformUserAsync(IDiscordInteraction interaction, ExecuteResult result)
+    {
         var description = result.Error switch
         {
             InteractionCommandError.UnmetPrecondition => "Unmet Precondition.",
@@ -148,14 +139,23 @@ public partial class Logger(IBot bot, IConfiguration config, IEmbedHandler embed
         };
         var userEmbed = embedHandler.GetEmbed("Something went wrong while executing this command.")
             .WithDescription(string.Join("\n\n", description, $"<@{config.GetValue<ulong>("ids:owner")}> has been notified"))
-            .WithColor((uint)EmbedColor.Error);
+            .WithColor(Colors.Error);
 
-        Log(LogColor.Error, error.Exception.InnerException?.Message ?? description);
+        Log(LogLevel.Error, result.Exception.InnerException?.Message ?? description);
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = userEmbed.Build();
             msg.Components = new ComponentBuilder().Build();
         });
+    }
+
+    public async Task HandleDiscordLog(LogMessage msg)
+    {
+        var message = $"{msg.Source}\t{msg.Message}";
+        if (!string.IsNullOrEmpty(msg.Message)) Log(LogLevel.Discord, message);
+
+        if (msg.Severity == LogSeverity.Critical || msg.Severity == LogSeverity.Error) await LogAsync(message, pingOwner: true);
+        if (msg.Message != null && msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
     }
 
     [GeneratedRegex(@"(pricecheck|stats|test|update)")]

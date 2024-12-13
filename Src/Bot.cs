@@ -1,49 +1,56 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src;
 
-public class Bot : IBot
+public class Bot : IBot, IDisposable
 {
     private readonly DiscordSocketClient _client;
-    private readonly IConfiguration _config;
     private readonly DateTime _ready;
+    private bool _disposed;
 
-    public Bot(IConfiguration config)
+    public Bot()
     {
-        _config = config;
-
         DiscordSocketConfig intents = new()
         {
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
         };
 
         _client = new DiscordSocketClient(intents);
-        _client.Log += Log;
         _ready = DateTime.UtcNow;
     }
 
     public async Task StartAsync()
     {
-        await _client.LoginAsync(TokenType.Bot, _config.GetValue<string>("botToken"));
+        await _client.LoginAsync(TokenType.Bot, DotNetEnv.Env.GetString("botToken"));
         await _client.StartAsync();
     }
 
-    public DiscordSocketClient GetClient()
+    public async Task UpdateActivityAsync(string activity, ActivityType type) =>
+        await _client.SetActivityAsync(new Game(activity, type));
+
+    public DiscordSocketClient GetClient() =>
+        _client;
+
+    public long GetReadyTimestamp() =>
+        new DateTimeOffset(_ready).ToUnixTimeSeconds();
+
+    public void Dispose()
     {
-        return _client;
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
-    public long GetReadyTimestamp()
+    protected virtual void Dispose(bool disposing)
     {
-        return new DateTimeOffset(_ready).ToUnixTimeSeconds();
-    }
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _client?.Dispose();
+            }
 
-    //TODO: move to logger?
-    private static Task Log(LogMessage msg)
-    {
-        Console.WriteLine(msg.ToString());
-        return Task.CompletedTask;
+            _disposed = true;
+        }
     }
 }

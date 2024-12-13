@@ -1,18 +1,28 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Services;
 using Kozma.net.Src.Trackers;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Games;
 
-public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper boxHelper, IUnboxTracker unboxTracker, IUnboxService unboxService, IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
+public class Unbox(IConfiguration config,
+    IMemoryCache cache,
+    IEmbedHandler embedHandler,
+    ICostCalculator costCalculator,
+    IUnboxTracker unboxTracker,
+    IUnboxService unboxService,
+    IFileReader jsonFileReader,
+    IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly Random _random = new();
 
@@ -26,9 +36,9 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
 
     public async Task UnboxAsync(SocketInteraction interaction, ulong userId, Box box, int opened = 1)
     {
-        var boxData = boxHelper.GetBox(box)!;
+        var boxData = box.ToBoxData();
         var author = new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url);
-        var cost = boxHelper.CalculateCost(opened, boxData);
+        var cost = costCalculator.CalculateBoxCost(opened, boxData);
         var fields = new List<EmbedFieldBuilder>
         {
             embedHandler.CreateField("Opened", opened.ToString()),
@@ -40,23 +50,19 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
         if (unboxed.Count == 0)
         {
             await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithDescription("Something went wrong while trying to open the box.").Build());
-            throw new Exception($"Something went wrong while trying to open {box}.");
+            throw new ArgumentOutOfRangeException($"Something went wrong while trying to open {box}.");
         }
 
         var items = string.Join(" & ", unboxed.Select(item => item.Name));
-        logger.Log(items.Contains('*') ? LogColor.Special : LogColor.Info, $"{interaction.User.Username} opened {box} and got {items}");
-        if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
+        logger.Log(items.Contains('*', StringComparison.InvariantCulture) ? LogLevel.Special : LogLevel.Info, $"{interaction.User.Username} opened {box} => {items}");
 
-        foreach (var item in unboxed)
-        {
-            unboxTracker.AddEntry(userId, box, item.Name);
-        }
+        await SaveUnboxedAsync(userId, box, unboxed);
 
-        embed.WithDescription($"*{items}*").WithImageUrl(unboxed.First().Url);
+        embed.WithDescription($"*{items}*").WithImageUrl(unboxed[0].Url);
         var components = new ComponentBuilder()
-            .WithButton(emote: new Emoji("\U0001F501"), customId: "unbox-again", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji("\U0001F4D8"), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
-        if (opened == 69) components.WithButton(emote: new Emoji("\U0001F4B0"), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
+            .WithButton(emote: new Emoji(Emotes.Repeat), customId: "unbox-again", style: ButtonStyle.Secondary)
+            .WithButton(emote: new Emoji(Emotes.Book), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
+        if (opened == 69) components.WithButton(emote: new Emoji(Emotes.Money), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
 
         await SendOpeningAnimationAsync(interaction, author, boxData.Gif);
 
@@ -67,24 +73,33 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
         });
     }
 
+    private async Task SaveUnboxedAsync(ulong userId, Box box, IReadOnlyList<ItemData> unboxed)
+    {
+        if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
+
+        foreach (var item in unboxed)
+        {
+            unboxTracker.AddEntry(userId, box, item.Name);
+        }
+    }
+
     private async Task SendOpeningAnimationAsync(SocketInteraction interaction, EmbedAuthorBuilder author, string url)
     {
         var embed = embedHandler.GetEmbed(string.Empty)
             .WithAuthor(author)
-            .WithImageUrl(url)
-            .Build();
+            .WithImageUrl(url);
 
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
-            msg.Embed = embed;
+            msg.Embed = embed.Build();
             msg.Components = new ComponentBuilder().Build();
         });
         await Task.Delay(3000); // Give the gif time to play
     }
 
-    private async Task<List<ItemData>> OpenAsync(Box box)
+    private async Task<IReadOnlyList<ItemData>> OpenAsync(Box box)
     {
-        var items = await boxHelper.GetItemDataAsync(box);
+        var items = await GetItemDataAsync(box);
         var bonusBoxes = new List<Box>() { Box.Confection, Box.Lucky };
         var unboxed = new List<ItemData>();
         var prevOdds = 0.00;
@@ -111,7 +126,7 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
         return unboxed;
     }
 
-    private static ItemData? BonusRoll(Box box, List<ItemData> items, string unboxed, double roll)
+    private static ItemData? BonusRoll(Box box, IReadOnlyList<ItemData> items, string unboxed, double roll)
     {
         switch (box)
         {
@@ -135,5 +150,15 @@ public class Unbox(IConfiguration config, IEmbedHandler embedHandler, IBoxHelper
                 }
             default: return null;
         }
+    }
+    private async Task<IReadOnlyList<ItemData>> GetItemDataAsync(Box box)
+    {
+        if (!cache.TryGetValue(box, out IReadOnlyList<ItemData>? items) || items is null)
+        {
+            items = await jsonFileReader.ReadAsync<IReadOnlyList<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json"));
+            cache.Set(box, items, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+        }
+
+        return items;
     }
 }

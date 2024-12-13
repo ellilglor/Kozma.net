@@ -31,12 +31,14 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<LogCollection>> GetLogsAsync(List<string> items, DateTime date, bool checkMixed, bool skipSpecial, List<string> ignore)
+    public async Task<IEnumerable<LogGroups>> GetLogsAsync(IReadOnlyCollection<string> items, DateTime dateToCompare, bool checkMixed, bool skipSpecial, IReadOnlyCollection<string> ignore)
     {
-        var query = dbContext.TradeLogs.Where(log => items.Any(item => log.Content.Contains(item)) && log.Date > date);
+#pragma warning disable CA1307 // Specify StringComparison for clarity -> mongodb driver doesn't support StringComparison.OrdinalIgnoreCase
+        var query = dbContext.TradeLogs.Where(log => items.Any(item => log.Content.Contains(item)) && log.Date > dateToCompare);
         if (!checkMixed) query = query.Where(log => log.Channel != "mixed-trades");
         if (skipSpecial) query = query.Where(log => log.Channel != "special-listings");
         if (ignore.Count > 0) query = query.Where(log => ignore.All(item => !log.Content.Contains(item)));
+#pragma warning restore CA1307 // Specify StringComparison for clarity
 
         // Grouping isn't supported at this moment so have to query in 2 steps
         var queried = await query
@@ -45,7 +47,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
         var logs = queried
             .GroupBy(l => l.Channel)
-            .Select(g => new LogCollection
+            .Select(g => new LogGroups
             {
                 Channel = g.Key,
                 Messages = g.OrderByDescending(l => l.Date).ToList()
@@ -56,7 +58,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         return logs;
     }
 
-    public async Task UpdateLogsAsync(List<TradeLog> logs, bool reset = false, string? channel = null)
+    public async Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs, bool reset = false, string? channel = null)
     {
         if (reset && !string.IsNullOrEmpty(channel)) await DeleteLogsAsync(channel);
 
@@ -64,10 +66,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> CheckIfLogExistsAsync(ulong id)
-    {
-        return await dbContext.TradeLogs.FirstOrDefaultAsync(log => log.Id == id.ToString()) != null;
-    }
+    public async Task<bool> CheckIfLogExistsAsync(ulong id) =>
+        await dbContext.TradeLogs.FirstOrDefaultAsync(log => log.Id == id.ToString()) != null;
 
     private async Task DeleteLogsAsync(string channel)
     {
@@ -76,10 +76,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<int> GetTotalLogCountAsync()
-    {
-        return await dbContext.TradeLogs.CountAsync();
-    }
+    public async Task<int> GetTotalLogCountAsync() =>
+        await dbContext.TradeLogs.CountAsync();
 
     public async Task<IEnumerable<DbStat>> GetLogStatsAsync(bool authors, int total)
     {
@@ -104,8 +102,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         foreach (var file in folder)
         {
             var fileName = Path.GetFileName(file);
-            var items = await jsonFileReader.ReadAsync<List<string>>(Path.Combine("Data", "Items", fileName));
-            regexCache[fileName] = new Regex(string.Join("|", items!.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var items = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "Items", fileName));
+            regexCache[fileName] = new Regex(string.Join("|", items.Select(Regex.Escape)), RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
         foreach (var group in channels)
@@ -136,7 +134,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         return (data, totalCount);
     }
 
-    public async Task<(IOrderedEnumerable<KeyValuePair<string, int>>, int Total)> CountOccurencesAsync(List<string> channels, List<string> terms)
+    public async Task<(IOrderedEnumerable<KeyValuePair<string, int>>, int Total)> CountOccurencesAsync(IReadOnlyCollection<string> channels, IReadOnlyCollection<string> terms)
     {
         var messages = await dbContext.TradeLogs.Where(l => channels.Count == 0 || channels.Contains(l.Channel)).ToListAsync();
         var counts = new Dictionary<string, int>();
@@ -155,10 +153,8 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         return (data, totalCount);
     }
 
-    public async Task<int> GetTotalSearchCountAsync()
-    {
-        return await dbContext.SearchedLogs.CountAsync();
-    }
+    public async Task<int> GetTotalSearchCountAsync() =>
+        await dbContext.SearchedLogs.CountAsync();
 
     public async Task<IEnumerable<SearchedLog>> GetSearchedLogsAsync(int limit)
     {

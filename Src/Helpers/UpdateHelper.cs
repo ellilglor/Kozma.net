@@ -1,18 +1,17 @@
 ﻿using Discord;
-using Discord.WebSocket;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Helpers;
 
-public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService tradeLogService) : IUpdateHelper
+public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHelper
 {
-    private static readonly SemaphoreSlim _dbLock = new(1, 1);
-
     private readonly Dictionary<string, ulong> _channels = new()
     {
         { "special-listings", 807369188133306408 },
+        { "2024-flash-sales", 1305211055819194470 },
         { "2023-flash-sales", 1174278238009294858 },
         { "2022-flash-sales", 1029020424929038386 },
         { "2021-flash-sales", 909112948956483625 },
@@ -34,12 +33,10 @@ public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService
         { "Materials", 880908641304182785 }
     };
 
-    public Dictionary<string, ulong> GetChannels()
-    {
-        return _channels;
-    }
+    public IReadOnlyDictionary<string, ulong> GetChannels() =>
+        _channels.AsReadOnly();
 
-    public async Task<int> UpdateLogsAsync(SocketTextChannel channel, int limit = 20, bool reset = false)
+    public async Task<IReadOnlyCollection<TradeLog>> GetLogsAsync(IMessageChannel channel, int limit = 50)
     {
         var messages = await channel.GetMessagesAsync(limit).FlattenAsync();
         var logs = new List<TradeLog>();
@@ -47,28 +44,20 @@ public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService
         foreach (var message in messages)
         {
             if (string.IsNullOrEmpty(message.Content)) continue;
-            if (!reset && await tradeLogService.CheckIfLogExistsAsync(message.Id)) break;
+            if (limit != int.MaxValue && await tradeLogService.CheckIfLogExistsAsync(message.Id)) break;
 
             logs.Add(ConvertMessage(message, channel.Name));
         }
 
-        if (logs.Count == 0) return 0;
-
-        await _dbLock.WaitAsync();
-        try
-        {
-            await tradeLogService.UpdateLogsAsync(logs, reset, channel.Name);
-        }
-        finally
-        {
-            _dbLock.Release();
-        }
-        return logs.Count;
+        return logs;
     }
 
-    private TradeLog ConvertMessage(IMessage message, string channel)
+    public async Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs, bool reset = false, string? channel = null) =>
+        await tradeLogService.UpdateLogsAsync(logs, reset, channel);
+
+    private static TradeLog ConvertMessage(IMessage message, string channel)
     {
-        var filtered = contentHelper.FilterContent(message.Content);
+        var filtered = message.Content.CleanUp();
         var copy = message.Content;
         var date = DateRegex().Match(filtered) is Match match && match.Success ? DateTime.Parse(match.Value) : message.CreatedAt.DateTime;
         if (message.Attachments.Count > 1) copy += "\n\n*This message had multiple images*\n*Click the date to look at them*";
@@ -77,7 +66,7 @@ public partial class UpdateHelper(IContentHelper contentHelper, ITradeLogService
         {
             Id = message.Id.ToString(),
             Channel = channel,
-            Author = message.Author.Username.Contains("Knight Launcher") ? "Haven Server" : message.Author.Username,
+            Author = message.Author.Username.Contains("Knight Launcher", StringComparison.OrdinalIgnoreCase) ? "Haven Server" : message.Author.Username,
             Date = date,
             MessageUrl = message.GetJumpUrl(),
             Content = filtered,

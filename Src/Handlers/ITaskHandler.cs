@@ -2,5 +2,5 @@
 
 public interface ITaskHandler
 {
-    void Initialize();
+    Task LaunchTasksAsync();
 }

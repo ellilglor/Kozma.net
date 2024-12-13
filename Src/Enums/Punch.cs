@@ -2,9 +2,9 @@
 
 public enum PunchPrices
 {
-    Single = 20000,
-    Double = 75000,
-    Triple = 225000
+    SingleTicket = 20000,
+    DoubleTicket = 75000,
+    TripleTicket = 225000
 }
 
 public enum ItemType

@@ -1,7 +1,9 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
@@ -20,22 +22,37 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
         var count = int.Parse(number);
         var context = (SocketMessageComponent)Context.Interaction;
         var oldEmbed = context.Message.Embeds.First();
-        var itemData = punchHelper.GetItem((PunchOption)punchHelper.ConvertToPunchOption(oldEmbed.Title)!)!;
-        var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("UV")).ToList();
-        var lockCount = uvFields.Count(f => f.Name.Contains("\U0001f512"));
+        var itemData = oldEmbed.Title.ConvertToPunchOption().ToPunchItem();
+        var uvFields = oldEmbed.Fields.Where(f => f.Name.Contains("uv", StringComparison.OrdinalIgnoreCase)).ToList();
+        var lockCount = uvFields.Count(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase));
+        var cost = count == 1 ? PunchPrices.SingleTicket : count == 2 ? PunchPrices.DoubleTicket : PunchPrices.TripleTicket;
+
+        var embed = await BuildEmbedAsync(itemData, count, cost, uvFields, oldEmbed.Fields);
+
+        await punchService.UpdateOrSaveGamblerAsync(Context.User.Id, Context.User.Username, cost);
+        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), Context.Interaction, itemData.Gif, 1500);
+
+        await ModifyOriginalResponseAsync(msg =>
+        {
+            msg.Embed = embed;
+            msg.Components = punchHelper.GetComponents(count, lockCount);
+        });
+    }
+
+    private async Task<Embed> BuildEmbedAsync(PunchItem itemData, int uvCount, PunchPrices cost, IReadOnlyCollection<EmbedField> uvFields, ImmutableArray<EmbedField> oldFields)
+    {
         var fields = new List<EmbedFieldBuilder>();
 
-        var uvs = RollForUvs(count, uvFields, itemData, Context.User.Id);
+        var uvs = RollForUvs(uvCount, uvFields, itemData, Context.User.Id);
         foreach (var uv in uvs)
         {
-            var index = uv.IndexOf(':');
+            var index = uv.IndexOf(':', StringComparison.InvariantCulture);
             fields.Add(embedHandler.CreateField(uv[..index], uv[(index + 1)..]));
         }
 
-        var spent = int.Parse(oldEmbed.Fields.FirstOrDefault(f => f.Name.Contains("Crowns Spent")).Value.Replace(".", ","), NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
-        var cost = count == 1 ? PunchPrices.Single : count == 2 ? PunchPrices.Double : PunchPrices.Triple;
-        fields.Add(embedHandler.CreateField("Crowns Spent", $"{spent + (int)cost:N0}", inline: false));
-        UpdateRollCounter(oldEmbed.Fields, count, fields);
+        var spent = int.Parse(oldFields.FirstOrDefault(f => f.Name.Contains("Crowns Spent", StringComparison.OrdinalIgnoreCase)).Value, NumberStyles.AllowThousands, CultureInfo.CurrentCulture);
+        fields.Add(embedHandler.CreateField("Crowns Spent", $"{(spent + (int)cost).ToString("N0", CultureInfo.CurrentCulture)}", isInline: false));
+        UpdateRollCounter(oldFields, uvCount, fields);
 
         var (desc, image) = await punchHelper.CheckForGmAsync(Context.User.Username, itemData.Type, uvs);
         var embed = embedHandler.GetEmbed(itemData.Name)
@@ -45,25 +62,19 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
             .WithImageUrl(image)
             .WithFields(fields);
 
-        await punchService.UpdateOrSaveGamblerAsync(Context.User.Id, Context.User.Username, cost);
-        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), Context.Interaction, itemData.Gif, 1500);
-
-        await ModifyOriginalResponseAsync(msg => {
-            msg.Embed = embed.Build();
-            msg.Components = punchHelper.GetComponents(count < 1, count < 2, count < 3, lockCount > 0, lockCount > 1, lockCount > 2);
-        });
+        return embed.Build();
     }
 
-    private List<string> RollForUvs(int count, List<EmbedField> uvFields, PunchItem item, ulong id)
+    private List<string> RollForUvs(int count, IReadOnlyCollection<EmbedField> uvFields, PunchItem item, ulong id)
     {
         var uvs = uvFields
-            .Where(f => f.Name.Contains("\U0001f512"))
-            .Select((uv, index) => $"{uv.Name.Replace(NumRegex().Match(uv.Name).Value, (index + 1).ToString())}:{uv.Value}")
+            .Where(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase))
+            .Select((uv, index) => $"{uv.Name.Replace(NumRegex().Match(uv.Name).Value, (index + 1).ToString(), StringComparison.InvariantCulture)}:{uv.Value}")
             .ToList();
 
         for (int i = uvs.Count; i < count; i++)
         {
-            uvs.Add($"\U0001f513 UV #{i + 1}:{punchHelper.RollUv(id, item, uvs)}");
+            uvs.Add($"{Emotes.Unlocked} UV #{i + 1}:{punchHelper.RollUv(id, item, uvs)}");
         }
 
         return uvs;
@@ -71,9 +82,9 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
 
     private void UpdateRollCounter(IImmutableList<EmbedField> countFields, int count, List<EmbedFieldBuilder> fields)
     {
-        var singleField = countFields.FirstOrDefault(f => f.Name.Equals("Single Rolls"));
-        var doubleField = countFields.FirstOrDefault(f => f.Name.Equals("Double Rolls"));
-        var tripleField = countFields.FirstOrDefault(f => f.Name.Equals("Triple Rolls"));
+        var singleField = countFields.FirstOrDefault(f => f.Name == "Single Rolls");
+        var doubleField = countFields.FirstOrDefault(f => f.Name == "Double Rolls");
+        var tripleField = countFields.FirstOrDefault(f => f.Name == "Triple Rolls");
 
         switch (count)
         {

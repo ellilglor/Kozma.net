@@ -23,7 +23,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
                 Unboxed = isCommand ? 0 : isUnbox ? 1 : 0,
                 Punched = isCommand ? 0 : isUnbox ? 0 : 1,
             });
-        } 
+        }
         else
         {
             if (isCommand) user.Count++;
@@ -65,10 +65,8 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
         return mutes;
     }
 
-    public async Task<int> GetTotalUsersCountAsync()
-    {
-        return await dbContext.Users.CountAsync();
-    }
+    public async Task<int> GetTotalUsersCountAsync() =>
+        await dbContext.Users.CountAsync();
 
     public async Task<IEnumerable<DbStat>> GetUsersAsync(int limit, int total, bool forUnboxed)
     {

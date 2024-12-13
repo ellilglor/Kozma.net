@@ -10,23 +10,24 @@ namespace Kozma.net.Src.Handlers;
 
 public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUserService userService, ITaskService taskService) : IRoleHandler
 {
+    private readonly DiscordSocketClient _client = bot.GetClient();
     private readonly double _offlineMutesCheckInterval = 3;
 
-    public async Task GiveRoleAsync(SocketGuildUser user, ulong roleId)
+    public async Task GiveRoleAsync(IGuildUser user, ulong roleId)
     {
-        var role = GetGuild().GetRole(roleId);
+        var role = await GetGuild().GetRoleAsync(roleId);
         await user.AddRoleAsync(role);
-        logger.Log(LogColor.Moderation, $"{role.Name} was given to {user.Username}");
+        logger.Log(LogLevel.Moderation, $"{role.Name} was given to {user.Username}");
     }
 
-    public async Task RemoveRoleAsync(SocketGuildUser user, ulong roleId)
+    public async Task RemoveRoleAsync(IGuildUser user, ulong roleId)
     {
-        var role = GetGuild().GetRole(roleId);
+        var role = await GetGuild().GetRoleAsync(roleId);
         await user.RemoveRoleAsync(role);
-        logger.Log(LogColor.Moderation, $"{role.Name} was removed from {user.Username}");
+        logger.Log(LogLevel.Moderation, $"{role.Name} was removed from {user.Username}");
     }
 
-    public async Task HandleTradeCooldownAsync(SocketUserMessage message, ulong roleId)
+    public async Task HandleTradeCooldownAsync(IMessage message, ulong roleId)
     {
         if (message.Author is not SocketGuildUser user) return;
         if (user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) return;
@@ -42,18 +43,18 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
         if (task is null)
         {
-            await logger.LogAsync($"<@{config.GetValue<ulong>("ids:owner")}> failed to fetch {taskName} from db");
+            await logger.LogAsync($"failed to fetch {taskName} from db", pingOwner: true);
             return;
         }
         if (task.UpdatedAt.AddHours(_offlineMutesCheckInterval) > currentDate) return;
 
-        logger.Log(LogColor.Moderation, "Checking if people need to be muted");
+        logger.Log(LogLevel.Moderation, "Checking if people need to be muted");
 
         var guild = GetGuild();
         if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
 
-        var editRole = guild.GetRole(config.GetValue<ulong>("ids:editRole"));
-        var users = guild.Users.Where(u => u.Roles.Contains(editRole)).ToList(); // Should be empty but exists just in case
+        var editRole = await guild.GetRoleAsync(config.GetValue<ulong>("ids:editRole"));
+        var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == editRole.Id)).ToList(); // Should be empty but exists just in case
         foreach (var user in users)
         {
             await RemoveRoleAsync(user, config.GetValue<ulong>("ids:editRole"));
@@ -66,7 +67,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     public async Task CheckExpiredMutesAsync()
     {
-        logger.Log(LogColor.Moderation, "Checking expired mutes");
+        logger.Log(LogLevel.Moderation, "Checking expired mutes");
         var sellMutes = await userService.GetAndDeleteExpiredMutesAsync<SellMute>();
         var buyMutes = await userService.GetAndDeleteExpiredMutesAsync<BuyMute>();
 
@@ -82,19 +83,17 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
     {
         foreach (var m in mutes)
         {
-            if (guild.GetUser(ulong.Parse(m.Id)) is not SocketGuildUser user) continue; // User left the server
+            if (guild.GetUser(ulong.Parse(m.Id)) is not IGuildUser user) continue; // User left the server
             await RemoveRoleAsync(user, roleId);
         }
     }
 
-    private SocketGuild GetGuild()
-    {
-       return bot.GetClient().Guilds.FirstOrDefault(g => g.Id.Equals(config.GetValue<ulong>("ids:server")))!;
-    }
+    private SocketGuild GetGuild() =>
+        _client.GetGuild(config.GetValue<ulong>("ids:server"));
 
     private async Task CheckMessagesAsync(SocketGuild guild, ulong channelId, ulong roleId, DateTime d)
     {
-        if (guild.GetChannel(channelId) is not SocketTextChannel channel) return;
+        if (guild.GetChannel(channelId) is not IMessageChannel channel) return;
         var messages = await channel.GetMessagesAsync(25).FlattenAsync();
 
         foreach (var message in messages)
@@ -103,17 +102,17 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
             if (message.Author.IsBot || message.Author is not SocketGuildUser user) continue;
             if (user.Roles.Any(r => r.Id == roleId || r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod"))) continue;
 
-            await MuteUserAsync(user, (SocketUserMessage)message, roleId);
+            await MuteUserAsync(user, message, roleId);
         }
     }
 
-    private async Task MuteUserAsync(SocketGuildUser user, SocketUserMessage message, ulong roleId)
+    private async Task MuteUserAsync(IGuildUser user, IMessage message, ulong roleId)
     {
         bool success;
         if (roleId == config.GetValue<ulong>("ids:wtsRole")) success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new SellMute() { Id = user.Id.ToString(), Name = user.Username });
         else success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new BuyMute() { Id = user.Id.ToString(), Name = user.Username });
 
-        if (!success) await logger.LogAsync($"{(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} - <@{config.GetValue<ulong>("ids:owner")}> <@{user.Id}> is already in the database");
+        if (!success) await logger.LogAsync($"- {(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} <@{user.Id}> is already in the database", pingOwner: true);
         else await GiveRoleAsync(user, roleId);
     }
 }

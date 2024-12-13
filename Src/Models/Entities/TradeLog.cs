@@ -32,8 +32,8 @@ public class TradeLog
     public string? Image { get; set; }
 }
 
-public class LogCollection
+public class LogGroups
 {
     public required string Channel { get; set; }
-    public required List<TradeLog> Messages { get; set; }
+    public required IReadOnlyCollection<TradeLog> Messages { get; set; }
 }

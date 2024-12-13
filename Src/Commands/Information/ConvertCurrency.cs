@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
@@ -20,16 +21,13 @@ public class ConvertCurrency(IEmbedHandler embedHandler, IExchangeService exchan
         {
             Currency.crowns => $"{amount:N0} Crowns is equal to roughly {converted:N0} Energy.",
             Currency.energy => $"{amount:N0} Energy is equal to roughly {converted:N0} Crowns.",
-            _ => "The provided currency was invalid."
+            _ => throw new ArgumentException("The provided currency was invalid")
         };
 
         var embed = embedHandler.GetEmbed(title)
             .WithDescription($"Used conversion rate: **{exchange}** Crowns per Energy.");
 
-        if (currency == Currency.crowns)
-        {
-            embed.WithColor((uint)EmbedColor.Crown);
-        }
+        if (currency == Currency.crowns) embed.WithColor(Colors.Crown);
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
     }

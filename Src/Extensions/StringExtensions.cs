@@ -1,13 +1,13 @@
-﻿using System.Text.RegularExpressions;
-using Kozma.net.Src.Helpers;
+﻿using Kozma.net.Src.Enums;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
-namespace Kozma.net.Helpers;
-
-public partial class ContentHelper : IContentHelper
+namespace Kozma.net.Src.Extensions;
+public static partial class StringExtensions
 {
-    private record TermFilter(string Before, string After, string? Exclude);
+    private sealed record TermFilter(string Before, string After, string? Exclude);
 
-    private readonly List<TermFilter> filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
+    private static readonly List<TermFilter> Filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
         new TermFilter("totem", "somnambulists totem", "somnambulists"),
         new TermFilter("orbit gun", "orbitgun", null),
         new TermFilter("orbitgun", "celestial orbitgun", "celestial"),
@@ -38,22 +38,24 @@ public partial class ContentHelper : IContentHelper
         new TermFilter("btb", "barbarous thorn blade", null),
         new TermFilter("reciever", "receiver", null)];
 
-    public string FilterContent(string content)
+    public static string CleanUp(this string content)
     {
+#pragma warning disable CA1308 // Normalize strings to uppercase -> can't do this yet because legacy code from js version
         var filtered = content
-            .ToLower()
-            .Replace("vh", "very high");
-            
-        filtered = SpecialCharacters().Replace(filtered, string.Empty);
+            .ToLower(CultureInfo.InvariantCulture)
+            .Replace("vh", "very high", StringComparison.OrdinalIgnoreCase);
+#pragma warning restore CA1308 // Normalize strings to uppercase
 
-        foreach (var filter in filters)
+        filtered = SpecialCharsRegex().Replace(filtered, string.Empty);
+
+        foreach (var filter in Filters)
         {
-            if (filtered.Contains(filter.Before))
+            if (filtered.Contains(filter.Before, StringComparison.OrdinalIgnoreCase))
             {
-                if (filter.Exclude != null && filtered.Contains(filter.Exclude))
+                if (filter.Exclude != null && filtered.Contains(filter.Exclude, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                filtered = filtered.Replace(filter.Before, filter.After);
+                filtered = filtered.Replace(filter.Before, filter.After, StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -61,5 +63,17 @@ public partial class ContentHelper : IContentHelper
     }
 
     [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
-    private static partial Regex SpecialCharacters();
+    private static partial Regex SpecialCharsRegex();
+
+    private static readonly Dictionary<string, PunchOption> PunchOptionMapping = new()
+    {
+        { "Brandish", PunchOption.Brandish },
+        { "Overcharged Mixmaster", PunchOption.Mixmaster },
+        { "Blast Bomb", PunchOption.Bomb },
+        { "Swiftstrike Buckler", PunchOption.Shield },
+        { "Black Kat Cowl", PunchOption.Helmet }
+    };
+
+    public static PunchOption ConvertToPunchOption(this string item) =>
+        PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid option");
 }

@@ -1,7 +1,8 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Enums;
+using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 
@@ -13,13 +14,11 @@ public class Start(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Inter
     public async Task ExecuteAsync()
     {
         var context = (SocketMessageComponent)Context.Interaction;
-        var item = punchHelper.ConvertToPunchOption(context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty))!;
-        var itemData = punchHelper.GetItem((PunchOption)item)!;
-        var craftedUvs = context.Message.Embeds.First().Fields.Where(f => f.Name.Contains("UV")).ToList();
-        var disableRollBtn = false;
+        var itemData = context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty, StringComparison.OrdinalIgnoreCase).ConvertToPunchOption().ToPunchItem();
+        var craftedUvs = context.Message.Embeds.First().Fields.Where(f => f.Name.Contains("UV", StringComparison.OrdinalIgnoreCase)).ToList();
 
-        var fields = craftedUvs.Select(field => embedHandler.CreateField($"\U0001f513 {field.Name}", field.Value)).ToList();
-        fields.Add(embedHandler.CreateField("Crowns Spent", "0", inline: false));
+        var fields = craftedUvs.Select(field => embedHandler.CreateField($"{Emotes.Unlocked} {field.Name}", field.Value)).ToList();
+        fields.Add(embedHandler.CreateField("Crowns Spent", "0", isInline: false));
 
         var embed = embedHandler.GetEmbed(itemData.Name)
             .WithAuthor(punchHelper.GetAuthor())
@@ -29,7 +28,7 @@ public class Start(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Inter
         await ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = embed.Build();
-            msg.Components = punchHelper.GetComponents(craftedUvs.Count < 1, craftedUvs.Count < 2, craftedUvs.Count < 3, disableRollBtn, disableRollBtn, disableRollBtn);
+            msg.Components = punchHelper.GetComponents(craftedUvs.Count);
         });
     }
 }
