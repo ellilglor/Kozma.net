@@ -9,14 +9,14 @@ public class UnboxService(KozmaDbContext dbContext) : IUnboxService
 {
     public async Task UpdateOrSaveBoxAsync(Box box)
     {
-        var model = await dbContext.Boxes.FirstOrDefaultAsync(b => b.Name.ToString() == box.ToString());
+        var model = await dbContext.Boxes.FirstOrDefaultAsync(b => b.Name == box.ToString());
 
         if (model is null)
         {
             await dbContext.Boxes.AddAsync(new Unbox()
             {
                 Id = ObjectId.GenerateNewId(),
-                Name = box,
+                Name = box.ToString(),
                 Count = 1
             });
         }
@@ -43,6 +43,6 @@ public class UnboxService(KozmaDbContext dbContext) : IUnboxService
             .ThenBy(box => box.Name)
             .ToListAsync();
 
-        return query.Select(box => new UnboxStat(box.Name, box.Count, box.Count / (double)total));
+        return query.Select(box => new UnboxStat((Box)Enum.Parse(typeof(Box), box.Name), box.Count, box.Count / (double)total));
     }
 }

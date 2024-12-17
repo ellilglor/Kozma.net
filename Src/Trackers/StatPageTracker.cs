@@ -231,8 +231,8 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedHandler.CreateField("User", boxes.ToString()),
-            embedHandler.CreateField("Commands", opened.ToString()),
+            embedHandler.CreateField("Box", boxes.ToString()),
+            embedHandler.CreateField("Opened", opened.ToString()),
             embedHandler.CreateField("Percentage", percentages.ToString()),
             embedHandler.CreateField("Total", $"{total:N0}"),
             embedHandler.CreateField("Energy", $"{energy:N0}"),
