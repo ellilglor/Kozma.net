@@ -8,6 +8,8 @@ namespace Kozma.net.Src.Services;
 public class ExchangeService(KozmaDbContext dbContext, IMemoryCache cache, IBotLogger logger) : IExchangeService
 {
     private const string _cacheKey = "Exchange_Rate";
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6) };
+
 
     public async Task<int> GetExchangeRateAsync()
     {
@@ -18,7 +20,7 @@ public class ExchangeService(KozmaDbContext dbContext, IMemoryCache cache, IBotL
             if (exchange != null)
             {
                 rate = exchange.Rate;
-                cache.Set(_cacheKey, rate, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) });
+                cache.Set(_cacheKey, rate, _cacheOptions);
             }
             else
             {
@@ -38,7 +40,7 @@ public class ExchangeService(KozmaDbContext dbContext, IMemoryCache cache, IBotL
         {
             exchange.Rate = rate;
 
-            cache.Set(_cacheKey, rate, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) });
+            cache.Set(_cacheKey, rate, _cacheOptions);
             dbContext.Exchange.Update(exchange);
             await dbContext.SaveChangesAsync();
         }

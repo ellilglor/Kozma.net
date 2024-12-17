@@ -156,7 +156,7 @@ public class Unbox(IConfiguration config,
         if (!cache.TryGetValue(box, out IReadOnlyList<ItemData>? items) || items is null)
         {
             items = await jsonFileReader.ReadAsync<IReadOnlyList<ItemData>>(Path.Combine("Data", "Boxes", $"{box}.json"));
-            cache.Set(box, items, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
+            cache.Set(box, items, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(20) });
         }
 
         return items;

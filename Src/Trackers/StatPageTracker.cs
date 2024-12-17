@@ -26,7 +26,7 @@ public class StatPageTracker(IBot bot,
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
     private bool _buildingInProgess;
-    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(20) };
     private const string _cacheKey = "stat_pages";
 
     public async Task BuildPagesAsync()

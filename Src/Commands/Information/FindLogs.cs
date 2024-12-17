@@ -73,7 +73,7 @@ public partial class FindLogs(IMemoryCache cache,
             var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
             matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
 
-            cache.Set(cacheKey, matches, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });
+            cache.Set(cacheKey, matches, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30) });
         }
 
         var matchCount = matches.Sum(collection => collection.Messages.Count);

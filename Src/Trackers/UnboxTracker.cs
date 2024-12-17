@@ -8,7 +8,7 @@ namespace Kozma.net.Src.Trackers;
 
 public class UnboxTracker(IMemoryCache cache) : IUnboxTracker
 {
-    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
 
     public void SetPlayer(ulong id, Box key) =>
         cache.Set(CreateCacheKey(id, key), new List<TrackerItem>(), _cacheOptions);
