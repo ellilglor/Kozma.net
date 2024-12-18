@@ -1,0 +1,9 @@
+﻿services:
+    kozma.net:
+        build: .
+        environment:
+            - dbToken=$dbToken
+            - database=$database
+            - botToken=$botToken
+            - energyMarket=$energyMarket
+        image: kozma
