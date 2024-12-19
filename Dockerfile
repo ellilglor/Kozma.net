@@ -2,11 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /App
 
-COPY . ./
+COPY *.csproj ./
 RUN dotnet restore
-RUN dotnet publish "./Kozma.net.csproj" -c Release -o out --no-restore
 
-COPY .env ./out
+COPY . ./
+RUN dotnet publish "./Kozma.net.csproj" -c Release -o out --no-restore
 
 # Runtime Stage
 FROM mcr.microsoft.com/dotnet/runtime:8.0

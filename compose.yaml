@@ -7,3 +7,4 @@
             - botToken=$botToken
             - energyMarket=$energyMarket
         image: kozma
+        restart: unless-stopped
