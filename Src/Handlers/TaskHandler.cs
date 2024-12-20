@@ -36,6 +36,7 @@ public class TaskHandler(IBot bot,
         _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
         _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
         _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
+        _tasks.Add("cleanLogs", new TaskConfig(48, ClearBotLogsAsync));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(CheckForExpiredTasksAsync); // Run like this to not block the thread
@@ -200,6 +201,34 @@ public class TaskHandler(IBot bot,
             var logs = await updateHelper.GetLogsAsync(channel);
             if (logs.Count > 0) await updateHelper.UpdateLogsAsync(logs);
         }
+
+        return true;
+    }
+
+    private async Task<bool> ClearBotLogsAsync()
+    {
+        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ITextChannel channel) return false;
+
+        logger.Log(LogLevel.Moderation, "Cleaning BotLogs channel");
+        var messages = await channel.GetMessagesAsync(limit: 420).FlattenAsync();
+        var toDelete = new List<IMessage>();
+        var messageAgeLimit = DateTimeOffset.UtcNow.AddDays(-14);
+
+        foreach (var msg in messages)
+        {
+            if (msg.CreatedAt <= messageAgeLimit) break;
+            if (msg.Embeds.Count == 0) continue; // Legacy logs -> can be deleted later
+            if (msg.Embeds.First().Color != Colors.Moderation) continue;
+
+            toDelete.Add(msg);
+            if (toDelete.Count == DiscordConfig.MaxMessagesPerBatch)
+            {
+                await channel.DeleteMessagesAsync(toDelete);
+                toDelete.Clear();
+            }
+        }
+
+        if (toDelete.Count > 0) await channel.DeleteMessagesAsync(toDelete);
 
         return true;
     }

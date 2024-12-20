@@ -1,5 +1,6 @@
 ﻿using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
 
 namespace Kozma.net.Src.Services;
 
@@ -19,6 +20,21 @@ public class TaskService(KozmaDbContext dbContext) : ITaskService
         task.Executed++;
         task.UpdatedAt = DateTime.Now;
 
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task CreateTaskAsync(string name)
+    {
+        var task = new TimedTask()
+        {
+            Id = ObjectId.GenerateNewId(),
+            Name = name,
+            Executed = 0,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
+        };
+
+        await dbContext.TimedTasks.AddAsync(task);
         await dbContext.SaveChangesAsync();
     }
 }
