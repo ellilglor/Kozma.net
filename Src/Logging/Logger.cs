@@ -38,6 +38,7 @@ public partial class Logger(IBot bot,
 
         if (!result.IsSuccess)
         {
+            if (result.Error == InteractionCommandError.UnmetPrecondition) return; // TODO: Users shouldn't be able to see these so this error doesn't happen
             await HandleErrorAsync(command.Name, context.Interaction, (ExecuteResult)result, location);
             return;
         }

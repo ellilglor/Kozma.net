@@ -5,10 +5,11 @@ using Microsoft.Extensions.Configuration;
 namespace Kozma.net.Src.Commands.Server;
 
 [DontAutoRegister]
+[RequireUserPermission(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers, Group = "Permission")]
+[RequireOwner(Group = "Permission")]
 public class PriceCheck(IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("pricecheck", "Kozma's Backpack staff only.")]
-    [RequireUserPermission(GuildPermission.BanMembers | GuildPermission.KickMembers)]
     public async Task ExecuteAsync()
     {
         await Context.Channel.SendFileAsync(

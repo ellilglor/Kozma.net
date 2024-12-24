@@ -5,10 +5,11 @@ using Kozma.net.Src.Trackers;
 namespace Kozma.net.Src.Commands.Server;
 
 [DontAutoRegister]
+[RequireUserPermission(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers, Group = "Permission")]
+[RequireOwner(Group = "Permission")]
 public class Stats(IStatPageTracker pageTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("stats", "Kozma's Backpack staff only.")]
-    [RequireUserPermission(GuildPermission.BanMembers | GuildPermission.KickMembers)]
     public async Task ExecuteAsync()
     {
         await pageTracker.BuildPagesAsync();
