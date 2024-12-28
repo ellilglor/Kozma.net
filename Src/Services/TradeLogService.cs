@@ -98,7 +98,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         var counts = new Dictionary<string, int>();
         var totalCount = 0;
 
-        var folder = Directory.GetFiles(Path.Combine(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName!, "Src", "Data", "Items"));
+        var folder = Directory.GetFiles("Src/" + Path.Combine("Data", "Items"));
         foreach (var file in folder)
         {
             var fileName = Path.GetFileName(file);
