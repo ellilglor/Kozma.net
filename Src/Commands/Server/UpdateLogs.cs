@@ -7,8 +7,7 @@ using Kozma.net.Src.Models.Entities;
 namespace Kozma.net.Src.Commands.Server;
 
 [DontAutoRegister]
-[RequireUserPermission(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers, Group = "Permission")]
-[RequireOwner(Group = "Permission")]
+[DefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers)]
 public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) : InteractionModuleBase<SocketInteractionContext>
 {
     private sealed record Channel(string Name, IReadOnlyCollection<TradeLog> Logs, string Time);

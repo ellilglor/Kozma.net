@@ -5,8 +5,7 @@ using Kozma.net.Src.Trackers;
 namespace Kozma.net.Src.Commands.Server;
 
 [DontAutoRegister]
-[RequireUserPermission(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers, Group = "Permission")]
-[RequireOwner(Group = "Permission")]
+[DefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers)]
 public class Stats(IStatPageTracker pageTracker) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("stats", "Kozma's Backpack staff only.")]
