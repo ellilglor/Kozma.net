@@ -36,7 +36,15 @@ public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandle
                 await Task.Delay(500);
             }
 
-            await msg.DeleteAsync();
+            try
+            {
+                await msg.DeleteAsync();
+            }
+            catch (Exception e) when (e.Message.Contains("10008", StringComparison.InvariantCulture))
+            {
+                continue; // Can happen if /clear gets run twice before the first one has finished
+            }
+
             await Task.Delay(420);
         }
     }
