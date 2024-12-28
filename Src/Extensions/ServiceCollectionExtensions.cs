@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IBot, Bot>()
             .AddSingleton<IBotLogger, Logger>()
             .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().GetClient()))
-            .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(Env.GetString("dbToken"), Env.GetString("database")));
+            .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(Env.GetString("dbToken"), Env.GetString("database")), contextLifetime: ServiceLifetime.Transient);
     }
 
     public static IServiceCollection ConfigureHandlers(this IServiceCollection services)
