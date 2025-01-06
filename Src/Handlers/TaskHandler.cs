@@ -47,22 +47,30 @@ public class TaskHandler(IBot bot,
 
     private async Task CheckForExpiredTasksAsync()
     {
-        await UpdateActivityAsync();
-        await roleHandler.CheckExpiredMutesAsync();
-
-        var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
-        foreach (var task in tasks)
+        while (true)
         {
-            var taskConfig = _tasks[task.Name];
-            if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now) continue;
+            await UpdateActivityAsync();
+            await roleHandler.CheckExpiredMutesAsync();
 
-            var success = await taskConfig.ExecuteAsync();
-            if (success) await taskService.UpdateTaskAsync(task.Name);
+            var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
+            foreach (var task in tasks)
+            {
+                var taskConfig = _tasks[task.Name];
+                if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now) continue;
+
+                try
+                {
+                    var success = await taskConfig.ExecuteAsync();
+                    if (success) await taskService.UpdateTaskAsync(task.Name);
+                } catch (Exception ex)
+                {
+                    await logger.LogAsync($"Error while executing task {task.Name}\n{ex.Message}", pingOwner: true);
+                }
+            }
+
+            await Task.Delay(TimeSpan.FromMinutes(30));
+            await PostStillConnectedAsync();
         }
-
-        await Task.Delay(TimeSpan.FromMinutes(30));
-        await PostStillConnectedAsync();
-        await CheckForExpiredTasksAsync();
     }
 
     private async Task UpdateActivityAsync()
