@@ -20,18 +20,14 @@ public partial class FindLogs(IMemoryCache cache,
     IFileReader jsonFileReader,
     IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
-    // TODO? change choice options to bool
     [SlashCommand("findlogs", "Search the tradelog database for any item.")]
     public async Task ExecuteAsync(
         [Summary(description: "Item the bot should look for."), MinLength(3), MaxLength(69)] string item,
         [Summary(description: "How far back the bot should search. Default: 6 months."), MinValue(1), MaxValue(120)] int months = 6,
-        [Summary(description: "Check for color variants / item family tree. Default: yes."), Choice("Yes", "variant-search"), Choice("No", "single-search")] string? variants = null,
-        [Summary(description: "Filter out high value uvs. Default: no."), Choice("Yes", "clean-search"), Choice("No", "dirty-search")] string? clean = null,
-        [Summary(description: "Check the mixed-trades channel. Default: yes."), Choice("Yes", "mixed-search"), Choice("No", "mixed-ignore")] string? mixed = null)
+        [Summary(description: "Check for color variants / item family tree. Default: yes.")] bool variants = true,
+        [Summary(description: "Filter out high value uvs. Default: no.")] bool clean = false,
+        [Summary(description: "Check the mixed-trades channel. Default: yes.")] bool mixed = true)
     {
-        var checkVariants = string.IsNullOrEmpty(variants) || variants == "variant-search";
-        var checkClean = !string.IsNullOrEmpty(clean) && clean == "clean-search";
-        var checkMixed = string.IsNullOrEmpty(mixed) || mixed == "mixed-search";
         var altered = item.CleanUp();
 
         var embed = embedHandler.GetEmbed($"Searching for __{item}__, I will dm you what I can find.")
@@ -46,7 +42,7 @@ public partial class FindLogs(IMemoryCache cache,
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
         if (Context.User.Id != config.GetValue<ulong>("ids:owner")) await tradeLogService.UpdateOrSaveItemAsync(altered);
-        await SearchLogsAsync(altered, item, months, checkVariants, checkClean, checkMixed);
+        await SearchLogsAsync(altered, item, months, checkVariants: variants, checkClean: clean, checkMixed: mixed);
     }
 
     public async Task SearchLogsAsync(string item, string original, int months, bool checkVariants, bool checkClean, bool checkMixed, SocketUser? user = null)
