@@ -62,7 +62,8 @@ public class TaskHandler(IBot bot,
                 {
                     var success = await taskConfig.ExecuteAsync();
                     if (success) await taskService.UpdateTaskAsync(task.Name);
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     await logger.LogAsync($"Error while executing task {task.Name}\n{ex.Message}", pingOwner: true);
                 }

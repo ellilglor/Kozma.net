@@ -15,6 +15,15 @@ public class MessageHandler(IConfiguration config, IRoleHandler roleHandler) : I
         var channel = (ITextChannel)message.Channel;
         if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message, message.Channel.Id);
         else if (channel.GuildId.Equals(653349356459786240)) await HandleHavenMessageAsync(message);
+
+        if (message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:bot")))
+        {
+            try
+            {
+                await message.AddReactionAsync(new Emote(1092403749059829853, "kbplogo"));
+            }
+            catch { } // in case no permission to react
+        }
     }
 
     private async Task HandleKbpMessageAsync(SocketUserMessage message, ulong channelId)
