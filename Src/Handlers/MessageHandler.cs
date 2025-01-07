@@ -13,20 +13,22 @@ public class MessageHandler(IConfiguration config, IRoleHandler roleHandler) : I
         if (channelType is null || channelType != ChannelType.Text && channelType != ChannelType.News) return;
 
         var channel = (ITextChannel)message.Channel;
-        if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message);
+        if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message, message.Channel.Id);
         else if (channel.GuildId.Equals(653349356459786240)) await HandleHavenMessageAsync(message);
     }
 
-    private async Task HandleKbpMessageAsync(SocketUserMessage message)
+    private async Task HandleKbpMessageAsync(SocketUserMessage message, ulong channelId)
     {
         if (message.Author.IsBot)
         {
-            if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:marketChannel"))) await message.CrosspostAsync();
+            if (channelId.Equals(config.GetValue<ulong>("ids:marketChannel"))) await message.CrosspostAsync();
         }
         else
         {
-            if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:wtsChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtsRole"));
-            else if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtbRole"));
+            if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtsRole"));
+            else if (channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtbRole"));
+
+            if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel")) || channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:wtsChannel"));
         }
     }
 
@@ -38,5 +40,22 @@ public class MessageHandler(IConfiguration config, IRoleHandler roleHandler) : I
                 if (message.Author is IWebhookUser webhook && webhook.WebhookId == 1059194506248978432) await message.Channel.SendMessageAsync($"<@&1059195232018772031> The following has been posted:\n{message.Content}");
                 break;
         }
+    }
+
+    private static async Task WarnIfWrongContentAsync(SocketUserMessage message, bool isWtsChannel)
+    {
+        if (isWtsChannel && (!message.Content.Contains("wtb", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("buying", StringComparison.OrdinalIgnoreCase))) return;
+        if (!isWtsChannel && (!message.Content.Contains("wts", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("selling", StringComparison.OrdinalIgnoreCase))) return;
+
+        var response = await message.ReplyAsync(
+            "It looks like you're selling or buying items in the incorrect channel.\nPlease edit your message through the `/tradepostedit` command.\nIf this is not the case, you can ignore this warning.");
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromMinutes(1));
+            await response.DeleteAsync();
+        });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     }
 }
