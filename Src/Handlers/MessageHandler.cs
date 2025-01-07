@@ -1,11 +1,14 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Handlers;
 
-public class MessageHandler(IConfiguration config, IRoleHandler roleHandler) : IMessageHandler
+public class MessageHandler(IConfiguration config, IMemoryCache cache, IRoleHandler roleHandler) : IMessageHandler
 {
+    private const string _cachekey = "Kozma_Mentioned";
+
     public async Task HandleMessageAsync(SocketMessage rawMessage)
     {
         if (rawMessage is not SocketUserMessage message) return;
@@ -38,6 +41,12 @@ public class MessageHandler(IConfiguration config, IRoleHandler roleHandler) : I
             else if (channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtbRole"));
 
             if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel")) || channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:wtsChannel"));
+
+            if (channelId.Equals(796403286147203092) && !cache.TryGetValue(_cachekey, out int _) && message.Content.Contains("kozma", StringComparison.OrdinalIgnoreCase))
+            {
+                await message.Channel.SendFileAsync(filePath: Path.Combine("Src", "Assets", "hello-there.gif"));
+                cache.Set(_cachekey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });
+            }
         }
     }
 
