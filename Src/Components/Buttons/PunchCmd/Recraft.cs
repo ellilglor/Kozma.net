@@ -18,6 +18,6 @@ public class Recraft(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunc
         var item = context.Message.Embeds.First().Title.Replace("You crafted: ", string.Empty, StringComparison.OrdinalIgnoreCase).ConvertToPunchOption();
         var amount = int.Parse(context.Message.Embeds.First().Fields.First(f => f.Name == "Crafted").Value) + 1;
 
-        await command.CraftItemAsync(Context.Interaction, Context.User.Id, item, amount);
+        await command.CraftItemAsync(Context.Interaction, Context.User.Id, item.ToPunchItem(), amount);
     }
 }

@@ -14,31 +14,25 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
 {
     private static readonly Random _random = new();
 
-    // TODO: make item enum
     [SlashCommand("punch", "Craft and roll on an item for Unique Variants.")]
     public async Task ExecuteAsync(
-        [Summary(name: "item", description: "Select the item you want to craft."),
-            Choice("Brandish", "Brandish"),
-            Choice("Overcharged Mixmaster", "Overcharged Mixmaster"),
-            Choice("Blast Bomb", "Blast Bomb"),
-            Choice("Swiftstrike Buckler", "Swiftstrike Buckler"),
-            Choice("Black Kat Cowl", "Black Kat Cowl")] string item)
+        [Summary(name: "item", description: "Select the item you want to craft.")] PunchOption choice)
     {
-        punchTracker.SetPlayer(Context.User.Id, item);
-        await CraftItemAsync(Context.Interaction, Context.User.Id, item.ConvertToPunchOption());
+        var item = choice.ToPunchItem();
+        punchTracker.SetPlayer(Context.User.Id, item.Name);
+        await CraftItemAsync(Context.Interaction, Context.User.Id, item);
     }
 
-    public async Task CraftItemAsync(SocketInteraction interaction, ulong userId, PunchOption item, int counter = 1)
+    public async Task CraftItemAsync(SocketInteraction interaction, ulong userId, PunchItem item, int counter = 1)
     {
-        var itemData = item.ToPunchItem();
-        var craftUvs = CraftItem(userId, itemData);
+        var craftUvs = CraftItem(userId, item);
         var fields = craftUvs.Select((uv, index) => embedHandler.CreateField($"UV #{index + 1}", uv)).ToList();
         fields.Add(embedHandler.CreateField("Crafted", counter.ToString(), isInline: false));
 
-        var (desc, image) = await punchHelper.CheckForGmAsync(interaction.User.Username, itemData.Type, craftUvs);
-        var embed = embedHandler.GetEmbed($"You crafted: {itemData.Name}")
+        var (desc, image) = await punchHelper.CheckForGmAsync(interaction.User.Username, item.Type, craftUvs);
+        var embed = embedHandler.GetEmbed($"You crafted: {item.Name}")
             .WithAuthor(punchHelper.GetAuthor())
-            .WithThumbnailUrl(itemData.Image)
+            .WithThumbnailUrl(item.Image)
             .WithDescription(desc)
             .WithImageUrl(image)
             .WithFields(fields);
@@ -46,7 +40,7 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
             .WithButton(label: "Recraft", customId: "recraft", style: ButtonStyle.Primary)
             .WithButton(label: "Start Rolling Uvs", customId: "start-punching", style: ButtonStyle.Primary);
 
-        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), interaction, "https://cdn.discordapp.com/attachments/1069643121622777876/1069643186978430996/crafting.gif", 2500);
+        await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), interaction, "https://cdn.discordapp.com/attachments/1069643121622777876/1069643186978430996/crafting.gif", delayInMs: 2500);
 
         await interaction.ModifyOriginalResponseAsync(msg =>
         {

@@ -15,14 +15,14 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
     public EmbedAuthorBuilder GetAuthor() =>
         new EmbedAuthorBuilder().WithName("Punch").WithIconUrl("https://media3.spiralknights.com/wiki-images/archive/1/1b/20200502113903!Punch-Mugshot.png");
 
-    public async Task SendWaitingAnimationAsync(EmbedBuilder embed, SocketInteraction interaction, string url, int delay)
+    public async Task SendWaitingAnimationAsync(EmbedBuilder embed, SocketInteraction interaction, string url, int delayInMs = 1500)
     {
         await interaction.ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = embed.WithAuthor(GetAuthor()).WithImageUrl(url).Build();
             msg.Components = new ComponentBuilder().Build();
         });
-        await Task.Delay(delay); // Give the gif time to play
+        await Task.Delay(delayInMs); // Give the gif time to play
     }
 
     public MessageComponent GetComponents(int uvCount, int lockCount = 0)
