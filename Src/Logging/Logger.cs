@@ -158,7 +158,7 @@ public partial class Logger(IBot bot,
         if (msg.Message != null && msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
     }
 
-    [GeneratedRegex(@"(pricecheck|stats|test|update)")]
+    [GeneratedRegex(@"(pricecheck|stats|test|update|shardsweeper)")] // TODO remove before merging!!
     private static partial Regex AdminCommandsRegex();
 
     [GeneratedRegex(@"(unbox|punch)")]

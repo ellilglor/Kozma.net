@@ -16,6 +16,11 @@ public static class Emotes
     public const string Book = "\U0001F4D8";
     public const string Money = "\U0001F4B0";
 
+    // Shard Sweeper
+    public const string Square = "\U0001F7E6";
+    public const string Shard = "<:kbpdarkshard:839985279061721098>";
+    public const string Four = "4️⃣";
+
     // Pagination
     public const string First = "◀◀";
     public const string Previous = "◀";
