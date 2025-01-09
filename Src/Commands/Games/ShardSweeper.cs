@@ -38,11 +38,17 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
             .WithButton(emote: new Emoji(Emotes.Repeat), customId: "shardsweeper-reload", style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji(Emotes.QMark), customId: "shardsweeper-info", style: ButtonStyle.Primary);
 
+        // Reset message
+        await ModifyOriginalResponseAsync(msg =>
+        {
+            msg.Content = Emotes.Empty;
+            msg.Embed = null;
+        });
+
         await ModifyOriginalResponseAsync(msg =>
         {
             msg.Content = finalField;
             msg.Components = components.Build();
-            msg.Embed = null;
         });
     }
 
