@@ -61,40 +61,48 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
         {
             var rowIndex = _random.Next(0, _size);
             var colIndex = _random.Next(0, _size);
-            if (field[rowIndex, colIndex] == _shard) continue;
 
-            // Check adjacent fields in row above
-            if (IsValidPos(rowIndex - 1, colIndex - 1, _size) && field[rowIndex - 1, colIndex - 1] == _shardLimit) continue;
-            if (IsValidPos(rowIndex - 1, colIndex, _size) && field[rowIndex - 1, colIndex] == _shardLimit) continue;
-            if (IsValidPos(rowIndex - 1, colIndex + 1, _size) && field[rowIndex - 1, colIndex + 1] == _shardLimit) continue;
+            if (!CanBePlaced(rowIndex, colIndex, field)) continue;
 
-            // Check adjacent fields in same row
-            if (IsValidPos(rowIndex, colIndex - 1, _size) && field[rowIndex, colIndex - 1] == _shardLimit) continue;
-            if (IsValidPos(rowIndex, colIndex + 1, _size) && field[rowIndex, colIndex + 1] == _shardLimit) continue;
-
-            // Check adjacent fields in row below
-            if (IsValidPos(rowIndex + 1, colIndex - 1, _size) && field[rowIndex + 1, colIndex - 1] == _shardLimit) continue;
-            if (IsValidPos(rowIndex + 1, colIndex, _size) && field[rowIndex + 1, colIndex] == _shardLimit) continue;
-            if (IsValidPos(rowIndex + 1, colIndex + 1, _size) && field[rowIndex + 1, colIndex + 1] == _shardLimit) continue;
-
-            // Shard can be placed
             field[rowIndex, colIndex] = _shard;
             shardCount++;
 
             // Increase indicators in adjacent fields
-            if (IsValidPos(rowIndex - 1, colIndex - 1, _size) && field[rowIndex - 1, colIndex - 1] != _shard) field[rowIndex - 1, colIndex - 1]++;
-            if (IsValidPos(rowIndex - 1, colIndex, _size) && field[rowIndex - 1, colIndex] != _shard) field[rowIndex - 1, colIndex]++;
-            if (IsValidPos(rowIndex - 1, colIndex + 1, _size) && field[rowIndex - 1, colIndex + 1] != _shard) field[rowIndex - 1, colIndex + 1]++;
-            if (IsValidPos(rowIndex, colIndex - 1, _size) && field[rowIndex, colIndex - 1] != _shard) field[rowIndex, colIndex - 1]++;
-            if (IsValidPos(rowIndex, colIndex + 1, _size) && field[rowIndex, colIndex + 1] != _shard) field[rowIndex, colIndex + 1]++;
-            if (IsValidPos(rowIndex + 1, colIndex - 1, _size) && field[rowIndex + 1, colIndex - 1] != _shard) field[rowIndex + 1, colIndex - 1]++;
-            if (IsValidPos(rowIndex + 1, colIndex, _size) && field[rowIndex + 1, colIndex] != _shard) field[rowIndex + 1, colIndex]++;
-            if (IsValidPos(rowIndex + 1, colIndex + 1, _size) && field[rowIndex + 1, colIndex + 1] != _shard) field[rowIndex + 1, colIndex + 1]++;
+            if (IsValidPos(rowIndex - 1, colIndex - 1) && field[rowIndex - 1, colIndex - 1] != _shard) field[rowIndex - 1, colIndex - 1]++;
+            if (IsValidPos(rowIndex - 1, colIndex) && field[rowIndex - 1, colIndex] != _shard) field[rowIndex - 1, colIndex]++;
+            if (IsValidPos(rowIndex - 1, colIndex + 1) && field[rowIndex - 1, colIndex + 1] != _shard) field[rowIndex - 1, colIndex + 1]++;
+            if (IsValidPos(rowIndex, colIndex - 1) && field[rowIndex, colIndex - 1] != _shard) field[rowIndex, colIndex - 1]++;
+            if (IsValidPos(rowIndex, colIndex + 1) && field[rowIndex, colIndex + 1] != _shard) field[rowIndex, colIndex + 1]++;
+            if (IsValidPos(rowIndex + 1, colIndex - 1) && field[rowIndex + 1, colIndex - 1] != _shard) field[rowIndex + 1, colIndex - 1]++;
+            if (IsValidPos(rowIndex + 1, colIndex) && field[rowIndex + 1, colIndex] != _shard) field[rowIndex + 1, colIndex]++;
+            if (IsValidPos(rowIndex + 1, colIndex + 1) && field[rowIndex + 1, colIndex + 1] != _shard) field[rowIndex + 1, colIndex + 1]++;
         }
     }
 
-    private static bool IsValidPos(int row, int col, int size) =>
-        row >= 0 && col >= 0 && row <= size - 1 && col <= size - 1;
+    private static bool CanBePlaced(int rowIndex, int colIndex, int[,] field)
+    {
+        // Shard is already present
+        if (field[rowIndex, colIndex] == _shard) return false;
+
+        // Check adjacent fields in row above
+        if (IsValidPos(rowIndex - 1, colIndex - 1) && field[rowIndex - 1, colIndex - 1] == _shardLimit) return false;
+        if (IsValidPos(rowIndex - 1, colIndex) && field[rowIndex - 1, colIndex] == _shardLimit) return false;
+        if (IsValidPos(rowIndex - 1, colIndex + 1) && field[rowIndex - 1, colIndex + 1] == _shardLimit) return false;
+
+        // Check adjacent fields in same row
+        if (IsValidPos(rowIndex, colIndex - 1) && field[rowIndex, colIndex - 1] == _shardLimit) return false;
+        if (IsValidPos(rowIndex, colIndex + 1) && field[rowIndex, colIndex + 1] == _shardLimit) return false;
+
+        // Check adjacent fields in row below
+        if (IsValidPos(rowIndex + 1, colIndex - 1) && field[rowIndex + 1, colIndex - 1] == _shardLimit) return false;
+        if (IsValidPos(rowIndex + 1, colIndex) && field[rowIndex + 1, colIndex] == _shardLimit) return false;
+        if (IsValidPos(rowIndex + 1, colIndex + 1) && field[rowIndex + 1, colIndex + 1] == _shardLimit) return false;
+
+        return true;
+    }
+
+    private static bool IsValidPos(int row, int col) =>
+        row >= 0 && col >= 0 && row <= _size - 1 && col <= _size - 1;
 
     private static (int row, int col) DetermineStartCoords(int[,] field)
     {
