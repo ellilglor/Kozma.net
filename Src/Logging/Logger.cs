@@ -58,7 +58,7 @@ public partial class Logger(IBot bot,
 
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
-        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command));
+        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, !GameRegex().IsMatch(command));
 
         var fields = new List<EmbedFieldBuilder>
         {
