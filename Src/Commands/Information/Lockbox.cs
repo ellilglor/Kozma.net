@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -12,7 +13,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
 {
     private readonly Dictionary<LockboxOption, string> _lockboxes = BuildLockboxes();
 
-    [SlashCommand("lockbox", "Get the drops from a (slime) lockbox or find what box drops your item.")]
+    [SlashCommand(CommandIds.LockBox, "Get the drops from a (slime) lockbox or find what box drops your item.")]
     public async Task ExecuteAsync(
         [Summary(name: "boxes", description: "Get the odds from a lockbox.")] LockboxOption? box = null,
         [Summary(name: "slime", description: "Find where you can find a special themed box."), MinLength(3), MaxLength(69)] string? slimeCode = null,

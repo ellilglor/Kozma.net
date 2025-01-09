@@ -15,8 +15,8 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
     private const int _size = 9;
     private const int _shardLimit = 4;
 
-    [SlashCommand("shardsweeper", "Kozma's Backpack staff only.")] // TODO write description
-    [ComponentInteraction("shardsweeper-reload")]
+    [SlashCommand(CommandIds.ShardSweeper, "Kozma's Backpack staff only.")] // TODO write description
+    [ComponentInteraction(ComponentIds.ShardSweepReload)]
     public async Task ExecuteAsync()
     {
         var field = new int[_size, _size];
@@ -35,8 +35,8 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
         }
 
         var components = new ComponentBuilder()
-            .WithButton(emote: new Emoji(Emotes.Repeat), customId: "shardsweeper-reload", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji(Emotes.QMark), customId: "shardsweeper-info", style: ButtonStyle.Primary);
+            .WithButton(emote: new Emoji(Emotes.Repeat), customId: ComponentIds.ShardSweepReload, style: ButtonStyle.Secondary)
+            .WithButton(emote: new Emoji(Emotes.QMark), customId: ComponentIds.ShardSweepInfo, style: ButtonStyle.Primary);
 
         // Reset message
         await ModifyOriginalResponseAsync(msg =>

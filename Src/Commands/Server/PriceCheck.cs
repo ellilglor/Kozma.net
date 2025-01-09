@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Server;
@@ -8,7 +9,7 @@ namespace Kozma.net.Src.Commands.Server;
 [DefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers)]
 public class PriceCheck(IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("pricecheck", "Kozma's Backpack staff only.")]
+    [SlashCommand(CommandIds.PriceCheck, "Kozma's Backpack staff only.")]
     public async Task ExecuteAsync()
     {
         await Context.Channel.SendFileAsync(

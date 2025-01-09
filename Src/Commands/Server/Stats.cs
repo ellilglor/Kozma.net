@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Trackers;
 
 namespace Kozma.net.Src.Commands.Server;
@@ -8,7 +9,7 @@ namespace Kozma.net.Src.Commands.Server;
 [DefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers)]
 public class Stats(IStatPageTracker pageTracker) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("stats", "Kozma's Backpack staff only.")]
+    [SlashCommand(CommandIds.Stats, "Kozma's Backpack staff only.")]
     public async Task ExecuteAsync()
     {
         await pageTracker.BuildPagesAsync();

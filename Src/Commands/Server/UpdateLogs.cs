@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models.Entities;
@@ -12,7 +13,7 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) 
 {
     private sealed record Channel(string Name, IReadOnlyCollection<TradeLog> Logs, string Time);
 
-    [SlashCommand("update", "Kozma's Backpack staff only.")]
+    [SlashCommand(CommandIds.UpdateLogs, "Kozma's Backpack staff only.")]
     public async Task ExecuteAsync()
     {
         var totalTime = System.Diagnostics.Stopwatch.StartNew();

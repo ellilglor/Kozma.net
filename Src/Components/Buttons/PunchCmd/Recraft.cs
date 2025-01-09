@@ -1,6 +1,7 @@
 ﻿using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Commands.Games;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
@@ -10,7 +11,7 @@ namespace Kozma.net.Src.Components.Buttons.PunchCmd;
 
 public class Recraft(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchTracker punchTracker) : InteractionModuleBase<SocketInteractionContext>
 {
-    [ComponentInteraction("recraft")]
+    [ComponentInteraction(ComponentIds.PunchRecraft)]
     public async Task ExecuteAsync()
     {
         var command = new Punch(embedHandler, punchHelper, punchTracker);

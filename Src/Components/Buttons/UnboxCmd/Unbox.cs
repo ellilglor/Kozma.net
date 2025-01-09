@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -22,7 +23,7 @@ public class Unbox(IConfiguration config,
     IFileReader jsonFileReader,
     IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
 {
-    [ComponentInteraction("unbox-*")]
+    [ComponentInteraction($"{ComponentIds.UnboxBase}*")]
     public async Task ExecuteAsync(string action)
     {
         var context = (SocketMessageComponent)Context.Interaction;
@@ -30,7 +31,7 @@ public class Unbox(IConfiguration config,
 
         if (Enum.TryParse(embed.Author!.Value.Name, out Box box))
         {
-            if (action == "again")
+            if (action == ComponentIds.UnboxAgain)
             {
                 var command = new Commands.Games.Unbox(config, cache, embedHandler, costCalculator, unboxTracker, unboxService, jsonFileReader, logger);
                 await command.UnboxAsync(Context.Interaction, Context.User.Id, box, int.Parse(embed.Fields[0].Value) + 1);

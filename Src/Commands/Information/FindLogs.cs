@@ -20,7 +20,7 @@ public partial class FindLogs(IMemoryCache cache,
     IFileReader jsonFileReader,
     IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("findlogs", "Search the tradelog database for any item.")]
+    [SlashCommand(CommandIds.FindLogs, "Search the tradelog database for any item.")]
     public async Task ExecuteAsync(
         [Summary(description: "Item the bot should look for."), MinLength(3), MaxLength(69)] string item,
         [Summary(description: "How far back the bot should search. Default: 6 months."), MinValue(1), MaxValue(120)] int months = 6,
@@ -138,8 +138,8 @@ public partial class FindLogs(IMemoryCache cache,
             embed.AddField("** **", $"__{copy}__ can be found on the [**merchant sheet**](https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#).");
         }
 
-        var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: "clear-messages", style: ButtonStyle.Primary);
-        if (months < 24) components.WithButton(label: "Search all tradelogs", customId: $"research-{(checkVariants ? "var" : "single")}", style: ButtonStyle.Primary);
+        var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: ComponentIds.ClearMessages, style: ButtonStyle.Primary);
+        if (months < 24) components.WithButton(label: "Search all tradelogs", customId: $"{ComponentIds.FindLogsBase}{(checkVariants ? ComponentIds.FindLogsVar : ComponentIds.FindLogsSingle)}", style: ButtonStyle.Primary);
 
         try
         {

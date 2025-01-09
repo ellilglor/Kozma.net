@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -14,7 +15,7 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
 {
     private static readonly Random _random = new();
 
-    [SlashCommand("punch", "Craft and roll on an item for Unique Variants.")]
+    [SlashCommand(CommandIds.Punch, "Craft and roll on an item for Unique Variants.")]
     public async Task ExecuteAsync(
         [Summary(name: "item", description: "Select the item you want to craft.")] PunchOption choice)
     {
@@ -37,8 +38,8 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
             .WithImageUrl(image)
             .WithFields(fields);
         var components = new ComponentBuilder()
-            .WithButton(label: "Recraft", customId: "recraft", style: ButtonStyle.Primary)
-            .WithButton(label: "Start Rolling Uvs", customId: "start-punching", style: ButtonStyle.Primary);
+            .WithButton(label: "Recraft", customId: ComponentIds.PunchRecraft, style: ButtonStyle.Primary)
+            .WithButton(label: "Start Rolling Uvs", customId: ComponentIds.PunchStart, style: ButtonStyle.Primary);
 
         await punchHelper.SendWaitingAnimationAsync(embedHandler.GetEmbed(string.Empty), interaction, "https://cdn.discordapp.com/attachments/1069643121622777876/1069643186978430996/crafting.gif", delayInMs: 2500);
 

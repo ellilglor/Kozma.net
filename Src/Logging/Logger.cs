@@ -80,8 +80,9 @@ public partial class Logger(IBot bot,
     {
         switch (interaction.Data.CustomId)
         {
-            case "unbox-again": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "unbox", isCommand: false); break;
-            case "clear-messages": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "clear", isCommand: true); break;
+            case ComponentIds.UnboxBase + ComponentIds.UnboxAgain: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.Unbox, isCommand: false); break;
+            case ComponentIds.ClearMessages: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.Clear, isCommand: true); break;
+            case ComponentIds.ShardSweepReload: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.ShardSweeper, isCommand: false); break;
         }
 
         Log(LogLevel.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
@@ -161,6 +162,6 @@ public partial class Logger(IBot bot,
     [GeneratedRegex(@"(pricecheck|stats|test|update|shardsweeper)")] // TODO remove before merging!!
     private static partial Regex AdminCommandsRegex();
 
-    [GeneratedRegex(@"(unbox|punch)")]
+    [GeneratedRegex(@"(unbox|punch|shardsweeper)")]
     private static partial Regex GameRegex();
 }
