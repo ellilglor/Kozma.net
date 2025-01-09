@@ -1,5 +1,5 @@
-﻿using Discord.Interactions;
-using Discord;
+﻿using Discord;
+using Discord.Interactions;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Extensions;
 
@@ -19,16 +19,25 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
     [ComponentInteraction(ComponentIds.ShardSweepReload)]
     public async Task ExecuteAsync()
     {
+        // Reset message
+        await ModifyOriginalResponseAsync(msg =>
+        {
+            msg.Content = "*Setting up field...*";
+            msg.Embed = null;
+        });
+
         var field = new int[_size, _size];
         var finalField = "";
 
         SetShards(field);
+        var (startRow, startCol) = DetermineStartCoords(field);
 
         for (int row = 0; row < _size; row++)
         {
             for (int col = 0; col < _size; col++)
             {
-                finalField += TranslateToEmote(field[row, col]).PutSpoiler();
+                var emote = TranslateToEmote(field[row, col]);
+                finalField += row == startRow && col == startCol ? emote : emote.PutSpoiler();
             }
 
             finalField += "\n";
@@ -38,12 +47,7 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
             .WithButton(emote: new Emoji(Emotes.Repeat), customId: ComponentIds.ShardSweepReload, style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji(Emotes.QMark), customId: ComponentIds.ShardSweepInfo, style: ButtonStyle.Primary);
 
-        // Reset message
-        await ModifyOriginalResponseAsync(msg =>
-        {
-            msg.Content = Emotes.Empty;
-            msg.Embed = null;
-        });
+        
 
         await ModifyOriginalResponseAsync(msg =>
         {
@@ -57,7 +61,7 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
         var maxShards = 10;
         var shardCount = 0;
 
-        while (shardCount <= maxShards)
+        while (shardCount < maxShards)
         {
             var rowIndex = _random.Next(0, _size);
             var colIndex = _random.Next(0, _size);
@@ -95,6 +99,18 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
 
     private static bool IsValidPos(int row, int col, int size) =>
         row >= 0 && col >= 0 && row <= size - 1 && col <= size - 1;
+
+    private static (int row, int col) DetermineStartCoords(int[,] field)
+    {
+        while (true)
+        {
+            var rowIndex = _random.Next(0, _size);
+            var colIndex = _random.Next(0, _size);
+
+            if (field[rowIndex, colIndex] != 0) continue;
+            return (rowIndex, colIndex);
+        }
+    }
 
     private static string TranslateToEmote(int num)
     {
