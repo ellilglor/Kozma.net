@@ -5,8 +5,6 @@ using Kozma.net.Src.Extensions;
 
 namespace Kozma.net.Src.Commands.Games;
 
-[DontAutoRegister]
-[DefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers)]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional", Justification = "Array will be completely filled")]
 public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
 {
@@ -15,7 +13,7 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
     private const int _size = 9;
     private const int _shardLimit = 4;
 
-    [SlashCommand(CommandIds.ShardSweeper, "Kozma's Backpack staff only.")] // TODO write description
+    [SlashCommand(CommandIds.ShardSweeper, "Clear the field without exposing a Dark Shard.")] // TODO write description
     [ComponentInteraction(ComponentIds.ShardSweepReload)]
     public async Task ExecuteAsync()
     {
@@ -46,8 +44,6 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji(Emotes.Repeat), customId: ComponentIds.ShardSweepReload, style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji(Emotes.QMark), customId: ComponentIds.ShardSweepInfo, style: ButtonStyle.Primary);
-
-        
 
         await ModifyOriginalResponseAsync(msg =>
         {
