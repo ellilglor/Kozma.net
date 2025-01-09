@@ -5,7 +5,7 @@ namespace Kozma.net.Src.Services;
 
 public interface IUserService
 {
-    Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, bool isUnbox);
+    Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, string command);
     Task<bool> SaveMuteAsync<T>(ulong id, DateTime createdAt, Func<T> factory) where T : Mute;
     Task<IEnumerable<T>> GetAndDeleteExpiredMutesAsync<T>() where T : Mute;
     Task<int> GetTotalUsersCountAsync();

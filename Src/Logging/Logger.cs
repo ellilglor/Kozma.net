@@ -58,7 +58,7 @@ public partial class Logger(IBot bot,
 
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
-        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), isUnbox: command == "unbox");
+        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command));
 
         var fields = new List<EmbedFieldBuilder>
         {
@@ -88,9 +88,9 @@ public partial class Logger(IBot bot,
         Log(LogLevel.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
     }
 
-    private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand, bool isUnbox = true)
+    private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand)
     {
-        await userService.UpdateOrSaveUserAsync(id, user, isCommand, isUnbox);
+        await userService.UpdateOrSaveUserAsync(id, user, isCommand, command);
         await commandService.UpdateOrSaveCommandAsync(command, isCommand);
     }
 

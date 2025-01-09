@@ -1,4 +1,5 @@
-﻿using Kozma.net.Src.Models;
+﻿using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +8,7 @@ namespace Kozma.net.Src.Services;
 
 public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUserService
 {
-    public async Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, bool isUnbox)
+    public async Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, string command)
     {
         if (id == config.GetValue<ulong>("ids:owner")) return;
 
@@ -20,15 +21,20 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
                 Id = id.ToString(),
                 Name = name,
                 Count = isCommand ? 1 : 0,
-                Unboxed = isCommand ? 0 : isUnbox ? 1 : 0,
-                Punched = isCommand ? 0 : isUnbox ? 0 : 1,
+                Unboxed = isCommand ? 0 : command == CommandIds.Unbox ? 1 : 0,
+                Punched = isCommand ? 0 : command == CommandIds.Punch ? 1 : 0,
+                ShardSwept = isCommand ? 0 : command == CommandIds.ShardSweeper ? 1 : 0,
             });
         }
         else
         {
-            if (isCommand) user.Count++;
-            else if (isUnbox) user.Unboxed++;
-            else user.Punched++;
+            switch (command)
+            {
+                case CommandIds.Unbox: user.Unboxed++; break;
+                case CommandIds.Punch: user.Punched++; break;
+                case CommandIds.ShardSweeper: user.ShardSwept++; break;
+                default: user.Count++; break;
+            }
 
             if (user.Name != name) user.Name = name; // Get rid of legacy discord tag
 
