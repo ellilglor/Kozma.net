@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +11,7 @@ public class Help(IEmbedHandler embedHandler, IConfiguration config, IFileReader
 {
     private sealed record CommandInfo(string Command, string Description);
 
-    [SlashCommand("help", "Explains all commands.")]
+    [SlashCommand(CommandIds.Help, "Explains all commands.")]
     public async Task ExecuteAsync()
     {
         var info = await jsonFileReader.ReadAsync<IEnumerable<CommandInfo>>(Path.Combine("Data", "Help.json"));

@@ -9,7 +9,7 @@ namespace Kozma.net.Src.Components.Buttons.PunchCmd;
 
 public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
 {
-    [ComponentInteraction("punch-lock-*")]
+    [ComponentInteraction($"{ComponentIds.PunchLock}*")]
     public async Task ExecuteAsync(string number)
     {
         var context = (SocketMessageComponent)Context.Interaction;

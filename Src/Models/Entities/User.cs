@@ -21,4 +21,7 @@ public class User
 
     [BsonElement("punched")]
     public int Punched { get; set; }
+
+    [BsonElement("shardSwept")]
+    public int ShardSwept { get; set; }
 }

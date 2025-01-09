@@ -16,7 +16,7 @@ namespace Kozma.net.Components.Buttons.PunchCmd;
 
 public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchService punchService) : InteractionModuleBase<SocketInteractionContext>
 {
-    [ComponentInteraction("punch-gamble-*")]
+    [ComponentInteraction($"{ComponentIds.PunchGamble}*")]
     public async Task ExecuteAsync(string number)
     {
         var count = int.Parse(number);

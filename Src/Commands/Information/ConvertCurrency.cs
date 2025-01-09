@@ -8,7 +8,7 @@ namespace Kozma.net.Src.Commands.Information;
 
 public class ConvertCurrency(IEmbedHandler embedHandler, IExchangeService exchangeService) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("convert", "Convert crowns or energy into the other currency.")]
+    [SlashCommand(CommandIds.Convert, "Convert crowns or energy into the other currency.")]
     public async Task ExecuteAsync(
         [Summary(description: "Currency you want to convert.")] Currency currency,
         [Summary(description: "Amount you want to convert."), MinValue(1000)] int amount,

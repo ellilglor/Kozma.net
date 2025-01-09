@@ -58,7 +58,7 @@ public partial class Logger(IBot bot,
 
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
-        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, GameRegex().IsMatch(command), isUnbox: command == "unbox");
+        await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, !GameRegex().IsMatch(command));
 
         var fields = new List<EmbedFieldBuilder>
         {
@@ -80,16 +80,17 @@ public partial class Logger(IBot bot,
     {
         switch (interaction.Data.CustomId)
         {
-            case "unbox-again": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "unbox", isCommand: false); break;
-            case "clear-messages": await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, "clear", isCommand: true); break;
+            case ComponentIds.UnboxBase + ComponentIds.UnboxAgain: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.Unbox, isCommand: false); break;
+            case ComponentIds.ClearMessages: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.Clear, isCommand: true); break;
+            case ComponentIds.ShardSweepReload: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.ShardSweeper, isCommand: false); break;
         }
 
         Log(LogLevel.Button, $"{interaction.User.Username} used {interaction.Data.CustomId} in {location}");
     }
 
-    private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand, bool isUnbox = true)
+    private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand)
     {
-        await userService.UpdateOrSaveUserAsync(id, user, isCommand, isUnbox);
+        await userService.UpdateOrSaveUserAsync(id, user, isCommand, command);
         await commandService.UpdateOrSaveCommandAsync(command, isCommand);
     }
 
@@ -161,6 +162,6 @@ public partial class Logger(IBot bot,
     [GeneratedRegex(@"(pricecheck|stats|test|update)")]
     private static partial Regex AdminCommandsRegex();
 
-    [GeneratedRegex(@"(unbox|punch)")]
+    [GeneratedRegex(@"(unbox|punch|shardsweeper)")]
     private static partial Regex GameRegex();
 }

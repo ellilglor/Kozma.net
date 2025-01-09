@@ -1,14 +1,15 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 
 namespace Kozma.net.Src.Commands.Other;
 
 public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandler) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("clear", "Removes all bot messages in your dms.")]
-    [ComponentInteraction("clear-messages")]
+    [SlashCommand(CommandIds.Clear, "Removes all bot messages in your dms.")]
+    [ComponentInteraction(ComponentIds.ClearMessages)]
     public async Task ExecuteAsync()
     {
         await RespondAsync(Context.Interaction);

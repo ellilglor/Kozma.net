@@ -1,12 +1,13 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 
 namespace Kozma.net.Src.Commands.Information;
 
 public class Bookchance(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("bookchance", "Odds of getting at least 1 Book of Dark Rituals in x kills.")]
+    [SlashCommand(CommandIds.BookChance, "Odds of getting at least 1 Book of Dark Rituals in x kills.")]
     public async Task ExecuteAsync(
         [Summary(description: "Amount of Black Kats you encountered"), MinValue(1)] int kats)
     {

@@ -10,7 +10,7 @@ namespace Kozma.net.Src.Components.Buttons.PunchCmd;
 
 public class Start(IEmbedHandler embedHandler, IPunchHelper punchHelper) : InteractionModuleBase<SocketInteractionContext>
 {
-    [ComponentInteraction("start-punching")]
+    [ComponentInteraction(ComponentIds.PunchStart)]
     public async Task ExecuteAsync()
     {
         var context = (SocketMessageComponent)Context.Interaction;

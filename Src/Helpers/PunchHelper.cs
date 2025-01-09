@@ -28,16 +28,16 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
     public MessageComponent GetComponents(int uvCount, int lockCount = 0)
     {
         return new ComponentBuilder()
-            .WithButton(emote: new Emoji(Emotes.Locked), customId: "punch-info-lock", style: ButtonStyle.Primary)
-            .WithButton(emote: new Emoji(Emotes.One), customId: "punch-lock-1", style: ButtonStyle.Secondary, disabled: uvCount < 1)
-            .WithButton(emote: new Emoji(Emotes.Two), customId: "punch-lock-2", style: ButtonStyle.Secondary, disabled: uvCount < 2)
-            .WithButton(emote: new Emoji(Emotes.Three), customId: "punch-lock-3", style: ButtonStyle.Secondary, disabled: uvCount < 3)
-            .WithButton(emote: new Emoji(Emotes.Book), customId: "punch-info-stats", style: ButtonStyle.Primary)
-            .WithButton(emote: new Emoji(Emotes.Dice), customId: "punch-info-gamble", style: ButtonStyle.Primary, row: 2)
-            .WithButton(emote: new Emoji(Emotes.One), customId: "punch-gamble-1", style: ButtonStyle.Secondary, disabled: lockCount > 0)
-            .WithButton(emote: new Emoji(Emotes.Two), customId: "punch-gamble-2", style: ButtonStyle.Secondary, disabled: lockCount > 1)
-            .WithButton(emote: new Emoji(Emotes.Three), customId: "punch-gamble-3", style: ButtonStyle.Secondary, disabled: lockCount > 2)
-            .WithButton(emote: new Emoji(Emotes.QMark), customId: "punch-info-odds", style: ButtonStyle.Primary)
+            .WithButton(emote: new Emoji(Emotes.Locked), customId: ComponentIds.PunchInfoBase + ComponentIds.PunchInfoLock, style: ButtonStyle.Primary)
+            .WithButton(emote: new Emoji(Emotes.One), customId: $"{ComponentIds.PunchLock}1", style: ButtonStyle.Secondary, disabled: uvCount < 1)
+            .WithButton(emote: new Emoji(Emotes.Two), customId: $"{ComponentIds.PunchLock}2", style: ButtonStyle.Secondary, disabled: uvCount < 2)
+            .WithButton(emote: new Emoji(Emotes.Three), customId: $"{ComponentIds.PunchLock}3", style: ButtonStyle.Secondary, disabled: uvCount < 3)
+            .WithButton(emote: new Emoji(Emotes.Book), customId: ComponentIds.PunchInfoBase + ComponentIds.PunchInfoStats, style: ButtonStyle.Primary)
+            .WithButton(emote: new Emoji(Emotes.Dice), customId: ComponentIds.PunchInfoBase + ComponentIds.PunchInfoGamble, style: ButtonStyle.Primary, row: 2)
+            .WithButton(emote: new Emoji(Emotes.One), customId: $"{ComponentIds.PunchGamble}1", style: ButtonStyle.Secondary, disabled: lockCount > 0)
+            .WithButton(emote: new Emoji(Emotes.Two), customId: $"{ComponentIds.PunchGamble}2", style: ButtonStyle.Secondary, disabled: lockCount > 1)
+            .WithButton(emote: new Emoji(Emotes.Three), customId: $"{ComponentIds.PunchGamble}3", style: ButtonStyle.Secondary, disabled: lockCount > 2)
+            .WithButton(emote: new Emoji(Emotes.QMark), customId: ComponentIds.PunchInfoBase + ComponentIds.PunchInfoOdds, style: ButtonStyle.Primary)
             .Build();
     }
 

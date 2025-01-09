@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Microsoft.Extensions.Configuration;
 
@@ -7,7 +8,7 @@ namespace Kozma.net.Src.Commands.Server;
 [DontAutoRegister]
 public class TradeEdit(IConfiguration config, IEmbedHandler embedHandler, IRoleHandler roleHandler) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("tradepostedit", "Gives you 2 minutes to edit your tradeposts.")]
+    [SlashCommand(CommandIds.TradeEdit, "Gives you 2 minutes to edit your tradeposts.")]
     public async Task ExecuteAsync()
     {
         var user = Context.Guild.GetUser(Context.User.Id);

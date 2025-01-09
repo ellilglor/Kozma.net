@@ -8,7 +8,7 @@ namespace Kozma.net.Src.Commands.Information;
 
 public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("rate", "View the current crowns per energy rate used for /convert.")]
+    [SlashCommand(CommandIds.Rate, "View the current crowns per energy rate used for /convert.")]
     public async Task ExecuteAsync(
         [Summary(name: "value", description: "Update the used exchange rate.")] int? newRate = null)
     {

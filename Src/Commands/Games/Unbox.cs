@@ -26,7 +26,7 @@ public class Unbox(IConfiguration config,
 {
     private static readonly Random _random = new();
 
-    [SlashCommand("unbox", "Simulate opening a Prize Box or Lockbox.")]
+    [SlashCommand(CommandIds.Unbox, "Simulate opening a Prize Box or Lockbox.")]
     public async Task ExecuteAsync(
         [Summary(name: "box", description: "Select the box you want to open.")] Box box)
     {
@@ -60,8 +60,8 @@ public class Unbox(IConfiguration config,
 
         embed.WithDescription($"*{items}*").WithImageUrl(unboxed[0].Url);
         var components = new ComponentBuilder()
-            .WithButton(emote: new Emoji(Emotes.Repeat), customId: "unbox-again", style: ButtonStyle.Secondary)
-            .WithButton(emote: new Emoji(Emotes.Book), customId: "unbox-stats", style: ButtonStyle.Primary, disabled: opened == 1);
+            .WithButton(emote: new Emoji(Emotes.Repeat), customId: ComponentIds.UnboxBase + ComponentIds.UnboxAgain, style: ButtonStyle.Secondary)
+            .WithButton(emote: new Emoji(Emotes.Book), customId: ComponentIds.UnboxBase + ComponentIds.UnboxStats, style: ButtonStyle.Primary, disabled: opened == 1);
         if (opened == 69) components.WithButton(emote: new Emoji(Emotes.Money), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
 
         await SendOpeningAnimationAsync(interaction, author, boxData.Gif);

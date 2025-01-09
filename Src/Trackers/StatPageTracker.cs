@@ -116,10 +116,10 @@ public class StatPageTracker(IBot bot,
 
         switch (action)
         {
-            case "first": currentPage = 0; break;
-            case "prev" when currentPage > 0: currentPage--; break;
-            case "next" when currentPage < pages.Count - 1: currentPage++; break;
-            case "last": currentPage = pages.Count - 1; break;
+            case ComponentIds.StatsFirst: currentPage = 0; break;
+            case ComponentIds.StatsPrev when currentPage > 0: currentPage--; break;
+            case ComponentIds.StatsNext when currentPage < pages.Count - 1: currentPage++; break;
+            case ComponentIds.StatsLast: currentPage = pages.Count - 1; break;
             default: currentPage = 0; break;
         }
 
@@ -133,10 +133,10 @@ public class StatPageTracker(IBot bot,
         if (!cache.TryGetValue(_cacheKey, out List<Embed>? pages) || pages is null) pages = [];
 
         return new ComponentBuilder()
-            .WithButton(label: Emotes.First, customId: "stats-first", style: ButtonStyle.Primary, disabled: page == 0)
-            .WithButton(label: Emotes.Previous, customId: "stats-prev", style: ButtonStyle.Primary, disabled: page == 0)
-            .WithButton(label: Emotes.Next, customId: "stats-next", style: ButtonStyle.Primary, disabled: page >= pages.Count - 1)
-            .WithButton(label: Emotes.Last, customId: "stats-last", style: ButtonStyle.Primary, disabled: page >= pages.Count - 1)
+            .WithButton(label: Emotes.First, customId: ComponentIds.StatsBase + ComponentIds.StatsFirst, style: ButtonStyle.Primary, disabled: page == 0)
+            .WithButton(label: Emotes.Previous, customId: ComponentIds.StatsBase + ComponentIds.StatsPrev, style: ButtonStyle.Primary, disabled: page == 0)
+            .WithButton(label: Emotes.Next, customId: ComponentIds.StatsBase + ComponentIds.StatsNext, style: ButtonStyle.Primary, disabled: page >= pages.Count - 1)
+            .WithButton(label: Emotes.Last, customId: ComponentIds.StatsBase + ComponentIds.StatsLast, style: ButtonStyle.Primary, disabled: page >= pages.Count - 1)
             .Build();
     }
 
