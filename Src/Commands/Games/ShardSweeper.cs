@@ -13,16 +13,20 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
     private const int _size = 9;
     private const int _shardLimit = 4;
 
-    [SlashCommand(CommandIds.ShardSweeper, "Clear the field without exposing a Dark Shard.")] // TODO write description
+    private static readonly List<string> _templateFields =
+    [
+        "\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>2️⃣<:kbpdarkshard:839985279061721098><:kbpdarkshard:839985279061721098><:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\n\U0001f7e61️⃣2️⃣4️⃣4️⃣4️⃣2️⃣2️⃣1️⃣\n\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098><:kbpdarkshard:839985279061721098>2️⃣\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>\n\U0001f7e6\U0001f7e61️⃣3️⃣<:kbpdarkshard:839985279061721098>2️⃣\U0001f7e61️⃣1️⃣\n\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\n\U0001f7e61️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\n\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\n\U0001f7e61️⃣1️⃣2️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\n\U0001f7e6\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\n",
+        "\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>\n\U0001f7e61️⃣1️⃣2️⃣2️⃣2️⃣2️⃣2️⃣2️⃣\n\U0001f7e61️⃣1️⃣2️⃣<:kbpdarkshard:839985279061721098><:kbpdarkshard:839985279061721098>2️⃣<:kbpdarkshard:839985279061721098>1️⃣\n\U0001f7e62️⃣<:kbpdarkshard:839985279061721098>3️⃣2️⃣2️⃣2️⃣1️⃣1️⃣\n\U0001f7e62️⃣<:kbpdarkshard:839985279061721098>2️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\n1️⃣2️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣\n<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>\n1️⃣2️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣\n\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\n",
+        "2️⃣<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>\n<:kbpdarkshard:839985279061721098>2️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣\n1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\n\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣1️⃣\U0001f7e6\n\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣\n\U0001f7e6\U0001f7e61️⃣1️⃣2️⃣2️⃣2️⃣2️⃣<:kbpdarkshard:839985279061721098>\n\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>3️⃣<:kbpdarkshard:839985279061721098>1️⃣1️⃣1️⃣\n1️⃣1️⃣3️⃣3️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣\U0001f7e6\U0001f7e6\n1️⃣<:kbpdarkshard:839985279061721098>2️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\n",
+        "\U0001f7e61️⃣1️⃣2️⃣1️⃣2️⃣<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\n\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>3️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣1️⃣\U0001f7e6\n1️⃣2️⃣3️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\n1️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣1️⃣\U0001f7e6\U0001f7e61️⃣1️⃣\n1️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e62️⃣<:kbpdarkshard:839985279061721098>\n\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e62️⃣<:kbpdarkshard:839985279061721098>\n1️⃣2️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e62️⃣2️⃣\n<:kbpdarkshard:839985279061721098>2️⃣<:kbpdarkshard:839985279061721098>1️⃣\U0001f7e6\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>\n1️⃣2️⃣1️⃣1️⃣\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣\n",
+        "\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\n\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣1️⃣\n\U0001f7e6\U0001f7e6\U0001f7e61️⃣1️⃣1️⃣1️⃣<:kbpdarkshard:839985279061721098>1️⃣\n\U0001f7e6\U0001f7e6\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>1️⃣1️⃣1️⃣1️⃣\n1️⃣1️⃣1️⃣2️⃣3️⃣3️⃣1️⃣\U0001f7e6\U0001f7e6\n2️⃣<:kbpdarkshard:839985279061721098>1️⃣1️⃣<:kbpdarkshard:839985279061721098><:kbpdarkshard:839985279061721098>2️⃣1️⃣1️⃣\n<:kbpdarkshard:839985279061721098>3️⃣1️⃣1️⃣2️⃣3️⃣3️⃣<:kbpdarkshard:839985279061721098>1️⃣\n<:kbpdarkshard:839985279061721098>2️⃣\U0001f7e61️⃣1️⃣2️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣\n1️⃣1️⃣\U0001f7e61️⃣<:kbpdarkshard:839985279061721098>2️⃣1️⃣1️⃣\U0001f7e6\n"
+    ];
+
+    [SlashCommand(CommandIds.ShardSweeper, "Clear the field without exposing a Dark Shard.")]
     [ComponentInteraction(ComponentIds.ShardSweepReload)]
     public async Task ExecuteAsync()
     {
-        // Reset message
-        await ModifyOriginalResponseAsync(msg =>
-        {
-            msg.Content = "*Setting up field...*";
-            msg.Embed = null;
-        });
+        await SendAnimationAsync();
 
         var field = new int[_size, _size];
         var finalField = "";
@@ -50,6 +54,23 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
             msg.Content = finalField;
             msg.Components = components.Build();
         });
+    }
+
+    private async Task SendAnimationAsync()
+    {
+        var fields = _templateFields.OrderBy(f => _random.Next()).Take(3);
+
+        foreach (var field in fields)
+        {
+            await ModifyOriginalResponseAsync(msg =>
+            {
+                msg.Content = field;
+                msg.Embed = null;
+                msg.Components = null;
+            });
+
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+        }
     }
 
     private static void SetShards(int[,] field)
