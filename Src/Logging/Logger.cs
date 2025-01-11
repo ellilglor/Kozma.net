@@ -80,7 +80,7 @@ public partial class Logger(IBot bot,
     {
         switch (interaction.Data.CustomId)
         {
-            case ComponentIds.UnboxBase + ComponentIds.UnboxAgain: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.Unbox, isCommand: false); break;
+            case ComponentIds.UnboxBase + ComponentIds.UnboxAgain: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.Unbox, isCommand: false); return;
             case ComponentIds.ClearMessages: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.Clear, isCommand: true); break;
             case ComponentIds.ShardSweepReload: await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, CommandIds.ShardSweeper, isCommand: false); break;
         }
