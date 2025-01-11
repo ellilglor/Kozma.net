@@ -2,12 +2,14 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Handlers;
 
-public class MessageHandler(IConfiguration config, IMemoryCache cache, IRoleHandler roleHandler) : IMessageHandler
+public partial class MessageHandler(IConfiguration config, IMemoryCache cache, IRoleHandler roleHandler) : IMessageHandler
 {
     private const string _cachekey = "Kozma_Mentioned";
+    private static readonly Random _random = new();
 
     public async Task HandleMessageAsync(SocketMessage rawMessage)
     {
@@ -19,7 +21,7 @@ public class MessageHandler(IConfiguration config, IMemoryCache cache, IRoleHand
         if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message, message.Channel.Id);
         else if (channel.GuildId.Equals(653349356459786240)) await HandleHavenMessageAsync(message);
 
-        if (message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:bot")))
+        if (KozmaRegex().IsMatch(message.Content) && _random.Next(2) == 0)
         {
             try
             {
@@ -42,7 +44,7 @@ public class MessageHandler(IConfiguration config, IMemoryCache cache, IRoleHand
 
             if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel")) || channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:wtsChannel"));
 
-            if (channelId.Equals(796403286147203092) && !cache.TryGetValue(_cachekey, out int _) && message.Content.Contains("kozma", StringComparison.OrdinalIgnoreCase))
+            if (channelId.Equals(796403286147203092) && message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:bot")) && !cache.TryGetValue(_cachekey, out int _))
             {
                 await message.Channel.SendFileAsync(filePath: Path.Combine("Src", "Assets", "hello-there.gif"));
                 cache.Set(_cachekey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });
@@ -76,4 +78,7 @@ public class MessageHandler(IConfiguration config, IMemoryCache cache, IRoleHand
         });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     }
+
+    [GeneratedRegex(@"\bkozma\b", RegexOptions.IgnoreCase)]
+    private static partial Regex KozmaRegex();
 }
