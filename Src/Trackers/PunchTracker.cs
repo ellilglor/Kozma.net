@@ -62,10 +62,8 @@ public class PunchTracker(IMemoryCache cache) : IPunchTracker
 
     public string GetData(ulong id, string key)
     {
-        if (!cache.TryGetValue(CreateCacheKey(id, key), out Dictionary<string, List<TrackerItem>>? uvs) || uvs is null)
-        {
-            return "This data no longer exists";
-        }
+        if (!cache.TryGetValue(CreateCacheKey(id, key), out Dictionary<string, List<TrackerItem>>? uvs) || uvs is null) return "*This data no longer exists.*";
+        if (uvs[_types].Count == 0) return "*You have not rolled anything this session.*";
 
         var data = new StringBuilder("**In this session you rolled:**\n");
         var types = uvs[_types].OrderByDescending(i => i.Count);
