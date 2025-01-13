@@ -1,4 +1,5 @@
-﻿using Kozma.net.Src.Models;
+﻿using Discord;
+using Kozma.net.Src.Models;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 
@@ -62,15 +63,15 @@ public class PunchTracker(IMemoryCache cache) : IPunchTracker
 
     public string GetData(ulong id, string key)
     {
-        if (!cache.TryGetValue(CreateCacheKey(id, key), out Dictionary<string, List<TrackerItem>>? uvs) || uvs is null) return "*This data no longer exists.*";
-        if (uvs[_types].Count == 0) return "*You have not rolled anything this session.*";
+        if (!cache.TryGetValue(CreateCacheKey(id, key), out Dictionary<string, List<TrackerItem>>? uvs) || uvs is null) return Format.Italics("This data no longer exists.");
+        if (uvs[_types].Count == 0) return Format.Italics("You have not rolled anything this session.");
 
-        var data = new StringBuilder("**In this session you rolled:**\n");
+        var data = new StringBuilder(Format.Bold("In this session you rolled:") + "\n");
         var types = uvs[_types].OrderByDescending(i => i.Count);
         var grades = uvs[_grades].OrderByDescending(i => i.Count);
 
         data.AppendJoin("\n", types.Select(t => $"{t.Name}: {t.Count}"));
-        data.AppendLine("\n\n**And got these grades:**");
+        data.AppendLine("\n\n" + Format.Bold("And got these grades:"));
         data.AppendJoin("\n", grades.Select(g => $"{g.Name}: {g.Count}"));
 
         return data.ToString();

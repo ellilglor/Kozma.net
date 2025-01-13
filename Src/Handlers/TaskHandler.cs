@@ -117,7 +117,7 @@ public class TaskHandler(IBot bot,
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
                 if (await _client.GetChannelAsync(879297439054581770) is not IMessageChannel testChannel) return false;
-                await testChannel.SendMessageAsync($"<@698839171912958022>\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
+                await testChannel.SendMessageAsync($"{MentionUtils.MentionUser(698839171912958022)}\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
                 return false;
             }
 
@@ -131,7 +131,7 @@ public class TaskHandler(IBot bot,
             };
 
             var embed = embedHandler.GetBasicEmbed(data.Datetime.ToString("ddd, dd MMM yyyy"))
-                .WithDescription($"**Last trade price: {Emotes.Crown} {data.LastPrice:N0}**\n**Recommended conversion rate: {Emotes.Crown} {rate} per {Emotes.Energy} 1**")
+                .WithDescription($"{Format.Bold($"Last trade price: {Emotes.Crown} {data.LastPrice:N0}")}\n{Format.Bold($"Recommended conversion rate: {Emotes.Crown} {rate} per {Emotes.Energy} 1")}")
                 .WithFields(fields);
 
             await exchangeService.UpdateExchangeAsync(rate);
@@ -162,9 +162,9 @@ public class TaskHandler(IBot bot,
         if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel wtsChannel) return false;
         if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtbChannel")) is not IMessageChannel wtbChannel) return false;
 
-        var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the __{config.GetValue<int>("timers:slowmodeHours")} hour slowmode__ in this channel.")
-            .WithDescription("You can edit your posts through the **/tradepostedit** command.\nWe apologize for any inconvenience this may cause.")
-            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(Emotes.Empty, "Interested in what an item has sold for in the past?\nUse the **/findlogs** command.") })
+        var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the {Format.Underline($"{config.GetValue<int>("timers:slowmodeHours")} hour slowmode")} in this channel.")
+            .WithDescription($"You can edit your posts through the {Format.Code("/tradepostedit")} command.\nWe apologize for any inconvenience this may cause.")
+            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(Emotes.Empty, $"Interested in what an item has sold for in the past?\nUse the {Format.Code("/findlogs")} command.") })
             .Build();
 
         await wtsChannel.SendMessageAsync(embed: embed);

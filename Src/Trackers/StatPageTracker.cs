@@ -160,7 +160,7 @@ public class StatPageTracker(IBot bot,
         var pages = new List<EmbedBuilder>();
         var serverPages = _client.Guilds
             .OrderByDescending(g => g.MemberCount)
-            .Select((server, index) => $"{index + 1}. **{server.Name}**: {server.Users.Count}")
+            .Select((server, index) => $"{index + 1}. {Format.Bold(server.Name)}: {server.Users.Count}")
             .Select((info, index) => new { info, index })
             .GroupBy(x => x.index / 20)
             .Select(group => string.Join("\n", group.Select(x => x.info)))
@@ -223,7 +223,7 @@ public class StatPageTracker(IBot bot,
                 case BoxCurrency.Dollar: dollars += costCalculator.CalculateBoxCost(box.Count, boxData); break;
             }
 
-            boxes.AppendLine($"{index} **{box.Name}**");
+            boxes.AppendLine($"{index} {Format.Bold(box.Name.ToString())}");
             opened.AppendLine($"{box.Count:N0}");
             percentages.AppendLine($"{box.Percentage:P2}");
             index++;
@@ -239,7 +239,7 @@ public class StatPageTracker(IBot bot,
             embedHandler.CreateField("Dollars", $"${dollars:N2}"),
         };
 
-        return embedHandler.GetBasicEmbed($"Unbox command").WithFields(fields);
+        return embedHandler.GetBasicEmbed("Unbox command").WithFields(fields);
     }
 
     private async Task<EmbedBuilder> BuildGamblerPageAsync(int sessions)
@@ -271,7 +271,7 @@ public class StatPageTracker(IBot bot,
         var index = 1;
         foreach (var item in data)
         {
-            names.AppendLine($"{index} **{item.Item}**");
+            names.AppendLine($"{index} {Format.Bold(item.Item)}");
             searches.AppendLine($"{item.Count:N0}");
             index++;
         }
@@ -302,7 +302,7 @@ public class StatPageTracker(IBot bot,
         var index = 1;
         foreach (var term in data)
         {
-            names.AppendLine($"{index} **{term.Key}**");
+            names.AppendLine($"{index} {Format.Bold(term.Key)}");
             searches.AppendLine($"{term.Value:N0}");
             index++;
         }
@@ -340,7 +340,7 @@ public class StatPageTracker(IBot bot,
         var index = 1;
         foreach (var item in data)
         {
-            names.AppendLine($"{index} **{item.Name}**");
+            names.AppendLine($"{index} {Format.Bold(item.Name)}");
             counts.AppendLine($"{item.Count:N0}");
             percentages.AppendLine($"{item.Percentage:P2}");
             index++;

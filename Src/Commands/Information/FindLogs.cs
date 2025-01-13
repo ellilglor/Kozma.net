@@ -30,15 +30,14 @@ public partial class FindLogs(IMemoryCache cache,
     {
         var altered = item.CleanUp();
 
-        var embed = embedHandler.GetEmbed($"Searching for __{item}__, I will dm you what I can find.")
-            .WithDescription("### Info & tips when searching:\n- **Slime boxes**:\ncombination followed by *slime lockbox*\nExample: QQQ Slime Lockbox\n" +
-                "- **UV's**:\nuse asi / ctr + med / high / very high / max\n" +
+        var embed = embedHandler.GetEmbed($"Searching for {Format.Underline(item)}, I will dm you what I can find.")
+            .WithDescription($"### Info & tips when searching:\n- {Format.Bold("Slime boxes:")}\nIdentifier followed by {Format.Italics("Slime Lockbox")}.\nExample: QQQ Slime Lockbox\n" +
+                $"- {Format.Bold("UV's:")}\nUse asi / ctr + med / high / very high / max.\n" +
                 "The bot automatically swaps asi & ctr so you don't have to search twice.\nExample: Brandish ctr very high asi high\n" +
-                "- **Equipment**:\nThe bot looks for the entire family tree of your item!\n" +
-                "So when you lookup *brandish* it will also match on *Combuster* & *Acheron*\n" +
-                "- **Color Themes**:\ncertain colors with (expected) similar value are grouped for more results." +
-                " Some examples include *Divine* & *Volcanic*, tech colors, standard colors, etc.\n" +
-                "- **Sprite pods**:\ntype out as seen in game\nExample: Drakon Pod (Divine)");
+                $"- {Format.Bold("Equipment:")}\nThe bot looks for the entire family tree of your item!\n" +
+                $"So when you lookup {Format.Italics("Brandish")} it will also match on {Format.Italics("Combuster")} & {Format.Italics("Acheron")}.\n" +
+                $"- {Format.Bold("Color Themes:")}\nCertain colors with (expected) similar value are grouped for more results.\nSome examples include {Format.Italics("Divine")} & {Format.Italics("Volcanic")}, tech colors, standard colors, etc.\n" +
+                $"- {Format.Bold("Sprite pods:")}\nType out as seen in game.\nExample: Drakon Pod (Divine)");
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
         if (Context.User.Id != config.GetValue<ulong>("ids:owner")) await tradeLogService.UpdateOrSaveItemAsync(altered);
@@ -122,20 +121,20 @@ public partial class FindLogs(IMemoryCache cache,
 
     private async Task FinishInteractionAsync(string item, string copy, int matchCount, int months, bool checkVariants, SocketUser user)
     {
-        var embed = embedHandler.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing __{copy}__")
+        var embed = embedHandler.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing {Format.Underline(copy)}")
             .WithColor(Colors.Crown)
-            .WithDescription("By default I only look at tradelogs from the past **6 months**!\n" +
-                "If you want me to look past that use the `months` option.\n\n" +
-                "- Only want to see your item and no variants?\nSet `variants` to *NO*.\n" +
-                "- Want to filter out higher value UV's?\nSet `clean` to *YES*.\n" +
-                "- Not interested in item trades?\nSet `mixed` to *NO*.\n\n" +
-                $"If you notice a problem please contact <@{config.GetValue<ulong>("ids:owner")}>!\n" +
-                $"Did you know we have our own [**Discord server**]({config.GetValue<string>("serverInvite")} 'Kozma's Backpack Discord server')?");
+            .WithDescription($"By default I only look at tradelogs from the past {Format.Bold("6 months")}!\n" +
+                $"If you want me to look past that use the {Format.Code("months")} option.\n\n" +
+                $"- Only want to see your item and no variants?\nSet {Format.Code("variants")} to {Format.Italics("False")}.\n" +
+                $"- Want to filter out higher value UV's?\nSet {Format.Code("clean")} to {Format.Italics("True")}.\n" +
+                $"- Not interested in item trades?\nSet {Format.Code("mixed")} to {Format.Italics("False")}.\n\n" +
+                $"If you notice a problem please contact {MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner"))}!\n" +
+                $"Did you know we have our own {Format.Url(Format.Bold("Discord server"), config.GetValue<string>("serverInvite"))}?");
 
         var spreadsheet = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "Spreadsheet.json"));
         if (spreadsheet.Any(equipment => item.Contains(equipment, StringComparison.OrdinalIgnoreCase)))
         {
-            embed.AddField("** **", $"__{copy}__ can be found on the [**merchant sheet**](https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#).");
+            embed.AddField(Emotes.Empty, $"{Format.Underline(copy)} can be found on the {Format.Url(Format.Bold("merchant sheet"), "https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#")}.");
         }
 
         var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: ComponentIds.ClearMessages, style: ButtonStyle.Primary);
@@ -156,7 +155,7 @@ public partial class FindLogs(IMemoryCache cache,
     {
         var embed = embedHandler.GetEmbed("I can't send you any messages!")
                 .WithDescription("Make sure you have the following enabled:\n" +
-                "*Allow direct messages from server members* in User Settings > Privacy & Safety\n\nAnd don't block me!")
+                $"{Format.Italics("Allow direct messages from server members")} in User Settings > Privacy & Safety\n\nAnd don't block me!")
                 .WithColor(Colors.Error);
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());

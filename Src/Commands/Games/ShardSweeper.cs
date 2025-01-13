@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Src.Data.Classes;
-using Kozma.net.Src.Extensions;
 
 namespace Kozma.net.Src.Commands.Games;
 
@@ -39,7 +38,7 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
             for (int col = 0; col < _size; col++)
             {
                 var emote = TranslateToEmote(field[row, col]);
-                finalField += row == startRow && col == startCol ? emote : emote.PutSpoiler();
+                finalField += row == startRow && col == startCol ? emote : Format.Spoiler(emote);
             }
 
             finalField += "\n";

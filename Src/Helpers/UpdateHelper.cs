@@ -61,7 +61,7 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
         var filtered = message.Content.CleanUp();
         var copy = message.Content;
         var date = DateRegex().Match(filtered) is Match match && match.Success ? DateTime.ParseExact(match.Value, "dd/MM/yyyy", CultureInfo.InvariantCulture) : message.CreatedAt.DateTime;
-        if (message.Attachments.Count > 1) copy += "\n\n*This message had multiple images*\n*Click the date to look at them*";
+        if (message.Attachments.Count > 1) copy += $"\n\n{Format.Italics("This message had multiple images")}\n{Format.Italics("Click the date to look at them")}";
 
         return new TradeLog()
         {

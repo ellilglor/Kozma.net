@@ -129,7 +129,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
 
         var rewards = await jsonFileReader.ReadAsync<IReadOnlyList<PunchReward>>(Path.Combine("Data", "Punch.json"));
         var reward = rewards[_random.Next(rewards.Count)];
-        return ($"Congratulations! You created a GM item.\nAs a reward you get a random Spiral Knights meme.\nAuthor: **{reward.Author}**", reward.Url);
+        return ($"Congratulations! You created a GM item.\nAs a reward you get a random Spiral Knights meme.\nAuthor: {Format.Bold(reward.Author)}", reward.Url);
     }
 
     static bool HasRequiredUVs(IReadOnlyCollection<string> uvs, int requiredCount, string mustContain, params string[] options) =>

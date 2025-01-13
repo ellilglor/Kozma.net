@@ -1,4 +1,5 @@
-﻿using Kozma.net.Src.Enums;
+﻿using Discord;
+using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models;
 using Microsoft.Extensions.Caching.Memory;
@@ -49,7 +50,7 @@ public class UnboxTracker(IMemoryCache cache) : IUnboxTracker
         {
             if (data.Length + item.Name.Length >= ExtendedDiscordConfig.MaxEmbedDescChars - 50)
             {
-                data.AppendLine("**I have reached the character limit!**");
+                data.AppendLine(Format.Bold("I have reached the character limit!"));
                 break;
             }
 

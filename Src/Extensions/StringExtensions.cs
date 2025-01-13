@@ -76,7 +76,4 @@ public static partial class StringExtensions
 
     public static PunchOption ConvertToPunchOption(this string item) =>
         PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid option");
-
-    public static string PutSpoiler(this string content) =>
-        $"||{content}||";
 }

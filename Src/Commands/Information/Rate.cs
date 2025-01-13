@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
@@ -13,7 +14,7 @@ public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, 
         [Summary(name: "value", description: "Update the used exchange rate.")] int? newRate = null)
     {
         var embed = embedHandler.GetEmbed("You don't have permission to set a new rate!")
-            .WithDescription("I use this rate for calculating **/convert**.");
+            .WithDescription($"I use this rate for calculating {Format.Code("/convert")}.");
 
         if (newRate != null)
         {

@@ -57,7 +57,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         switch (message.Channel.Id)
         {
             case 1059194248894885968 when message.Author.IsWebhook: // Listings channel that get cross-posted from main server.
-                if (message.Author is IWebhookUser webhook && webhook.WebhookId == 1059194506248978432) await message.Channel.SendMessageAsync($"<@&1059195232018772031> The following has been posted:\n{message.Content}");
+                if (message.Author is IWebhookUser webhook && webhook.WebhookId == 1059194506248978432) await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(1059195232018772031)} The following has been posted:\n{message.Content}");
                 break;
         }
     }
@@ -68,7 +68,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         if (!isWtsChannel && (!message.Content.Contains("wts", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("selling", StringComparison.OrdinalIgnoreCase))) return;
 
         var response = await message.ReplyAsync(
-            "It looks like you're selling or buying items in the incorrect channel.\nPlease edit your message through the `/tradepostedit` command.\nIf this is not the case, you can ignore this warning.");
+            $"It looks like you're selling or buying items in the incorrect channel.\nPlease edit your message through the {Format.Code("/tradepostedit")} command.\nIf this is not the case, you can ignore this warning.");
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(async () =>

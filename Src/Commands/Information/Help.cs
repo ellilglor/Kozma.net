@@ -17,7 +17,7 @@ public class Help(IEmbedHandler embedHandler, IConfiguration config, IFileReader
         var info = await jsonFileReader.ReadAsync<IEnumerable<CommandInfo>>(Path.Combine("Data", "Help.json"));
 
         var embed = embedHandler.GetEmbed("Here are all my commands:")
-            .WithDescription($"*If you notice a problem please contact <@{config.GetValue<string>("ids:owner")}>*")
+            .WithDescription(Format.Italics($"If you notice a problem please contact {MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner"))}"))
             .WithFields(info.Select(cmd => embedHandler.CreateField(cmd.Command, cmd.Description, isInline: false)).ToList());
 
         var components = new ComponentBuilder()

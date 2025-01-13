@@ -58,7 +58,7 @@ public class Unbox(IConfiguration config,
 
         await SaveUnboxedAsync(userId, box, unboxed);
 
-        embed.WithDescription($"*{items}*").WithImageUrl(unboxed[0].Url);
+        embed.WithDescription(Format.Italics(items)).WithImageUrl(unboxed[0].Url);
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji(Emotes.Repeat), customId: ComponentIds.UnboxBase + ComponentIds.UnboxAgain, style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji(Emotes.Book), customId: ComponentIds.UnboxBase + ComponentIds.UnboxStats, style: ButtonStyle.Primary, disabled: opened == 1);

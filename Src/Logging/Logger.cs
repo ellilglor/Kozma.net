@@ -27,7 +27,7 @@ public partial class Logger(IBot bot,
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
         if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not IMessageChannel channel) return;
-        var msg = pingOwner ? string.Join(" ", $"<@{config.GetValue<ulong>("ids:owner")}>", message) : message;
+        var msg = pingOwner ? string.Join(" ", MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner")), message) : message;
 
         await channel.SendMessageAsync(msg, embed: embed);
     }
@@ -113,7 +113,7 @@ public partial class Logger(IBot bot,
         };
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
 
-        var errorEmbed = GetLogEmbed($"Error while executing __{interactionName}__ for __{interaction.User.Username}__", Colors.Error)
+        var errorEmbed = GetLogEmbed($"Error while executing {Format.Underline(interactionName)} for {Format.Underline(interaction.User.Username)}", Colors.Error)
             .WithDescription(string.Join("\n\n", result.Exception.InnerException?.Message, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
@@ -123,7 +123,7 @@ public partial class Logger(IBot bot,
     }
 
     private static string ExtractOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options) =>
-        string.Join("\n", options.Select(o => $"- **{o.Name}**: {o.Value}"));
+        string.Join("\n", options.Select(o => $"- {Format.Bold(o.Name)}: {o.Value}"));
 
     private async Task InformUserAsync(IDiscordInteraction interaction, ExecuteResult result)
     {
@@ -139,7 +139,7 @@ public partial class Logger(IBot bot,
             _ => "Unknown reason."
         };
         var userEmbed = embedHandler.GetEmbed("Something went wrong while executing this command.")
-            .WithDescription(string.Join("\n\n", description, $"<@{config.GetValue<ulong>("ids:owner")}> has been notified"))
+            .WithDescription(string.Join("\n\n", description, $"{MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner"))} has been notified"))
             .WithColor(Colors.Error);
 
         Log(LogLevel.Error, result.Exception.InnerException?.Message ?? description);

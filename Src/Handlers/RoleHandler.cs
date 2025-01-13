@@ -112,7 +112,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         if (roleId == config.GetValue<ulong>("ids:wtsRole")) success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new SellMute() { Id = user.Id.ToString(), Name = user.Username });
         else success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new BuyMute() { Id = user.Id.ToString(), Name = user.Username });
 
-        if (!success) await logger.LogAsync($"- {(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} <@{user.Id}> is already in the database", pingOwner: true);
+        if (!success) await logger.LogAsync($"- {(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} {MentionUtils.MentionUser(user.Id)} is already in the database", pingOwner: true);
         else await GiveRoleAsync(user, roleId);
     }
 }
