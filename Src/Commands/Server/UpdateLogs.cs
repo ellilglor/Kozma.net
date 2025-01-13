@@ -4,6 +4,7 @@ using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models.Entities;
+using System.Xml.Linq;
 
 namespace Kozma.net.Src.Commands.Server;
 
@@ -33,10 +34,11 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) 
             var elapsed = $"{channelTime.Elapsed.TotalSeconds:F2}";
             data.Add(new Channel(name, logs, elapsed));
 
-            await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Finished {name} in {elapsed} seconds").Build());
+            await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Finished {name} in {elapsed} seconds.").Build());
         }).ToList();
 
         await Task.WhenAll(tasks);
+        await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Uploading logs to database...").Build());
 
         foreach (var channel in data)
         {
