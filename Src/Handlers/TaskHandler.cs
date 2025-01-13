@@ -107,12 +107,7 @@ public class TaskHandler(IBot bot,
         {
             if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not IMessageChannel channel) return false;
 
-            using var client = new HttpClient();
-            var response = await client.GetAsync(new Uri(DotNetEnv.Env.GetString("energyMarket")));
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync();
-            var data = JsonSerializer.Deserialize<EnergyMarketData>(json, _marketOptions) ?? throw new ArgumentNullException();
+            var data = await GetEnergyMarketDataAsync();
 
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
@@ -145,6 +140,16 @@ public class TaskHandler(IBot bot,
             await logger.LogAsync($"error while fetching data from energy market api\n{ex.Message}", pingOwner: true);
             return false;
         }
+    }
+
+    private static async Task<EnergyMarketData> GetEnergyMarketDataAsync()
+    {
+        using var client = new HttpClient();
+        var response = await client.GetAsync(new Uri(DotNetEnv.Env.GetString("energyMarket")));
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<EnergyMarketData>(json, _marketOptions) ?? throw new ArgumentNullException();
     }
 
     private static int CalculateExchangeRate(IReadOnlyCollection<Offer> buyOffers, IReadOnlyCollection<Offer> sellOffers)
