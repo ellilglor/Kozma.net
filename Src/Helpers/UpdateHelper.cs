@@ -53,9 +53,6 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
         return logs;
     }
 
-    public async Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs, bool reset = false, string? channel = null) =>
-        await tradeLogService.UpdateLogsAsync(logs, reset, channel);
-
     private static TradeLog ConvertMessage(IMessage message, string channel)
     {
         var filtered = message.Content.CleanUp();

@@ -4,6 +4,7 @@ using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
+using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json;
@@ -17,6 +18,7 @@ public class TaskHandler(IBot bot,
     IRoleHandler roleHandler,
     IUpdateHelper updateHelper,
     ITaskService taskService,
+    ITradeLogService tradeLogService,
     IExchangeService exchangeService,
     IFileReader jsonFileReader) : ITaskHandler
 {
@@ -35,8 +37,9 @@ public class TaskHandler(IBot bot,
         _tasks.Add("energyMarket", new TaskConfig(6, PostEnergyMarketAsync));
         _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
         _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
+        _tasks.Add("cleanBotLogs", new TaskConfig(48, ClearBotLogsAsync));
+        _tasks.Add("resetLogs", new TaskConfig(336, ResetLogsAsync));
         _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
-        _tasks.Add("cleanLogs", new TaskConfig(48, ClearBotLogsAsync));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(CheckForExpiredTasksAsync); // Run like this to not block the thread
@@ -213,9 +216,35 @@ public class TaskHandler(IBot bot,
             }
 
             var logs = await updateHelper.GetLogsAsync(channel);
-            if (logs.Count > 0) await updateHelper.UpdateLogsAsync(logs);
+            if (logs.Count > 0) await tradeLogService.UpdateLogsAsync(logs);
         }
 
+        return true;
+    }
+
+    private async Task<bool> ResetLogsAsync()
+    {
+        var message = "Resetting tradelogs";
+        logger.Log(LogLevel.Moderation, message);
+        await logger.LogAsync(embed: logger.GetLogEmbed(message, Colors.Moderation).Build());
+
+        var logs = new List<TradeLog>();
+        var channels = updateHelper.GetChannels();
+
+        var tasks = channels.Select(async (channelData) =>
+        {
+            var (name, id) = channelData;
+            if (await _client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) return;
+
+            logs.AddRange(await updateHelper.GetLogsAsync(channel, limit: int.MaxValue));
+        }).ToList();
+
+        await Task.WhenAll(tasks);
+        logger.Log(LogLevel.Moderation, "Uploading logs to database...");
+
+        await tradeLogService.DeleteAndUpdateLogsAsync(logs);
+
+        logger.Log(LogLevel.Moderation, "Tradelogs have been reset");
         return true;
     }
 

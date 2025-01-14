@@ -5,11 +5,13 @@ namespace Kozma.net.Src.Services;
 
 public interface ITradeLogService
 {
+    bool LogsAreBeingReset { get; }
     Task UpdateOrSaveItemAsync(string item);
     Task<int> GetTotalLogCountAsync();
     Task<IEnumerable<DbStat>> GetLogStatsAsync(bool authors, int total);
     Task<IEnumerable<LogGroups>> GetLogsAsync(IReadOnlyCollection<string> items, DateTime dateToCompare, bool checkMixed, bool skipSpecial, IReadOnlyCollection<string> ignore);
-    Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs, bool reset = false, string? channel = null);
+    Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs);
+    Task DeleteAndUpdateLogsAsync(IReadOnlyCollection<TradeLog> logs);
     Task<bool> CheckIfLogExistsAsync(ulong id);
     Task<(IOrderedEnumerable<KeyValuePair<string, int>>, int Total)> CountOccurencesAsync(IReadOnlyCollection<string> channels, IReadOnlyCollection<string> terms);
     Task<int> GetTotalSearchCountAsync();

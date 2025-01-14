@@ -4,13 +4,13 @@ using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models.Entities;
-using System.Xml.Linq;
+using Kozma.net.Src.Services;
 
 namespace Kozma.net.Src.Commands.Server;
 
 [DontAutoRegister]
 [DefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers)]
-public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) : InteractionModuleBase<SocketInteractionContext>
+public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper, ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
 {
     private sealed record Channel(string Name, IReadOnlyCollection<TradeLog> Logs, string Time);
 
@@ -38,12 +38,9 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper) 
         }).ToList();
 
         await Task.WhenAll(tasks);
-        await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Uploading logs to database...").Build());
+        await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle("Uploading logs to database...").Build());
 
-        foreach (var channel in data)
-        {
-            await updateHelper.UpdateLogsAsync(channel.Logs, reset: true, channel: channel.Name);
-        }
+        await tradeLogService.DeleteAndUpdateLogsAsync(data.SelectMany(c => c.Logs).ToList());
 
         totalTime.Stop();
         DisplayData(data);

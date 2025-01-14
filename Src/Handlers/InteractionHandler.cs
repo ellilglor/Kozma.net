@@ -3,12 +3,19 @@ using Discord.WebSocket;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
+using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
 namespace Kozma.net.Src.Handlers;
 
-public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration config, IEmbedHandler embedHandler, IServiceProvider services, InteractionService service) : IInteractionHandler
+public class InteractionHandler(IBot bot,
+    IBotLogger logger,
+    IConfiguration config,
+    IEmbedHandler embedHandler,
+    ITradeLogService tradeLogService,
+    IServiceProvider services,
+    InteractionService service) : IInteractionHandler
 {
     private readonly DiscordSocketClient _client = bot.GetClient();
 
@@ -54,6 +61,19 @@ public class InteractionHandler(IBot bot, IBotLogger logger, IConfiguration conf
                 await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
                 return;
             }
+        }
+
+        var tryLater = interaction.Type switch
+        {
+            Discord.InteractionType.ApplicationCommand when tradeLogService.LogsAreBeingReset => interaction is SocketSlashCommand command && command.CommandName.Equals(CommandIds.FindLogs, StringComparison.Ordinal),
+            Discord.InteractionType.MessageComponent when tradeLogService.LogsAreBeingReset => interaction is SocketMessageComponent component && component.Data.CustomId.Contains(ComponentIds.FindLogsBase, StringComparison.Ordinal),
+            _ => false
+        };
+
+        if (tryLater)
+        {
+            await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedHandler.GetAndBuildEmbed("Logs are being updated, please try again in a few minutes."));
+            return;
         }
 
         var context = new SocketInteractionContext(_client, interaction);
