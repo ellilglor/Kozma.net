@@ -38,7 +38,7 @@ public class TaskHandler(IBot bot,
         _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
         _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
         _tasks.Add("cleanBotLogs", new TaskConfig(48, ClearBotLogsAsync));
-        _tasks.Add("resetLogs", new TaskConfig(336, ResetLogsAsync));
+        _tasks.Add("resetLogs", new TaskConfig(168, ResetLogsAsync));
         _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
