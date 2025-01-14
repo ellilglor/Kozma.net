@@ -42,7 +42,11 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
             if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtsRole"));
             else if (channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtbRole"));
 
-            if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel")) || channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:wtsChannel"));
+            if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel")) || channelId.Equals(config.GetValue<ulong>("ids:wtbChannel")))
+            {
+                await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:wtsChannel"));
+                await WarnIfContentTooLongAsync(message);
+            }
 
             if (channelId.Equals(796403286147203092) && message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:bot")) && !cache.TryGetValue(_cachekey, out int _))
             {
@@ -67,8 +71,20 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         if (isWtsChannel && (!message.Content.Contains("wtb", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("buying", StringComparison.OrdinalIgnoreCase))) return;
         if (!isWtsChannel && (!message.Content.Contains("wts", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("selling", StringComparison.OrdinalIgnoreCase))) return;
 
-        var response = await message.ReplyAsync(
-            $"It looks like you're selling or buying items in the incorrect channel.\nPlease edit your message through the {Format.Code("/tradepostedit")} command.\nIf this is not the case, you can ignore this warning.");
+        await ReplyAndDeleteAsync(message, $"It looks like you're selling or buying items in the incorrect channel.\nPlease edit your message through the {Format.Code("/tradepostedit")} command.\nIf this is not the case, you can ignore this warning.");
+    }
+
+    private static async Task WarnIfContentTooLongAsync(SocketUserMessage message)
+    {
+        var count = NewLineRegex().Matches(message.Content).Count;
+        if (count < 15) return;
+
+        await ReplyAndDeleteAsync(message, $"Your message has too many lines, check the pinned messages for the channel guidelines.\nPlease edit your message through the {Format.Code("/tradepostedit")} command.");
+    }
+
+    private static async Task ReplyAndDeleteAsync(SocketUserMessage message, string msg)
+    {
+        var response = await message.ReplyAsync(msg);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(async () =>
@@ -81,4 +97,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
     [GeneratedRegex(@"\bkozma\b", RegexOptions.IgnoreCase)]
     private static partial Regex KozmaRegex();
+
+    [GeneratedRegex("\n")]
+    private static partial Regex NewLineRegex();
 }
