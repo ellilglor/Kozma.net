@@ -140,6 +140,8 @@ public partial class FindLogs(IMemoryCache cache,
         var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: ComponentIds.ClearMessages, style: ButtonStyle.Primary);
         if (months < 24) components.WithButton(label: "Search all tradelogs", customId: $"{ComponentIds.FindLogsBase}{(checkVariants ? ComponentIds.FindLogsVar : ComponentIds.FindLogsSingle)}", style: ButtonStyle.Primary);
 
+        cache.Set($"{CommandIds.FindLogs}_{user.Id}", matchCount, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });
+
         try
         {
             await user.SendMessageAsync(embed: embed.Build(), components: components.Build());

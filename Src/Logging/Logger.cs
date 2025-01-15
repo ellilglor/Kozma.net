@@ -6,6 +6,7 @@ using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 
@@ -13,6 +14,7 @@ namespace Kozma.net.Src.Logging;
 
 public partial class Logger(IBot bot,
     IConfiguration config,
+    IMemoryCache cache,
     IEmbedHandler embedHandler,
     IRateLimitHandler rateLimitHandler,
     IUserService userService,
@@ -66,8 +68,11 @@ public partial class Logger(IBot bot,
             embedHandler.CreateField(location, interaction.UserLocale),
         };
 
+        var desc = interaction.Data is SocketSlashCommandData data && data.Options.Count > 0 ? ExtractOptions(data.Options) : string.Empty;
+        if (command == CommandIds.FindLogs && cache.TryGetValue($"{CommandIds.FindLogs}_{interaction.User.Id}", out int matches)) desc += $"\n- {Format.Bold("matches")}: {matches}";
+
         var embed = GetLogEmbed(string.Empty, Colors.Default)
-            .WithDescription(interaction.Data is SocketSlashCommandData data && data.Options.Count > 0 ? ExtractOptions(data.Options) : string.Empty)
+            .WithDescription(desc)
             .WithAuthor(new EmbedAuthorBuilder().WithName(interaction.User.Username).WithIconUrl(interaction.User.GetDisplayAvatarUrl()))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
