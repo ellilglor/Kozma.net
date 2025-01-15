@@ -71,7 +71,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         if (isWtsChannel && (!message.Content.Contains("wtb", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("buying", StringComparison.OrdinalIgnoreCase))) return;
         if (!isWtsChannel && (!message.Content.Contains("wts", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("selling", StringComparison.OrdinalIgnoreCase))) return;
 
-        await ReplyAndDeleteAsync(message, $"It looks like you're selling or buying items in the incorrect channel.\nPlease edit your message through the {Format.Code("/tradepostedit")} command.\nIf this is not the case, you can ignore this warning.");
+        await ReplyAndDeleteAsync(message, $"It looks like you're selling or buying items in the incorrect channel.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.\nIf this is not the case, you can ignore this warning.");
     }
 
     private static async Task WarnIfContentTooLongAsync(SocketUserMessage message)
@@ -79,7 +79,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         var count = NewLineRegex().Matches(message.Content).Count;
         if (count < 15) return;
 
-        await ReplyAndDeleteAsync(message, $"Your message has too many lines, check the pinned messages for the channel guidelines.\nPlease edit your message through the {Format.Code("/tradepostedit")} command.");
+        await ReplyAndDeleteAsync(message, $"Your message is too long, check the pinned messages for the channel guidelines.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.\nIgnoring this warning may result in your post being deleted and a timeout.");
     }
 
     private static async Task ReplyAndDeleteAsync(SocketUserMessage message, string msg)
