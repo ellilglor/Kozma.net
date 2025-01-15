@@ -13,7 +13,7 @@
   },
   {
     "Command": "/findlogs",
-    "Description": "Makes the bot search the database for your item.\n`item` Item the bot should look for.\n`months` How far back the bot should search. Default: 6 months.\n`variants` Check for color variants / item family tree. Default: yes.\n`clean` Filter out high value uvs. Default: no.\n`mixed` Check the mixed-trades channel. Default: yes."
+    "Description": "Makes the bot search the database for your item.\n`item` Item the bot should look for.\n`months` How far back the bot should search. Default: 6 months.\n`variants` Check for color variants / item family tree. Default: True.\n`clean` Filter out high value uvs. Default: False.\n`mixed` Check the mixed-trades channel. Default: True."
   },
   {
     "Command": "/lockbox",
@@ -26,6 +26,10 @@
   {
     "Command": "/rate",
     "Description": "Tells you the crowns per energy rate currently in use."
+  },
+  {
+    "Command": "/shardsweeper",
+    "Description": "A Spiral Knights themed version of the classic game Minesweeper."
   },
   {
     "Command": "/unbox",
