@@ -17,8 +17,6 @@ public class InteractionHandler(IBot bot,
     IServiceProvider services,
     InteractionService service) : IInteractionHandler
 {
-    private readonly DiscordSocketClient _client = bot.GetClient();
-
     public async Task InitializeAsync()
     {
         await service.AddModulesAsync(Assembly.GetEntryAssembly(), services);
@@ -52,7 +50,7 @@ public class InteractionHandler(IBot bot,
 
         if (interaction.GuildId != config.GetValue<ulong>("ids:server") && interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {
-            var guild = _client.GetGuild(config.GetValue<ulong>("ids:server"));
+            var guild = bot.Client.GetGuild(config.GetValue<ulong>("ids:server"));
             var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
 
             if (isBanned) // :)
@@ -76,7 +74,7 @@ public class InteractionHandler(IBot bot,
             return;
         }
 
-        var context = new SocketInteractionContext(_client, interaction);
+        var context = new SocketInteractionContext(bot.Client, interaction);
         await service.ExecuteCommandAsync(context, services);
     }
 }

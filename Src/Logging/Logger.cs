@@ -20,15 +20,13 @@ public partial class Logger(IBot bot,
     IUserService userService,
     ICommandService commandService) : IBotLogger
 {
-    private readonly DiscordSocketClient _client = bot.GetClient();
-
     public void Log(LogLevel level, string message) =>
         Console.WriteLine($"{level.Color()}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
 
     public async Task LogAsync(string? message = null, Embed? embed = null, bool pingOwner = false)
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not IMessageChannel channel) return;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not IMessageChannel channel) return;
         var msg = pingOwner ? string.Join(" ", MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner")), message) : message;
 
         await channel.SendMessageAsync(msg, embed: embed);

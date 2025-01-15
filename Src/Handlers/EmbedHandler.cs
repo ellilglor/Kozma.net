@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Extensions;
 
@@ -7,15 +6,13 @@ namespace Kozma.net.Src.Handlers;
 
 public class EmbedHandler(IBot bot) : IEmbedHandler
 {
-    private readonly DiscordSocketClient _client = bot.GetClient();
-
     public EmbedBuilder GetEmbed(string title)
     {
         return GetBasicEmbed(title)
             .WithFooter(
                 new EmbedFooterBuilder()
-                    .WithText($"Thank you for using {_client.CurrentUser.Username} bot!")
-                    .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl())
+                    .WithText($"Thank you for using {bot.Client.CurrentUser.Username} bot!")
+                    .WithIconUrl(bot.Client.CurrentUser.GetDisplayAvatarUrl())
             );
     }
 

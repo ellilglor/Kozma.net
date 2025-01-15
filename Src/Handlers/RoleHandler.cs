@@ -10,9 +10,6 @@ namespace Kozma.net.Src.Handlers;
 
 public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUserService userService, ITaskService taskService) : IRoleHandler
 {
-    private readonly DiscordSocketClient _client = bot.GetClient();
-    private readonly double _offlineMutesCheckInterval = 3;
-
     public async Task GiveRoleAsync(IGuildUser user, ulong roleId)
     {
         var role = await GetGuild().GetRoleAsync(roleId);
@@ -37,6 +34,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     public async Task CheckTradeMessagesAsync()
     {
+        var offlineMutesCheckInterval = 3;
         var currentDate = DateTime.UtcNow;
         var taskName = "offlineMutes";
         var task = await taskService.GetTaskAsync(taskName);
@@ -46,7 +44,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
             await logger.LogAsync($"failed to fetch {taskName} from db", pingOwner: true);
             return;
         }
-        if (task.UpdatedAt.AddHours(_offlineMutesCheckInterval) > currentDate) return;
+        if (task.UpdatedAt.AddHours(offlineMutesCheckInterval) > currentDate) return;
 
         logger.Log(LogLevel.Moderation, "Checking if people need to be muted");
 
@@ -89,7 +87,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
     }
 
     private SocketGuild GetGuild() =>
-        _client.GetGuild(config.GetValue<ulong>("ids:server"));
+        bot.Client.GetGuild(config.GetValue<ulong>("ids:server"));
 
     private async Task CheckMessagesAsync(SocketGuild guild, ulong channelId, ulong roleId, DateTime d)
     {

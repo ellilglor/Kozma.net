@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
@@ -24,7 +23,6 @@ public class StatPageTracker(IBot bot,
     IPunchService punchService,
     ITradeLogService tradeLogService) : IStatPageTracker
 {
-    private readonly DiscordSocketClient _client = bot.GetClient();
     private bool _buildingInProgess;
     private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(20) };
     private const string _cacheKey = "stat_pages";
@@ -47,7 +45,7 @@ public class StatPageTracker(IBot bot,
         var totalSearchedTask = tradeLogService.GetTotalSearchCountAsync();
 
         await Task.WhenAll(userCountTask, commandUsageTask, gameUsageTask, cmdUserCountTask, unboxedCountTask, logCountTask, totalSearchedTask);
-        var kozmaGuild = _client.GetGuild(config.GetValue<ulong>("ids:server"));
+        var kozmaGuild = bot.Client.GetGuild(config.GetValue<ulong>("ids:server"));
 
         pages.AddRange(BuildServerPages(userCountTask.Result));
         pages.Add(BuildStatEmbed("Command usage", "Command", "Used", await commandService.GetCommandsAsync(isGame: false, commandUsageTask.Result), commandUsageTask.Result));
@@ -74,14 +72,14 @@ public class StatPageTracker(IBot bot,
 
         var fields = new List<EmbedFieldBuilder>()
         {
-            embedHandler.CreateField("Bot Id", _client.CurrentUser.Id.ToString()),
-            embedHandler.CreateField("Bot Name", _client.CurrentUser.Username),
+            embedHandler.CreateField("Bot Id", bot.Client.CurrentUser.Id.ToString()),
+            embedHandler.CreateField("Bot Name", bot.Client.CurrentUser.Username),
             embedHandler.CreateField("Execution Time", $"{timer.Elapsed.TotalSeconds:F2}s"),
-            embedHandler.CreateField("Running Since", $"<t:{bot.GetReadyTimestamp()}:f>"),
-            embedHandler.CreateField("Round-trip Latency", $"{_client.Latency}ms"),
+            embedHandler.CreateField("Running Since", $"<t:{bot.ReadyTimeStamp}:f>"),
+            embedHandler.CreateField("Round-trip Latency", $"{bot.Client.Latency}ms"),
             embedHandler.CreateField("Commands Used", $"{commandUsageTask.Result:N0}"),
             embedHandler.CreateField("Unique Bot Users", $"{cmdUserCountTask.Result:N0}"),
-            embedHandler.CreateField("Servers", $"{_client.Guilds.Count:N0}"),
+            embedHandler.CreateField("Servers", $"{bot.Client.Guilds.Count:N0}"),
             embedHandler.CreateField("Unique Users", $"{userCountTask.Result:N0}"),
             embedHandler.CreateField("Tradelogs", $"{logCountTask.Result:N0}"),
             embedHandler.CreateField("Items Searched", $"{totalSearchedTask.Result:N0}"),
@@ -95,7 +93,7 @@ public class StatPageTracker(IBot bot,
             pages[i].Title = $"{pages[i].Title} - {i + 1}/{pages.Count}";
             pages[i].Footer = new EmbedFooterBuilder()
                 .WithText($"{i + 1}/{pages.Count}")
-                .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl());
+                .WithIconUrl(bot.Client.CurrentUser.GetDisplayAvatarUrl());
 
             finalPages.Add(pages[i].Build());
         }
@@ -142,12 +140,12 @@ public class StatPageTracker(IBot bot,
 
     private async Task<int> GetUserCountAsync()
     {
-        foreach (var guild in _client.Guilds)
+        foreach (var guild in bot.Client.Guilds)
         {
             if (!guild.HasAllMembers) await guild.DownloadUsersAsync();
         }
 
-        return _client.Guilds
+        return bot.Client.Guilds
             .SelectMany(guild => guild.Users)
             .Where(member => !member.IsBot)
             .Select(member => member.Id)
@@ -158,7 +156,7 @@ public class StatPageTracker(IBot bot,
     private List<EmbedBuilder> BuildServerPages(int userCount)
     {
         var pages = new List<EmbedBuilder>();
-        var serverPages = _client.Guilds
+        var serverPages = bot.Client.Guilds
             .OrderByDescending(g => g.MemberCount)
             .Select((server, index) => $"{index + 1}. {Format.Bold(server.Name)}: {server.Users.Count}")
             .Select((info, index) => new { info, index })
@@ -175,7 +173,7 @@ public class StatPageTracker(IBot bot,
                 embedHandler.CreateField(Emotes.Empty, serverPages[i]),
                 embedHandler.CreateField(Emotes.Empty, i + 1 < serverPages.Count ? serverPages[i + 1] : Emotes.Empty),
                 embedHandler.CreateEmptyField(),
-                embedHandler.CreateField("Total", $"{_client.Guilds.Count:N0}"),
+                embedHandler.CreateField("Total", $"{bot.Client.Guilds.Count:N0}"),
                 embedHandler.CreateField("Unique Users", $"{userCount:N0}")
             };
 

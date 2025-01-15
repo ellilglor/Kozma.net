@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
@@ -27,7 +26,6 @@ public class TaskHandler(IBot bot,
     private sealed record Offer(int Price, int Volume);
     private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IReadOnlyCollection<Offer> BuyOffers, IReadOnlyCollection<Offer> SellOffers);
 
-    private readonly DiscordSocketClient _client = bot.GetClient();
     private readonly Dictionary<string, TaskConfig> _tasks = new();
     private static readonly Random _random = new();
     private static readonly JsonSerializerOptions _marketOptions = new() { PropertyNameCaseInsensitive = true };
@@ -108,13 +106,13 @@ public class TaskHandler(IBot bot,
     {
         try
         {
-            if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not IMessageChannel channel) return false;
+            if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not IMessageChannel channel) return false;
 
             var data = await GetEnergyMarketDataAsync();
 
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
-                if (await _client.GetChannelAsync(879297439054581770) is not IMessageChannel testChannel) return false;
+                if (await bot.Client.GetChannelAsync(879297439054581770) is not IMessageChannel testChannel) return false;
                 await testChannel.SendMessageAsync($"{MentionUtils.MentionUser(698839171912958022)}\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
                 return false;
             }
@@ -167,8 +165,8 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> PostSlowModeReminderAsync()
     {
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel wtsChannel) return false;
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtbChannel")) is not IMessageChannel wtbChannel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel wtsChannel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:wtbChannel")) is not IMessageChannel wtbChannel) return false;
 
         var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the {Format.Underline($"{config.GetValue<int>("timers:slowmodeHours")} hour slowmode")} in this channel.")
             .WithDescription($"You can edit your posts through the {Format.Code("/tradepostedit")} command.\nWe apologize for any inconvenience this may cause.")
@@ -183,7 +181,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> PostScamPreventionAsync()
     {
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel channel) return false;
         var reminders = await jsonFileReader.ReadAsync<IReadOnlyList<Reminder>>(Path.Combine("Data", "Reminders.json"));
         var reminder = reminders[_random.Next(reminders.Count)];
 
@@ -191,7 +189,7 @@ public class TaskHandler(IBot bot,
             .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(reminder.Title, reminder.Description) })
             .WithFooter(new EmbedFooterBuilder()
                     .WithText("Information and communication is essential to negotiations. Please be careful.")
-                    .WithIconUrl(_client.CurrentUser.GetDisplayAvatarUrl()));
+                    .WithIconUrl(bot.Client.CurrentUser.GetDisplayAvatarUrl()));
 
         await channel.SendMessageAsync(embed: embed.Build());
         logger.Log(LogLevel.Moderation, "Posted scam prevention reminder");
@@ -207,7 +205,7 @@ public class TaskHandler(IBot bot,
         var channels = updateHelper.GetChannels();
         foreach (var channelData in channels)
         {
-            if (await _client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) continue;
+            if (await bot.Client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) continue;
 
             if (channel is IThreadChannel thread)
             {
@@ -234,7 +232,7 @@ public class TaskHandler(IBot bot,
         var tasks = channels.Select(async (channelData) =>
         {
             var (name, id) = channelData;
-            if (await _client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) return;
+            if (await bot.Client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) return;
 
             logs.AddRange(await updateHelper.GetLogsAsync(channel, limit: int.MaxValue));
         }).ToList();
@@ -250,7 +248,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> ClearBotLogsAsync()
     {
-        if (await _client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ITextChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ITextChannel channel) return false;
 
         logger.Log(LogLevel.Moderation, "Cleaning BotLogs channel");
         var messages = await channel.GetMessagesAsync(limit: 420).FlattenAsync();
@@ -277,5 +275,5 @@ public class TaskHandler(IBot bot,
     }
 
     private async Task PostStillConnectedAsync() =>
-        await logger.LogAsync(embed: logger.GetLogEmbed($"Connected since <t:{bot.GetReadyTimestamp()}:f> with {_client.Latency}ms latency.", Colors.Moderation).Build());
+        await logger.LogAsync(embed: logger.GetLogEmbed($"Connected since <t:{bot.ReadyTimeStamp}:f> with {bot.Client.Latency}ms latency.", Colors.Moderation).Build());
 }

@@ -5,8 +5,8 @@ namespace Kozma.net.Src;
 
 public class Bot : IBot, IDisposable
 {
-    private readonly DiscordSocketClient _client;
-    private readonly DateTime _ready;
+    public DiscordSocketClient Client { get; private set; }
+    public long ReadyTimeStamp { get; private set; }
     private bool _disposed;
 
     public Bot()
@@ -16,24 +16,18 @@ public class Bot : IBot, IDisposable
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
         };
 
-        _client = new DiscordSocketClient(intents);
-        _ready = DateTime.UtcNow;
+        Client = new DiscordSocketClient(intents);
+        ReadyTimeStamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
     }
 
     public async Task StartAsync()
     {
-        await _client.LoginAsync(TokenType.Bot, DotNetEnv.Env.GetString("botToken"));
-        await _client.StartAsync();
+        await Client.LoginAsync(TokenType.Bot, DotNetEnv.Env.GetString("botToken"));
+        await Client.StartAsync();
     }
 
     public async Task UpdateActivityAsync(string activity, ActivityType type) =>
-        await _client.SetActivityAsync(new Game(activity, type));
-
-    public DiscordSocketClient GetClient() =>
-        _client;
-
-    public long GetReadyTimestamp() =>
-        new DateTimeOffset(_ready).ToUnixTimeSeconds();
+        await Client.SetActivityAsync(new Game(activity, type));
 
     public void Dispose()
     {
@@ -47,7 +41,7 @@ public class Bot : IBot, IDisposable
         {
             if (disposing)
             {
-                _client?.Dispose();
+                Client?.Dispose();
             }
 
             _disposed = true;

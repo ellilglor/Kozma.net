@@ -35,7 +35,7 @@ internal sealed class Program
 
     private static void AttachClientEvents(ServiceProvider services)
     {
-        var client = services.GetRequiredService<IBot>().GetClient();
+        var client = services.GetRequiredService<IBot>().Client;
         var interactionHandler = services.GetRequiredService<IInteractionHandler>();
 
         client.Log += services.GetRequiredService<IBotLogger>().HandleDiscordLog;
