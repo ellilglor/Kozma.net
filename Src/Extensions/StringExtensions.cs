@@ -26,7 +26,7 @@ public static partial class StringExtensions
         new TermFilter("lite gm ", "asi high ctr very high ", null),
         new TermFilter("gm lite", "asi high ctr very high", null),
         new TermFilter("gm lite ", "asi high ctr very high ", null),
-        new TermFilter("gm", "asi very high ctr very high", null),
+        new TermFilter(" gm", "asi very high ctr very high", null),
         new TermFilter("gm ", "asi very high ctr very high ", null),
         new TermFilter("medium", "med", null),
         new TermFilter("vhigh", "very high", null),
