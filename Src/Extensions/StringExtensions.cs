@@ -16,6 +16,7 @@ public static partial class StringExtensions
         new TermFilter("soaker", "spiral soaker", "spiral"),
         new TermFilter("blitz", "blitz needle", "needle"),
         new TermFilter("calad", "caladbolg", "bolg"),
+        new TermFilter("vh", "very high", null),
         new TermFilter("ctr m", "ctr med", "ctr med"),
         new TermFilter("ctr h", "ctr high", "ctr high"),
         new TermFilter("asi m", "asi med", "asi med"),
@@ -40,26 +41,17 @@ public static partial class StringExtensions
 
     public static string CleanUp(this string content)
     {
-#pragma warning disable CA1308 // Normalize strings to uppercase -> can't do this yet because legacy code from js version
-        var filtered = content
-            .ToLower(CultureInfo.InvariantCulture)
-            .Replace("vh", "very high", StringComparison.OrdinalIgnoreCase);
-#pragma warning restore CA1308 // Normalize strings to uppercase
-
-        filtered = SpecialCharsRegex().Replace(filtered, string.Empty);
+        var filtered = SpecialCharsRegex().Replace(content, string.Empty);
 
         foreach (var filter in Filters)
         {
-            if (filtered.Contains(filter.Before, StringComparison.OrdinalIgnoreCase))
-            {
-                if (filter.Exclude != null && filtered.Contains(filter.Exclude, StringComparison.OrdinalIgnoreCase))
-                    continue;
+            if (!filtered.Contains(filter.Before, StringComparison.OrdinalIgnoreCase)) continue;
+            if (filter.Exclude != null && filtered.Contains(filter.Exclude, StringComparison.OrdinalIgnoreCase)) continue;
 
-                filtered = filtered.Replace(filter.Before, filter.After, StringComparison.OrdinalIgnoreCase);
-            }
+            filtered = filtered.Replace(filter.Before, filter.After, StringComparison.OrdinalIgnoreCase);
         }
 
-        return filtered;
+        return filtered.ToUpper(CultureInfo.InvariantCulture);
     }
 
     [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
