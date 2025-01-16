@@ -48,6 +48,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IPunchHelper, PunchHelper>()
             .AddSingleton<IUpdateHelper, UpdateHelper>()
             .AddSingleton<IFileReader, JsonFileReader>()
+            .AddSingleton<IApiFetcher, ApiFetcher>()
             .AddSingleton<IUnboxTracker, UnboxTracker>()
             .AddSingleton<IPunchTracker, PunchTracker>()
             .AddSingleton<IStatPageTracker, StatPageTracker>();

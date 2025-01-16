@@ -6,7 +6,6 @@ using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
-using System.Text.Json;
 
 namespace Kozma.net.Src.Handlers;
 
@@ -19,16 +18,16 @@ public class TaskHandler(IBot bot,
     ITaskService taskService,
     ITradeLogService tradeLogService,
     IExchangeService exchangeService,
-    IFileReader jsonFileReader) : ITaskHandler
+    IFileReader jsonFileReader,
+    IApiFetcher apiFetcher) : ITaskHandler
 {
     private sealed record TaskConfig(double Interval, Func<Task<bool>> ExecuteAsync);
     private sealed record Reminder(string Title, string Description);
     private sealed record Offer(int Price, int Volume);
     private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IReadOnlyCollection<Offer> BuyOffers, IReadOnlyCollection<Offer> SellOffers);
 
-    private readonly Dictionary<string, TaskConfig> _tasks = new();
+    private static readonly Dictionary<string, TaskConfig> _tasks = new();
     private static readonly Random _random = new();
-    private static readonly JsonSerializerOptions _marketOptions = new() { PropertyNameCaseInsensitive = true };
 
     public async Task LaunchTasksAsync()
     {
@@ -108,7 +107,7 @@ public class TaskHandler(IBot bot,
         {
             if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not IMessageChannel channel) return false;
 
-            var data = await GetEnergyMarketDataAsync();
+            var data = await apiFetcher.FetchAsync<EnergyMarketData>(DotNetEnv.Env.GetString("energyMarket"), new() { PropertyNameCaseInsensitive = true });
 
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
@@ -141,16 +140,6 @@ public class TaskHandler(IBot bot,
             await logger.LogAsync($"error while fetching data from energy market api\n{ex.Message}", pingOwner: true);
             return false;
         }
-    }
-
-    private static async Task<EnergyMarketData> GetEnergyMarketDataAsync()
-    {
-        using var client = new HttpClient();
-        var response = await client.GetAsync(new Uri(DotNetEnv.Env.GetString("energyMarket")));
-        response.EnsureSuccessStatusCode();
-
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<EnergyMarketData>(json, _marketOptions) ?? throw new ArgumentNullException();
     }
 
     private static int CalculateExchangeRate(IReadOnlyCollection<Offer> buyOffers, IReadOnlyCollection<Offer> sellOffers)

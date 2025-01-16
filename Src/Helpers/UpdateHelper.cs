@@ -9,7 +9,7 @@ namespace Kozma.net.Src.Helpers;
 
 public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHelper
 {
-    private readonly Dictionary<string, ulong> _channels = new()
+    private static readonly Dictionary<string, ulong> _channels = new()
     {
         { "special-listings", 807369188133306408 },
         { "2024-flash-sales", 1305211055819194470 },

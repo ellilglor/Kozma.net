@@ -10,7 +10,6 @@ public class ExchangeService(KozmaDbContext dbContext, IMemoryCache cache, IBotL
     private const string _cacheKey = "Exchange_Rate";
     private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6) };
 
-
     public async Task<int> GetExchangeRateAsync()
     {
         if (!cache.TryGetValue(_cacheKey, out int rate))
