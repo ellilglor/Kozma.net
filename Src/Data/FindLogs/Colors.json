@@ -1,167 +1,167 @@
 {
-  "standard": [
-    "cool",
-    "dusky",
-    "fancy",
-    "heavy",
-    "military",
-    "regal",
-    "toasty"
+  "STANDARD": [
+    "COOL",
+    "DUSKY",
+    "FANCY",
+    "HEAVY",
+    "MILITARY",
+    "REGAL",
+    "TOASTY"
   ],
-  "div volc": [
-    "divine",
-    "volcanic"
+  "DIV VOLC": [
+    "DIVINE",
+    "VOLCANIC"
   ],
-  "gems": [
-    "ruby",
-    "peridot",
-    "sapphire",
-    "opal",
-    "citrine",
-    "turquoise",
-    "garnet",
-    "amethyst",
-    "aquamarine",
-    "diamond",
-    "emerald",
-    "pearl"
+  "GEMS": [
+    "RUBY",
+    "PERIDOT",
+    "SAPPHIRE",
+    "OPAL",
+    "CITRINE",
+    "TURQUOISE",
+    "GARNET",
+    "AMETHYST",
+    "AQUAMARINE",
+    "DIAMOND",
+    "EMERALD",
+    "PEARL"
   ],
-  "shadowtech": [
-    "shadowtech blue",
-    "shadowtech green",
-    "shadowtech orange",
-    "shadowtech pink"
+  "SHADOWTECH": [
+    "SHADOWTECH BLUE",
+    "SHADOWTECH GREEN",
+    "SHADOWTECH ORANGE",
+    "SHADOWTECH PINK"
   ],
-  "tech": [
-    "tech blue",
-    "tech green",
-    "tech orange",
-    "tech pink"
+  "TECH": [
+    "TECH BLUE",
+    "TECH GREEN",
+    "TECH ORANGE",
+    "TECH PINK"
   ],
-  "snipes": [
-    "fern",
-    "lavender",
-    "lemon",
-    "peach",
-    "rose",
-    "sky",
-    "vanilla",
-    "cocoa",
-    "cherry",
-    "lime",
-    "mint",
-    "plum",
-    "sage",
-    "wheat"
+  "SNIPES": [
+    "FERN",
+    "LAVENDER",
+    "LEMON",
+    "PEACH",
+    "ROSE",
+    "SKY",
+    "VANILLA",
+    "COCOA",
+    "CHERRY",
+    "LIME",
+    "MINT",
+    "PLUM",
+    "SAGE",
+    "WHEAT"
   ],
-  "winterfest onesies": [
-    "candy striped",
-    "festively striped",
-    "holly striped",
-    "joyous striped"
+  "WINTERFEST ONESIES": [
+    "CANDY STRIPED",
+    "FESTIVELY STRIPED",
+    "HOLLY STRIPED",
+    "JOYOUS STRIPED"
   ],
-  "winterfest pullovers": [
-    "flashy winter",
-    "garish winter",
-    "gaudy winter",
-    "tacky winter"
+  "WINTERFEST PULLOVERS": [
+    "FLASHY WINTER",
+    "GARISH WINTER",
+    "GAUDY WINTER",
+    "TACKY WINTER"
   ],
-  "kat suits": [
-    "feral kat",
-    "primal kat",
-    "savage kat",
-    "wild kat"
+  "KAT SUITS": [
+    "FERAL KAT",
+    "PRIMAL KAT",
+    "SAVAGE KAT",
+    "WILD KAT"
   ],
-  "polar colors": [
-    "polar day",
-    "polar night",
-    "polar twilight"
+  "POLAR COLORS": [
+    "POLAR DAY",
+    "POLAR NIGHT",
+    "POLAR TWILIGHT"
   ],
-  "buhgok tails": [
-    "black buhgok",
-    "brown buhgok",
-    "gold buhgok"
+  "BUHGOK TAILS": [
+    "BLACK BUHGOK",
+    "BROWN BUHGOK",
+    "GOLD BUHGOK"
   ],
-  "fowls": [
-    "black fowl",
-    "brown fowl",
-    "gold fowl"
+  "FOWLS": [
+    "BLACK FOWL",
+    "BROWN FOWL",
+    "GOLD FOWL"
   ],
-  "buckled coats": [
-    "ancient gold",
-    "hunter gold",
-    "peridot gold"
+  "BUCKLED COATS": [
+    "ANCIENT GOLD",
+    "HUNTER GOLD",
+    "PERIDOT GOLD"
   ],
-  "clovers": [
-    "ancient clover",
-    "hunter clover",
-    "peridot clover"
+  "CLOVERS": [
+    "ANCIENT CLOVER",
+    "HUNTER CLOVER",
+    "PERIDOT CLOVER"
   ],
-  "lapel clover": [
-    "ancient lapel",
-    "hunter lapel",
-    "peridot lapel"
+  "LAPEL CLOVER": [
+    "ANCIENT LAPEL",
+    "HUNTER LAPEL",
+    "PERIDOT LAPEL"
   ],
-  "lucky toppers": [
-    "ancient lucky",
-    "hunter lucky",
-    "peridot lucky"
+  "LUCKY TOPPERS": [
+    "ANCIENT LUCKY",
+    "HUNTER LUCKY",
+    "PERIDOT LUCKY"
   ],
-  "lucky pipes": [
-    "ancient pipe",
-    "hunter pipe",
-    "peridot pipe"
+  "LUCKY PIPES": [
+    "ANCIENT PIPE",
+    "HUNTER PIPE",
+    "PERIDOT PIPE"
   ],
-  "lucky beards": [
-    "autumn lumberfell",
-    "citrine lumberfell",
-    "dazed lumberfell"
+  "LUCKY BEARDS": [
+    "AUTUMN LUMBERFELL",
+    "CITRINE LUMBERFELL",
+    "DAZED LUMBERFELL"
   ],
-  "obsidian": [
-    "influence",
-    "devotion",
-    "rituals",
-    "sight"
+  "OBSIDIAN": [
+    "INFLUENCE",
+    "DEVOTION",
+    "RITUALS",
+    "SIGHT"
   ],
-  "raider": [
-    "winter raider",
-    "squall raider",
-    "firestorm raider"
+  "RAIDER": [
+    "WINTER RAIDER",
+    "SQUALL RAIDER",
+    "FIRESTORM RAIDER"
   ],
-  "battle chef 1": [
-    "black battle",
-    "white battle"
+  "BATTLE CHEF 1": [
+    "BLACK BATTLE",
+    "WHITE BATTLE"
   ],
-  "battle chef 2": [
-    "blue battle",
-    "red battle"
+  "BATTLE CHEF 2": [
+    "BLUE BATTLE",
+    "RED BATTLE"
   ],
-  "battle chef 3": [
-    "pink battle",
-    "purple battle",
-    "yellow battle"
+  "BATTLE CHEF 3": [
+    "PINK BATTLE",
+    "PURPLE BATTLE",
+    "YELLOW BATTLE"
   ],
-  "rose 1": [
-    "the black rose",
-    "the white rose"
+  "ROSE 1": [
+    "THE BLACK ROSE",
+    "THE WHITE ROSE"
   ],
-  "rose 2": [
-    "the gold rose",
-    "the green rose",
-    "the blue rose",
-    "the red rose"
+  "ROSE 2": [
+    "THE GOLD ROSE",
+    "THE GREEN ROSE",
+    "THE BLUE ROSE",
+    "THE RED ROSE"
   ],
-  "rose 3": [
-    "the amethyst rose",
-    "the aquamarine rose",
-    "the citrine rose",
-    "the garnet rose",
-    "the malachite rose",
-    "the moonstone rose",
-    "the turquoise rose"
+  "ROSE 3": [
+    "THE AMETHYST ROSE",
+    "THE AQUAMARINE ROSE",
+    "THE CITRINE ROSE",
+    "THE GARNET ROSE",
+    "THE MALACHITE ROSE",
+    "THE MOONSTONE ROSE",
+    "THE TURQUOISE ROSE"
   ],
-  "rose 4": [
-    "the coral rose",
-    "the violet rose"
+  "ROSE 4": [
+    "THE CORAL ROSE",
+    "THE VIOLET ROSE"
   ]
 }

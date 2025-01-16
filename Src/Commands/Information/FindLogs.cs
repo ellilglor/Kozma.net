@@ -55,14 +55,14 @@ public partial class FindLogs(IMemoryCache cache,
             var ignore = new List<string>();
             var items = new List<string>() { item };
             var stopHere = DateTime.Now.AddMonths(-months);
-            var cleanFilter = new List<string>() { "ctr high", "ctr very high", "asi high", "asi very high", "normal high", "normal max", "shadow high", "shadow max", "fire high", "fire max", "shock high", "shock max" };
+            var cleanFilter = new List<string>() { "CTR HIGH", "CTR VERY HIGH", "ASI HIGH", "ASI VERY HIGH", "NORMAL HIGH", "NORMAL MAX", "SHADOW HIGH", "SHADOW MAX", "FIRE HIGH", "FIRE MAX", "SHOCK HIGH", "SHOCK MAX" };
 
             AttachUvsToBack(items);
             if (checkVariants) await AddVariantsAsync(items);
             if (items[0].Contains("ctr", StringComparison.OrdinalIgnoreCase) && items[0].Contains("asi", StringComparison.OrdinalIgnoreCase)) items.ForEach(item => reverse.Add(SwapUvs(item)));
             if (checkClean) items.ForEach(item => cleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
-            if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("nog blaster");
-            if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("recipe");
+            if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("NOG BLASTER");
+            if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("RECIPE");
 
             var commonFeatured = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json"));
             var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
@@ -165,8 +165,8 @@ public partial class FindLogs(IMemoryCache cache,
 
     private static void AttachUvsToBack(List<string> items)
     {
-        var uvTypes = new List<string>() { "ctr", "asi", "normal", "shadow", "fire", "shock", "poison", "stun", "freeze", "elemental", "piercing" };
-        var uvGrades = new List<string>() { "low", "med", "high", "very", "max" };
+        var uvTypes = new List<string>() { "CTR", "ASI", "NORMAL", "SHADOW", "FIRE", "SHOCK", "POISON", "STUN", "FREEZE", "ELEMENTAL", "PIERCING" };
+        var uvGrades = new List<string>() { "LOW", "MED", "HIGH", "VERY", "MAX" };
         var input = items[0].Split(" ");
 
         for (int i = 0; i < input.Length; i++)
@@ -179,7 +179,7 @@ public partial class FindLogs(IMemoryCache cache,
                 {
                     if (i + 1 >= input.Length || !string.Equals(input[i + 1], grade, StringComparison.OrdinalIgnoreCase)) continue;
 
-                    var uv = grade == "very" && (i + 2 < input.Length && string.Equals(input[i + 2], "high", StringComparison.OrdinalIgnoreCase)) ? type + " very high" : type + " " + grade;
+                    var uv = grade == "VERY" && (i + 2 < input.Length && string.Equals(input[i + 2], "HIGH", StringComparison.OrdinalIgnoreCase)) ? type + " VERY HIGH" : type + " " + grade;
                     items[0] = (items[0].Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).Replace("  ", " ", StringComparison.OrdinalIgnoreCase).Trim();
                 }
             }
@@ -212,15 +212,15 @@ public partial class FindLogs(IMemoryCache cache,
             foreach (var color in set.Value)
             {
                 if (!item.Contains(color, StringComparison.OrdinalIgnoreCase)) continue;
-                if (set.Key == "gems" && GemExceptionRegex().IsMatch(item)) break;
-                if (set.Key == "snipes" && (item.Contains("slime", StringComparison.OrdinalIgnoreCase) ||
+                if (set.Key == "GEMS" && GemExceptionRegex().IsMatch(item)) break;
+                if (set.Key == "SNIPES" && (item.Contains("slime", StringComparison.OrdinalIgnoreCase) ||
                     item.Contains("plume", StringComparison.OrdinalIgnoreCase) || item.Contains("pepper", StringComparison.OrdinalIgnoreCase))) break;
 
                 var template = item.Replace(color, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
-                if (color == "rose" && ((template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase)) || RoseColorRegex().IsMatch(template))) break;
+                if (color == "ROSE" && ((template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase)) || RoseColorRegex().IsMatch(template))) break;
 
                 items.Clear();
-                if (set.Key == "obsidian" || set.Key.Contains("rose", StringComparison.OrdinalIgnoreCase))
+                if (set.Key == "OBSIDIAN" || set.Key.Contains("ROSE", StringComparison.OrdinalIgnoreCase))
                 {
                     set.Value.ForEach(value => items.Add($"{template} {value}".Trim()));
                 }
@@ -237,8 +237,8 @@ public partial class FindLogs(IMemoryCache cache,
     private static string SwapUvs(string name)
     {
         var nameList = name.Split(' ');
-        int ctr = Array.IndexOf(nameList, "ctr");
-        int asi = Array.IndexOf(nameList, "asi");
+        int ctr = Array.IndexOf(nameList, "CTR");
+        int asi = Array.IndexOf(nameList, "ASI");
         int minIndex = Math.Min(ctr, asi);
         int maxIndex = Math.Max(ctr, asi);
         var swapped = new StringBuilder();
