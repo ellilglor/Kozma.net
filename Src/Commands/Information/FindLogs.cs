@@ -218,9 +218,10 @@ public partial class FindLogs(IMemoryCache cache,
 
                 var template = item.Replace(color, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
                 if (color == "ROSE" && ((template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase)) || RoseColorRegex().IsMatch(template))) break;
+                if (set.Key == "GEMS" && template.Contains("floating", StringComparison.OrdinalIgnoreCase)) template = template.Replace(" s", string.Empty, StringComparison.OrdinalIgnoreCase);
 
                 items.Clear();
-                if (set.Key == "OBSIDIAN" || set.Key.Contains("ROSE", StringComparison.OrdinalIgnoreCase))
+                if (set.Key == "OBSIDIAN" || set.Key == "GEMS" || set.Key.Contains("ROSE", StringComparison.OrdinalIgnoreCase) )
                 {
                     set.Value.ForEach(value => items.Add($"{template} {value}".Trim()));
                 }
