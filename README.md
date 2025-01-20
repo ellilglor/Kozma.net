@@ -1,16 +1,16 @@
 # Kozma's Backpack bot
 A Discord bot for the [Spiral Knights](https://store.steampowered.com/app/99900/Spiral_Knights/) community.
 
-Kozma's Backpack Discord server invite [link](https://discord.gg/nGW89SHHj3).
+Kozma's Backpack [Discord server](https://discord.gg/nGW89SHHj3).
+
+[Invite](https://discord.com/api/oauth2/authorize?client_id=898505614404235266&permissions=66560&scope=bot%20applications.commands) the bot to your server.
 
 ## How To Use
-You can use the bot in any server it is in and in dms. Simply type / and a list of its available commands should pop up. Use /help to get more information about each command.
+You can use the bot in any server it is in, and in DMs. Simply type / and a list of its available commands should pop up. Use /help to get more information about each command.
 
+Some commands may require the bot to contact you via DMs.  
 Make sure you have the following enabled:
-- *Use slash commands* in App Settings > Text & Images
-- *Allow direct messages from server members* in User Settings > Privacy & Safety
-
-Want to invite the bot to your server? use this [link](https://discord.com/api/oauth2/authorize?client_id=898505614404235266&permissions=66560&scope=bot%20applications.commands).
+- *Direct Messages* in User Settings > Content & Social
 
 ## Available Commands
 <details>
