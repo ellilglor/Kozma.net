@@ -31,7 +31,7 @@ public partial class FindLogs(IMemoryCache cache,
         var altered = item.CleanUp();
 
         var embed = embedHandler.GetEmbed($"Searching for {Format.Underline(item)}, I will dm you what I can find.")
-            .WithDescription($"### Info & tips when searching:\n- {Format.Bold("Slime boxes:")}\nIdentifier followed by {Format.Italics("Slime Lockbox")}.\nExample: QQQ Slime Lockbox\n" +
+            .WithDescription($"{Format.Header("Info & tips when searching:", level: 3)}\n- {Format.Bold("Slime boxes:")}\nIdentifier followed by {Format.Italics("Slime Lockbox")}.\nExample: QQQ Slime Lockbox\n" +
                 $"- {Format.Bold("UV's:")}\nUse asi / ctr + med / high / very high / max.\n" +
                 "The bot automatically swaps asi & ctr so you don't have to search twice.\nExample: Brandish ctr very high asi high\n" +
                 $"- {Format.Bold("Equipment:")}\nThe bot looks for the entire family tree of your item!\n" +
