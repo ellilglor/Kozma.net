@@ -20,7 +20,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
             {
                 Id = id.ToString(),
                 Name = name,
-                Count = isCommand ? 1 : 0,
+                Commands = isCommand ? 1 : 0,
                 Unboxed = isCommand ? 0 : command == CommandIds.Unbox ? 1 : 0,
                 Punched = isCommand ? 0 : command == CommandIds.Punch ? 1 : 0,
                 ShardSwept = isCommand ? 0 : command == CommandIds.ShardSweeper ? 1 : 0,
@@ -33,7 +33,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
                 case CommandIds.Unbox: user.Unboxed++; break;
                 case CommandIds.Punch: user.Punched++; break;
                 case CommandIds.ShardSweeper: user.ShardSwept++; break;
-                default: user.Count++; break;
+                default: user.Commands++; break;
             }
 
             if (user.Name != name) user.Name = name; // Get rid of legacy discord tag
@@ -77,11 +77,11 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
     public async Task<IEnumerable<DbStat>> GetUsersAsync(int limit, int total, bool forUnboxed)
     {
         var query = await dbContext.Users
-            .OrderByDescending(u => forUnboxed ? u.Unboxed : u.Count)
+            .OrderByDescending(u => forUnboxed ? u.Unboxed : u.Commands)
             .ThenBy(u => u.Name)
             .Take(limit)
             .ToListAsync();
 
-        return query.Select(u => new DbStat(u.Name, forUnboxed ? u.Unboxed : u.Count, (forUnboxed ? u.Unboxed : u.Count) / (double)total));
+        return query.Select(u => new DbStat(u.Name, forUnboxed ? u.Unboxed : u.Commands, (forUnboxed ? u.Unboxed : u.Commands) / (double)total));
     }
 }

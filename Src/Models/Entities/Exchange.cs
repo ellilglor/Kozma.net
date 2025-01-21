@@ -9,7 +9,5 @@ public class Exchange
 {
     [BsonId]
     public ObjectId Id { get; set; }
-
-    [BsonElement("rate")]
     public int Rate { get; set; }
 }

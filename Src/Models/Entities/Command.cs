@@ -9,13 +9,7 @@ public class Command
 {
     [BsonId]
     public ObjectId Id { get; set; }
-
-    [BsonElement("command")]
     public required string Name { get; set; }
-
-    [BsonElement("amount")]
     public int Count { get; set; }
-
-    [BsonElement("game")]
     public bool IsGame { get; set; }
 }

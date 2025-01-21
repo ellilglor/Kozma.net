@@ -10,11 +10,7 @@ public class Unbox
 {
     [BsonId]
     public ObjectId Id { get; set; }
-
-    [BsonElement("box")]
     public required string Name { get; set; }
-
-    [BsonElement("amount")]
     public int Count { get; set; }
 }
 
