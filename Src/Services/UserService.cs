@@ -3,6 +3,7 @@ using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
 
 namespace Kozma.net.Src.Services;
 
@@ -44,29 +45,33 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> SaveMuteAsync<T>(ulong id, DateTime createdAt, Func<T> factory) where T : Mute
+    public async Task<bool> SaveMuteAsync(ulong id, string name, bool isWtb, DateTime msgCreatedAt)
     {
-        var collection = dbContext.Set<T>();
+        if (await dbContext.TradeMutes.FirstOrDefaultAsync(u => u.UserId == id) != null) return false;
 
-        if (await collection.FirstOrDefaultAsync(u => u.Id == id.ToString()) != null) return false;
+        await dbContext.TradeMutes.AddAsync(new Mute()
+        {
+            Id = ObjectId.GenerateNewId(),
+            Name = name,
+            UserId = id,
+            IsWtb = isWtb,
+            CreatedAt = DateTime.Now,
+            ExpiresAt = msgCreatedAt.AddHours(config.GetValue<double>("timers:slowmodeHours"))
+        });
 
-        var model = factory();
-        model.ExpiresAt = createdAt.AddHours(config.GetValue<double>("timers:slowmodeHours"));
-        model.CreatedAt = DateTime.Now;
-        model.UpdatedAt = DateTime.Now;
-
-        await collection.AddAsync(model);
         await dbContext.SaveChangesAsync();
         return true;
     }
 
-    public async Task<IEnumerable<T>> GetAndDeleteExpiredMutesAsync<T>() where T : Mute
+    public async Task<IEnumerable<Mute>> GetAndDeleteExpiredMutesAsync()
     {
-        var collection = dbContext.Set<T>();
-        var mutes = await collection.Where(x => x.ExpiresAt <= DateTime.Now).ToListAsync();
+        var mutes = await dbContext.TradeMutes.Where(x => x.ExpiresAt <= DateTime.Now).ToListAsync();
 
-        if (mutes.Count > 0) collection.RemoveRange(mutes);
-        await dbContext.SaveChangesAsync();
+        if (mutes.Count > 0)
+        {
+            dbContext.TradeMutes.RemoveRange(mutes);
+            await dbContext.SaveChangesAsync();
+        }
 
         return mutes;
     }

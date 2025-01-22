@@ -1,28 +1,19 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.EntityFrameworkCore;
 
 namespace Kozma.net.Src.Models.Entities;
 
+[Collection("trade_mutes")]
 public class Mute
 {
     [BsonId]
-    public required string Id { get; set; }
+    public ObjectId Id { get; set; }
     public required string Name { get; set; }
-    public DateTime ExpiresAt { get; set; }
+    public required ulong UserId { get; set; }
+    public bool IsWtb { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAt { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-    public DateTime UpdatedAt { get; set; }
-}
-
-[Collection("wtb_mutes")]
-public class BuyMute : Mute
-{
-
-}
-
-[Collection("wts_mutes")]
-public class SellMute : Mute
-{
-
+    public DateTime ExpiresAt { get; set; }
 }

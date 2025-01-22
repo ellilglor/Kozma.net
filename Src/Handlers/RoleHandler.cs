@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
-using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 
@@ -34,7 +33,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     public async Task CheckTradeMessagesAsync()
     {
-        var offlineMutesCheckInterval = 3;
+        var offlineMutesCheckInterval = 15;
         var currentDate = DateTime.UtcNow;
         var taskName = "offlineMutes";
         var task = await taskService.GetTaskAsync(taskName);
@@ -44,7 +43,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
             await logger.LogAsync($"failed to fetch {taskName} from db", pingOwner: true);
             return;
         }
-        if (task.UpdatedAt.AddHours(offlineMutesCheckInterval) > currentDate) return;
+        if (task.UpdatedAt.AddMinutes(offlineMutesCheckInterval) > currentDate) return;
 
         logger.Log(LogLevel.Moderation, "Checking if people need to be muted");
 
@@ -66,23 +65,16 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
     public async Task CheckExpiredMutesAsync()
     {
         logger.Log(LogLevel.Moderation, "Checking expired mutes");
-        var sellMutes = await userService.GetAndDeleteExpiredMutesAsync<SellMute>();
-        var buyMutes = await userService.GetAndDeleteExpiredMutesAsync<BuyMute>();
+        var mutes = await userService.GetAndDeleteExpiredMutesAsync();
 
-        if (!sellMutes.Any() && !buyMutes.Any()) return; // Both are empty
+        if (!mutes.Any()) return; // No mutes expired => no need to continue
         var guild = GetGuild();
         if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
 
-        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtsRole"), sellMutes);
-        await RemoveExpiredMutesAsync(guild, config.GetValue<ulong>("ids:wtbRole"), buyMutes);
-    }
-
-    private async Task RemoveExpiredMutesAsync<T>(SocketGuild guild, ulong roleId, IEnumerable<T> mutes) where T : Mute
-    {
-        foreach (var m in mutes)
+        foreach (var mute in mutes)
         {
-            if (guild.GetUser(ulong.Parse(m.Id)) is not IGuildUser user) continue; // User left the server
-            await RemoveRoleAsync(user, roleId);
+            if (guild.GetUser(mute.UserId) is not IGuildUser user) continue; // User left the server
+            await RemoveRoleAsync(user, config.GetValue<ulong>($"ids:{(mute.IsWtb ? "wtbRole" : "wtsRole")}"));
         }
     }
 
@@ -106,11 +98,10 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     private async Task MuteUserAsync(IGuildUser user, IMessage message, ulong roleId)
     {
-        bool success;
-        if (roleId == config.GetValue<ulong>("ids:wtsRole")) success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new SellMute() { Id = user.Id.ToString(), Name = user.Username });
-        else success = await userService.SaveMuteAsync(user.Id, message.CreatedAt.DateTime, () => new BuyMute() { Id = user.Id.ToString(), Name = user.Username });
+        var isWtb = roleId == config.GetValue<ulong>("ids:wtbRole");
+        var success = await userService.SaveMuteAsync(user.Id, user.Username, isWtb, message.CreatedAt.DateTime);
 
-        if (!success) await logger.LogAsync($"- {(roleId == config.GetValue<ulong>("ids:wtsRole") ? "WTS" : "WTB")} {MentionUtils.MentionUser(user.Id)} is already in the database", pingOwner: true);
+        if (!success) await logger.LogAsync($"- {(isWtb ? "WTB" : "WTS")} {MentionUtils.MentionUser(user.Id)} is already in the database", pingOwner: true);
         else await GiveRoleAsync(user, roleId);
     }
 }
