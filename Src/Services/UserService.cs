@@ -47,7 +47,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
 
     public async Task<bool> SaveMuteAsync(ulong id, string name, bool isWtb, DateTime msgCreatedAt)
     {
-        if (await dbContext.TradeMutes.FirstOrDefaultAsync(u => u.UserId == id) != null) return false;
+        if (await dbContext.TradeMutes.FirstOrDefaultAsync(u => u.UserId == id && u.IsWtb == isWtb) != null) return false;
 
         await dbContext.TradeMutes.AddAsync(new Mute()
         {
