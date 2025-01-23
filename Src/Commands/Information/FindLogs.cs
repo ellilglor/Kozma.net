@@ -180,7 +180,7 @@ public partial class FindLogs(IMemoryCache cache,
                     if (i + 1 >= input.Length || !string.Equals(input[i + 1], grade, StringComparison.OrdinalIgnoreCase)) continue;
 
                     var uv = grade == "VERY" && (i + 2 < input.Length && string.Equals(input[i + 2], "HIGH", StringComparison.OrdinalIgnoreCase)) ? type + " VERY HIGH" : type + " " + grade;
-                    items[0] = (items[0].Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).Replace("  ", " ", StringComparison.OrdinalIgnoreCase).Trim();
+                    items[0] = (items[0].Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).RemoveExtraWhiteSpace().Trim();
                 }
             }
         }
