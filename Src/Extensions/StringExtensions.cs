@@ -82,8 +82,9 @@ public static partial class StringExtensions
         for (; i < len; i++)
         {
             var ch = src[i];
-            if (char.IsWhiteSpace(ch) && !skip)
+            if (char.IsWhiteSpace(ch))
             {
+                if (skip) continue;
                 src[index++] = ' ';
                 skip = true;
             }
