@@ -78,7 +78,7 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
     }
 
     public async Task<bool> CheckIfLogExistsAsync(ulong id) =>
-        await dbContext.TradeLogs.FirstOrDefaultAsync(log => log.Id == id.ToString()) != null;
+        await dbContext.TradeLogs.FirstOrDefaultAsync(log => log.Id == id) != null;
 
     public async Task<int> GetTotalLogCountAsync() =>
         await dbContext.TradeLogs.CountAsync();

@@ -62,7 +62,7 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
 
         return new TradeLog()
         {
-            Id = message.Id.ToString(),
+            Id = message.Id,
             Channel = channel,
             Author = message.Author.Username.Contains("Knight Launcher", StringComparison.OrdinalIgnoreCase) ? "Haven Server" : message.Author.Username,
             Date = date,
