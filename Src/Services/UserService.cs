@@ -13,13 +13,13 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
     {
         if (id == config.GetValue<ulong>("ids:owner")) return;
 
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id.ToString());
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
 
         if (user is null)
         {
             await dbContext.Users.AddAsync(new User()
             {
-                Id = id.ToString(),
+                Id = id,
                 Name = name,
                 Commands = isCommand ? 1 : 0,
                 Unboxed = isCommand ? 0 : command == CommandIds.Unbox ? 1 : 0,

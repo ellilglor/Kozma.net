@@ -7,7 +7,7 @@ namespace Kozma.net.Src.Models.Entities;
 public class User
 {
     [BsonId]
-    public required string Id { get; set; }
+    public required ulong Id { get; set; }
     public required string Name { get; set; }
     public int Commands { get; set; }
     public int Unboxed { get; set; }
