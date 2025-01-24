@@ -7,7 +7,7 @@ namespace Kozma.net.Src.Models.Entities;
 public class Gambler
 {
     [BsonId]
-    public required string Id { get; set; }
+    public required ulong Id { get; set; }
     public required string Name { get; set; }
     public int SingleTicket { get; set; }
     public int DoubleTicket { get; set; }

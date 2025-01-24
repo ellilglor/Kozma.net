@@ -12,14 +12,14 @@ public class PunchService(KozmaDbContext dbContext, IConfiguration config) : IPu
     {
         if (id == config.GetValue<ulong>("ids:owner")) return;
 
-        var user = await dbContext.Gamblers.FirstOrDefaultAsync(u => u.Id == id.ToString());
+        var user = await dbContext.Gamblers.FirstOrDefaultAsync(u => u.Id == id);
         var cost = (int)ticket;
 
         if (user is null)
         {
             await dbContext.Gamblers.AddAsync(new Gambler()
             {
-                Id = id.ToString(),
+                Id = id,
                 Name = name,
                 SingleTicket = ticket == PunchPrices.SingleTicket ? cost : 0,
                 DoubleTicket = ticket == PunchPrices.DoubleTicket ? cost : 0,
