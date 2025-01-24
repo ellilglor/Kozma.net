@@ -14,7 +14,7 @@ public class PriceCheck(IConfiguration config) : InteractionModuleBase<SocketInt
     {
         await Context.Channel.SendFileAsync(
             filePath: Path.Combine("Src", "Assets", "we-dont-do-that-here.jpg"),
-            text: $"Asking for prices outside of {MentionUtils.MentionChannel(config.GetValue<ulong>("ids:priceCheckChannel"))}?"
+            text: $"Asking for prices outside of {MentionUtils.MentionChannel(config.GetValue<ulong>("ids:channels:priceCheck"))}?"
         );
 
         await ModifyOriginalResponseAsync(msg => msg.Content = "Image posted.");

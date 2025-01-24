@@ -1,6 +1,5 @@
 ﻿using Kozma.net.Src.Enums;
 using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Extensions;

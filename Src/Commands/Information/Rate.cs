@@ -20,7 +20,7 @@ public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, 
         {
             var user = Context.Guild?.GetUser(Context.User.Id);
 
-            if (user != null && user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:admin") || r.Id == config.GetValue<ulong>("ids:mod")))
+            if (user != null && user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:roles:admin") || r.Id == config.GetValue<ulong>("ids:roles:mod")))
             {
                 await exchangeService.UpdateExchangeAsync(newRate.Value);
                 embed.WithTitle($"The conversion rate has been changed to: {newRate}.");

@@ -105,14 +105,14 @@ public class TaskHandler(IBot bot,
     {
         try
         {
-            if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:marketChannel")) is not IMessageChannel channel) return false;
+            if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:market")) is not IMessageChannel channel) return false;
 
             var data = await apiFetcher.FetchAsync<EnergyMarketData>(DotNetEnv.Env.GetString("energyMarket"), new() { PropertyNameCaseInsensitive = true });
 
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
-                if (await bot.Client.GetChannelAsync(879297439054581770) is not IMessageChannel testChannel) return false;
-                await testChannel.SendMessageAsync($"{MentionUtils.MentionUser(698839171912958022)}\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
+                if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:dev")) is not IMessageChannel testChannel) return false;
+                await testChannel.SendMessageAsync($"{MentionUtils.MentionUser(config.GetValue<ulong>("ids:ape"))}\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
                 return false;
             }
 
@@ -154,8 +154,8 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> PostSlowModeReminderAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel wtsChannel) return false;
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:wtbChannel")) is not IMessageChannel wtbChannel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:wts")) is not IMessageChannel wtsChannel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:wtb")) is not IMessageChannel wtbChannel) return false;
 
         var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the {Format.Underline($"{config.GetValue<int>("timers:slowmodeHours")} hour slowmode")} in this channel.")
             .WithDescription($"You can edit your posts through the {Format.Code("/tradepostedit")} command.\nWe apologize for any inconvenience this may cause.")
@@ -170,7 +170,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> PostScamPreventionAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:wtsChannel")) is not IMessageChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:wts")) is not IMessageChannel channel) return false;
         var reminders = await jsonFileReader.ReadAsync<IReadOnlyList<Reminder>>(Path.Combine("Data", "Reminders.json"));
         var reminder = reminders[_random.Next(reminders.Count)];
 
@@ -237,7 +237,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> ClearBotLogsAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:botLogsChannel")) is not ITextChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:botLogs")) is not ITextChannel channel) return false;
 
         logger.Log(LogLevel.Moderation, "Cleaning BotLogs channel");
         var messages = await channel.GetMessagesAsync(limit: 420).FlattenAsync();

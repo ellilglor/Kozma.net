@@ -19,13 +19,13 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
         var channel = (ITextChannel)message.Channel;
         if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message, message.Channel.Id);
-        else if (channel.GuildId.Equals(653349356459786240)) await HandleHavenMessageAsync(message);
+        else if (channel.GuildId.Equals(config.GetValue<ulong>("ids:haven"))) await HandleHavenMessageAsync(message);
 
         if (KozmaRegex().IsMatch(message.Content) && _random.Next(2) == 0)
         {
             try
             {
-                await message.AddReactionAsync(new Emote(1092403749059829853, "kbplogo"));
+                await message.AddReactionAsync(new Emote(config.GetValue<ulong>("ids:logoEmote"), "kbplogo"));
             }
             catch { } // in case no permission to react
         }
@@ -35,16 +35,16 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
     {
         if (message.Author.IsBot)
         {
-            if (channelId.Equals(config.GetValue<ulong>("ids:marketChannel"))) await message.CrosspostAsync();
+            if (channelId.Equals(config.GetValue<ulong>("ids:channels:market"))) await message.CrosspostAsync();
         }
         else
         {
-            if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtsRole"));
-            else if (channelId.Equals(config.GetValue<ulong>("ids:wtbChannel"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:wtbRole"));
+            if (channelId.Equals(config.GetValue<ulong>("ids:channels:wts"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:roles:wts"));
+            else if (channelId.Equals(config.GetValue<ulong>("ids:channels:wtb"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:roles:wtb"));
 
-            if (channelId.Equals(config.GetValue<ulong>("ids:wtsChannel")) || channelId.Equals(config.GetValue<ulong>("ids:wtbChannel")))
+            if (channelId.Equals(config.GetValue<ulong>("ids:channels:wts")) || channelId.Equals(config.GetValue<ulong>("ids:channels:wtb")))
             {
-                await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:wtsChannel"));
+                await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:channels:wts"));
                 await WarnIfContentTooLongAsync(message);
             }
 
@@ -56,13 +56,11 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         }
     }
 
-    private static async Task HandleHavenMessageAsync(IMessage message)
+    private async Task HandleHavenMessageAsync(IMessage message)
     {
-        switch (message.Channel.Id)
+        if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:channels:havenListings")) && message.Author.IsWebhook && message.Author is IWebhookUser webhook && webhook.WebhookId == 1059194506248978432)
         {
-            case 1059194248894885968 when message.Author.IsWebhook: // Listings channel that get cross-posted from main server.
-                if (message.Author is IWebhookUser webhook && webhook.WebhookId == 1059194506248978432) await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(1059195232018772031)} The following has been posted:\n{message.Content}");
-                break;
+            await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(config.GetValue<ulong>("ids:roles:havenListings"))} The following has been posted:\n{message.Content}");
         }
     }
 

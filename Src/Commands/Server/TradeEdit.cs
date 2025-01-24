@@ -16,12 +16,12 @@ public class TradeEdit(IConfiguration config, IEmbedHandler embedHandler, IRoleH
             .WithDescription("Using this command to bypass the slowmode will result in a timeout.");
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
-        await roleHandler.GiveRoleAsync(user, config.GetValue<ulong>("ids:editRole"));
+        await roleHandler.GiveRoleAsync(user, config.GetValue<ulong>("ids:roles:edit"));
 
         // wait 2 minutes
         await Task.Delay(TimeSpan.FromMinutes(2));
 
-        await roleHandler.RemoveRoleAsync(user, config.GetValue<ulong>("ids:editRole"));
+        await roleHandler.RemoveRoleAsync(user, config.GetValue<ulong>("ids:roles:edit"));
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle("Your time is up!").WithDescription(null).Build());
     }
 }
