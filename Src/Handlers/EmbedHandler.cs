@@ -28,6 +28,9 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
     public Embed GetAndBuildEmbed(string title) =>
         GetEmbed(title).Build();
 
+    public EmbedBuilder GetLogEmbed(string title, uint color) =>
+        GetBasicEmbed(title).WithColor(color).WithCurrentTimestamp();
+
     public EmbedFieldBuilder CreateField(string name, string value, bool isInline = true) =>
         new EmbedFieldBuilder().WithName(name).WithValue(value).WithIsInline(isInline);
 

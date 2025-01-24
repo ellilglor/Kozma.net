@@ -189,7 +189,7 @@ public class TaskHandler(IBot bot,
     {
         var message = "Checking for new tradelogs";
         logger.Log(LogLevel.Moderation, message);
-        await logger.LogAsync(embed: logger.GetLogEmbed(message, Colors.Moderation).Build());
+        await logger.LogAsync(embed: embedHandler.GetLogEmbed(message, Colors.Moderation).Build());
 
         var channels = updateHelper.GetChannels();
         foreach (var channelData in channels)
@@ -213,7 +213,7 @@ public class TaskHandler(IBot bot,
     {
         var message = "Resetting tradelogs";
         logger.Log(LogLevel.Moderation, message);
-        await logger.LogAsync(embed: logger.GetLogEmbed(message, Colors.Moderation).Build());
+        await logger.LogAsync(embed: embedHandler.GetLogEmbed(message, Colors.Moderation).Build());
 
         var logs = new List<TradeLog>();
         var channels = updateHelper.GetChannels();
@@ -247,7 +247,7 @@ public class TaskHandler(IBot bot,
         foreach (var msg in messages)
         {
             if (msg.CreatedAt <= messageAgeLimit) break;
-            if (msg.Embeds.Count == 0) continue; // Legacy logs -> can be deleted later
+            if (msg.Embeds.Count == 0) continue;
             if (msg.Embeds.First().Color != Colors.Moderation) continue;
 
             toDelete.Add(msg);
@@ -264,5 +264,5 @@ public class TaskHandler(IBot bot,
     }
 
     private async Task PostStillConnectedAsync() =>
-        await logger.LogAsync(embed: logger.GetLogEmbed($"Connected since <t:{bot.ReadyTimeStamp}:f> with {bot.Client.Latency}ms latency.", Colors.Moderation).Build());
+        await logger.LogAsync(embed: embedHandler.GetLogEmbed($"Connected since <t:{bot.ReadyTimeStamp}:f> with {bot.Client.Latency}ms latency.", Colors.Moderation).Build());
 }

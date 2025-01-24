@@ -53,9 +53,6 @@ public partial class Logger(IBot bot,
         }
     }
 
-    public EmbedBuilder GetLogEmbed(string title, uint color) =>
-        embedHandler.GetBasicEmbed(title).WithColor(color).WithCurrentTimestamp();
-
     private async Task HandleCommandAsync(string command, IDiscordInteraction interaction, string location)
     {
         await SaveInteractionAsync(interaction.User.Id, interaction.User.Username, command, !GameRegex().IsMatch(command));
@@ -69,7 +66,7 @@ public partial class Logger(IBot bot,
         var desc = interaction.Data is SocketSlashCommandData data && data.Options.Count > 0 ? ExtractOptions(data.Options) : string.Empty;
         if (command == CommandIds.FindLogs && cache.TryGetValue($"{CommandIds.FindLogs}_{interaction.User.Id}", out int matches)) desc += $"\n- {Format.Bold("matches")}: {matches}";
 
-        var embed = GetLogEmbed(string.Empty, Colors.Default)
+        var embed = embedHandler.GetLogEmbed(string.Empty, Colors.Default)
             .WithDescription(desc)
             .WithAuthor(new EmbedAuthorBuilder().WithName(interaction.User.Username).WithIconUrl(interaction.User.GetDisplayAvatarUrl()))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
@@ -116,7 +113,7 @@ public partial class Logger(IBot bot,
         };
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
 
-        var errorEmbed = GetLogEmbed($"Error while executing {Format.Underline(interactionName)} for {Format.Underline(interaction.User.Username)}", Colors.Error)
+        var errorEmbed = embedHandler.GetLogEmbed($"Error while executing {Format.Underline(interactionName)} for {Format.Underline(interaction.User.Username)}", Colors.Error)
             .WithDescription(string.Join("\n\n", result.Exception.InnerException?.Message, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
