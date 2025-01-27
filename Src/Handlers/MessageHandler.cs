@@ -58,7 +58,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
     private async Task HandleHavenMessageAsync(IMessage message)
     {
-        if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:channels:havenListings")) && message.Author.IsWebhook && message.Author is IWebhookUser webhook && webhook.WebhookId == 1059194506248978432)
+        if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:channels:havenListings")) && message.Author.IsWebhook)
         {
             await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(config.GetValue<ulong>("ids:roles:havenListings"))} The following has been posted:\n{message.Content}");
         }
