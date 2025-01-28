@@ -31,4 +31,5 @@ public static class Emotes
     public const string Empty = "\u200B";
     public const string Crown = "<:kbpcrowns:1092398578053431366>";
     public const string Energy = "<:kbpenergy:1092398618939506718>";
+    public const string Ape = "\U0001F98D";
 }

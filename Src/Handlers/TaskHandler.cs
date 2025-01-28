@@ -34,6 +34,7 @@ public class TaskHandler(IBot bot,
         _tasks.Add("energyMarket", new TaskConfig(6, PostEnergyMarketAsync));
         _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
         _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
+        _tasks.Add("onlineAHReminder", new TaskConfig(84, PostAuctionHouseReminderAsync));
         _tasks.Add("cleanBotLogs", new TaskConfig(48, ClearBotLogsAsync));
         _tasks.Add("resetLogs", new TaskConfig(168, ResetLogsAsync));
         _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
@@ -182,6 +183,20 @@ public class TaskHandler(IBot bot,
 
         await channel.SendMessageAsync(embed: embed.Build());
         logger.Log(LogLevel.Moderation, "Posted scam prevention reminder");
+        return true;
+    }
+
+    private async Task<bool> PostAuctionHouseReminderAsync()
+    {
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:general")) is not IMessageChannel channel) return false;
+
+        var embed = embedHandler.GetBasicEmbed("The online Auction House")
+            .WithDescription($"Want to check out what is available on the auction house, or want to know when a listing is about to end? Then check out {Format.Url("this project", config.GetValue<string>("auctionHouse"))}.")
+            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField("Features", "- Current Auction House listings\n- Up-to-Date Energy Market\n- Full item catalog") })
+            .WithFooter(new EmbedFooterBuilder().WithText($"Brought to you by {Emotes.Ape}"));
+
+        await channel.SendMessageAsync(embed: embed.Build());
+        logger.Log(LogLevel.Moderation, "Posted online Auction House reminder");
         return true;
     }
 
