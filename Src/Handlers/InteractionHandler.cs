@@ -1,9 +1,12 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Enums;
+using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
@@ -12,11 +15,15 @@ namespace Kozma.net.Src.Handlers;
 public class InteractionHandler(IBot bot,
     IBotLogger logger,
     IConfiguration config,
+    IMemoryCache cache,
+    IFileReader jsonFileReader,
     IEmbedHandler embedHandler,
     ITradeLogService tradeLogService,
     IServiceProvider services,
     InteractionService service) : IInteractionHandler
 {
+    private const string _cacheKey = $"Autocomplete_{CommandIds.FindLogs}_item";
+
     public async Task InitializeAsync()
     {
         await service.AddModulesAsync(Assembly.GetEntryAssembly(), services);
@@ -39,12 +46,19 @@ public class InteractionHandler(IBot bot,
 
     public async Task HandleInteractionAsync(SocketInteraction interaction)
     {
-        /*if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
+
+        if (interaction.Type == InteractionType.ApplicationCommandAutocomplete)
+        {
+            await HandleAutocompleteAsync((SocketAutocompleteInteraction)interaction);
+            return;
+        }
+
+        if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {
             await interaction.RespondAsync(embed: embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later."), ephemeral: true);
             logger.Log(LogLevel.Info, interaction.User.Username);
             return;
-        }*/
+        }
 
         await interaction.DeferAsync(ephemeral: true);
 
@@ -63,8 +77,8 @@ public class InteractionHandler(IBot bot,
 
         var tryLater = interaction.Type switch
         {
-            Discord.InteractionType.ApplicationCommand when tradeLogService.LogsAreBeingReset => interaction is SocketSlashCommand command && command.CommandName.Equals(CommandIds.FindLogs, StringComparison.Ordinal),
-            Discord.InteractionType.MessageComponent when tradeLogService.LogsAreBeingReset => interaction is SocketMessageComponent component && component.Data.CustomId.Contains(ComponentIds.FindLogsBase, StringComparison.Ordinal),
+            InteractionType.ApplicationCommand when tradeLogService.LogsAreBeingReset => interaction is SocketSlashCommand command && command.CommandName.Equals(CommandIds.FindLogs, StringComparison.Ordinal),
+            InteractionType.MessageComponent when tradeLogService.LogsAreBeingReset => interaction is SocketMessageComponent component && component.Data.CustomId.Contains(ComponentIds.FindLogsBase, StringComparison.Ordinal),
             _ => false
         };
 
@@ -76,5 +90,21 @@ public class InteractionHandler(IBot bot,
 
         var context = new SocketInteractionContext(bot.Client, interaction);
         await service.ExecuteCommandAsync(context, services);
+    }
+
+    private async Task HandleAutocompleteAsync(SocketAutocompleteInteraction interaction)
+    {
+        var input = interaction.Data.Current.Value.ToString();
+        if (string.IsNullOrEmpty(input)) return;
+
+        if (!cache.TryGetValue(_cacheKey, out List<AutocompleteResult>? suggestions) || suggestions is null)
+        {
+            var items = await jsonFileReader.ReadAsync<IReadOnlyList<string>>(Path.Combine("Data", "Autocomplete", "Items.json"));
+            suggestions = items.Select(x => new AutocompleteResult(x, x)).ToList();
+            cache.Set(_cacheKey, suggestions, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6) });
+        }
+
+        var inputWords = input.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        await interaction.RespondAsync(suggestions.Where(s => inputWords.All(word => s.Name.Contains(word, StringComparison.OrdinalIgnoreCase))).Take(25));
     }
 }
