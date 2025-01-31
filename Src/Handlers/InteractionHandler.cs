@@ -22,8 +22,6 @@ public class InteractionHandler(IBot bot,
     IServiceProvider services,
     InteractionService service) : IInteractionHandler
 {
-    private const string _cacheKey = $"Autocomplete_{CommandIds.FindLogs}_item";
-
     public async Task InitializeAsync()
     {
         await service.AddModulesAsync(Assembly.GetEntryAssembly(), services);
@@ -53,12 +51,12 @@ public class InteractionHandler(IBot bot,
             return;
         }
 
-        if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
+        /*if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {
             await interaction.RespondAsync(embed: embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later."), ephemeral: true);
             logger.Log(LogLevel.Info, interaction.User.Username);
             return;
-        }
+        }*/
 
         await interaction.DeferAsync(ephemeral: true);
 
@@ -94,17 +92,24 @@ public class InteractionHandler(IBot bot,
 
     private async Task HandleAutocompleteAsync(SocketAutocompleteInteraction interaction)
     {
-        var input = interaction.Data.Current.Value.ToString();
-        if (string.IsNullOrEmpty(input)) return;
-
-        if (!cache.TryGetValue(_cacheKey, out List<AutocompleteResult>? suggestions) || suggestions is null)
+        var cacheKey = $"Autocomplete_{interaction.Data.CommandName}_{interaction.Data.Current.Name}";
+        var userInput = interaction.Data.Current.Value.ToString()!;
+        var fileName = interaction.Data.Current.Name switch
         {
-            var items = await jsonFileReader.ReadAsync<IReadOnlyList<string>>(Path.Combine("Data", "Autocomplete", "Items.json"));
+            "item" when interaction.Data.CommandName == CommandIds.FindLogs => "Items.json",
+            "item" when interaction.Data.CommandName == CommandIds.LockBox => "LockboxItems.json",
+            "slime" => "SlimeCodes.json",
+            _ => throw new InvalidOperationException($"Unknown autocomplete option: {interaction.Data.Current.Name}")
+        };
+
+        if (!cache.TryGetValue(cacheKey, out List<AutocompleteResult>? suggestions) || suggestions is null)
+        {
+            var items = await jsonFileReader.ReadAsync<IReadOnlyList<string>>(Path.Combine("Data", "Autocomplete", fileName));
             suggestions = items.Select(x => new AutocompleteResult(x, x)).ToList();
-            cache.Set(_cacheKey, suggestions, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6) });
+            cache.Set(cacheKey, suggestions, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6) });
         }
 
-        var inputWords = input.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        await interaction.RespondAsync(suggestions.Where(s => inputWords.All(word => s.Name.Contains(word, StringComparison.OrdinalIgnoreCase))).Take(25));
+        var input = userInput.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        await interaction.RespondAsync(suggestions.Where(s => input.All(word => s.Name.Contains(word, StringComparison.OrdinalIgnoreCase))).Take(25));
     }
 }

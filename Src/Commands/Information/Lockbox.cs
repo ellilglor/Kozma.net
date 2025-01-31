@@ -19,7 +19,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
         { LockboxOption.Steel, $"- {Format.Bold("1.92%")} for a Shadow Key.\n- {Format.Bold("76.78%")} for Bolted Vee, Wide Vee, Mecha Wings or Game Face.\n- {Format.Bold("19.19%")} for Vertical Vents or Spike Mohawk." +
             $"\n- {Format.Bold("3.84%")} for Ankle Booster or Aero Fin.\n- {Format.Bold("0.19%")} for Shoulder Booster or Flame Aura." },
         { LockboxOption.Silver, $"- {Format.Bold("1.92%")} for a Shadow Key.\n- {Format.Bold("76.78%")} for Vitakit, Targeting Module, Binocular Visor or Helm-Mounted Display.\n- {Format.Bold("19.19%")} for Maedate or Intel Tube." +
-            $"\n- {Format.Bold("3.84%")} for Giga Shades.\n- {Format.Bold("0.19%")} for Wings (50%) or Divine/Volcanic/Prismatic Halo (50%)." },
+            $"\n- {Format.Bold("3.84%")} for Giga Shades.\n- {Format.Bold("0.19%")} for Wings (50%) or Divine Halo/Volcanic Halo/Prismatic Halo (50%)." },
         { LockboxOption.Platinum, $"- {Format.Bold("1.92%")} for a Shadow Key.\n- {Format.Bold("76.78%")} for Com Unit, Knight Vision Goggles or Goggles.\n- {Format.Bold("19.19%")} for Sensor Unit or Bomb Bandolier." +
             $"\n- {Format.Bold("3.84%")} for Mohawk, Devious Horns or Scarf.\n- {Format.Bold("0.19%")} for Unclean Aura or Ghostly Aura." },
         { LockboxOption.Gold, $"- {Format.Bold("1.92%")} for a Shadow Key.\n- {Format.Bold("76.78%")} for Canteen, Ribbon or Maid Headband.\n- {Format.Bold("19.19%")} for Monocle or Glasses." +
@@ -28,10 +28,10 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
             $"\n- {Format.Bold("3.84%")} for Rebreather or Parrying Blade.\n- {Format.Bold("0.19%")} for Vial Bandolier." },
         { LockboxOption.Iron, $"- {Format.Bold("1.92%")} for a Shadow Key.\n{Format.Header("20% for one of the following:", level: 3)}\n- {Format.Bold("76.78%")} for Vitakit, Canteen or Barrel Belly." +
             $"\n- {Format.Bold("19.19%")} for Side Blade or Bomb Bandolier.\n- {Format.Bold("3.84%")} for Wolver Tail or Parrying Blade." +
-            $"\n- {Format.Bold("0.19%")} with {Format.Bold("50%")} for Wings and {Format.Bold("50%")} to get an Aura: {Format.Bold("27.78%")} for Twinkle, Ghostly and Unclean. {Format.Bold("13.89%")} for Twilight & {Format.Bold("2.77%")} for Flame." +
+            $"\n- {Format.Bold("0.19%")} with {Format.Bold("50%")} for Wings and {Format.Bold("50%")} to get an Aura: {Format.Bold("27.78%")} for Twinkle Aura, Ghostly Aura and Unclean Aura. {Format.Bold("13.89%")} for Twilight Aura & {Format.Bold("2.77%")} for Flame Aura." +
             $"\n{Format.Header("80% for one of the following:", level: 3)}\n- {Format.Bold("76.78%")} for Plume, Ribbon, Vented Visor, Binocular Visor, Knight Vision Goggles, Helm-Mounted Display, Goggles, Com Unit, Mecha Wings, Helm Guards, Bolted Vee, Headband, Wide Vee, Maid Headband or Flower." +
             $"\n- {Format.Bold("19.19%")} for Long Feather, Vertical Vents, Pipe, Glasses or Maedate.\n- {Format.Bold("3.84%")} with {Format.Bold("24.39%")} for Scarf, Mustache and Mohawk and {Format.Bold("2.44%")} for Prismatic Glow-Eyes." +
-            $"\n- {Format.Bold("0.19%")} with {Format.Bold("43.48%")} for Dapper Combo and Toupee & {Format.Bold("13.04%")} for Divine/Volcanic/Prismatic Halo." },
+            $"\n- {Format.Bold("0.19%")} with {Format.Bold("43.48%")} for Dapper Combo and Toupee & {Format.Bold("13.04%")} for Divine Halo/Volcanic Halo/Prismatic Halo." },
         { LockboxOption.Mirrored, $"- {Format.Bold("90.91%")} for the following eyes:\n- Cheeky, Closed, Dot, Exed, Jolly, Delicate, Pill, Plus. Angry, Sad, Shifty, Sleepy, Spiral, Squinty, Sultry, Vacant or Starry." +
             $"\n- {Format.Bold("9.09%")} for Extra Short or Extra Tall Height Modifier." },
         { LockboxOption.Slime, $"These are the {Format.Underline("estimated")} odds taken from 800+ QQQ box openings:\n- {Format.Bold("36.97%")} for Node Slime Mask. \n- {Format.Bold("30.40%")} for Node Slime Guards.\n- {Format.Bold("10.80%")} for Node Container." +
@@ -42,8 +42,8 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
     [SlashCommand(CommandIds.LockBox, "Get the drops from a (slime) lockbox or find what box drops your item.")]
     public async Task ExecuteAsync(
         [Summary(name: "boxes", description: "Get the odds from a lockbox.")] LockboxOption? box = null,
-        [Summary(name: "slime", description: "Find where you can find a special themed box."), MinLength(3), MaxLength(69)] string? slimeCode = null,
-        [Summary(description: "Find which lockbox drops your item."), MinLength(3), MaxLength(69)] string? item = null)
+        [Summary(name: "slime", description: "Find where you can find a special themed box."), Autocomplete(), MinLength(3), MaxLength(69)] string? slimeCode = null,
+        [Summary(description: "Find which lockbox drops your item."), Autocomplete(), MinLength(3), MaxLength(69)] string? item = null)
     {
         var embed = embedHandler.GetEmbed("Please select 1 of the given options.");
         var optionCount = (box.HasValue ? 1 : 0) + (!string.IsNullOrEmpty(slimeCode) ? 1 : 0) + (!string.IsNullOrEmpty(item) ? 1 : 0);
