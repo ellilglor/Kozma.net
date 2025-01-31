@@ -51,11 +51,20 @@ public class InteractionHandler(IBot bot,
             return;
         }
 
+        var canBeExecuted = await CheckIfCanBeExecutedAsync(interaction);
+        if (!canBeExecuted) return;
+
+        var context = new SocketInteractionContext(bot.Client, interaction);
+        await service.ExecuteCommandAsync(context, services);
+    }
+
+    private async Task<bool> CheckIfCanBeExecutedAsync(SocketInteraction interaction)
+    {
         /*if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
         {
             await interaction.RespondAsync(embed: embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later."), ephemeral: true);
             logger.Log(LogLevel.Info, interaction.User.Username);
-            return;
+            return false;
         }*/
 
         await interaction.DeferAsync(ephemeral: true);
@@ -69,7 +78,7 @@ public class InteractionHandler(IBot bot,
             {
                 var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
                 await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
-                return;
+                return false;
             }
         }
 
@@ -83,17 +92,15 @@ public class InteractionHandler(IBot bot,
         if (tryLater)
         {
             await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embedHandler.GetAndBuildEmbed("Logs are being updated, please try again in a few minutes."));
-            return;
+            return false;
         }
 
-        var context = new SocketInteractionContext(bot.Client, interaction);
-        await service.ExecuteCommandAsync(context, services);
+        return true;
     }
 
     private async Task HandleAutocompleteAsync(SocketAutocompleteInteraction interaction)
     {
         var cacheKey = $"Autocomplete_{interaction.Data.CommandName}_{interaction.Data.Current.Name}";
-        var userInput = interaction.Data.Current.Value.ToString()!;
         var fileName = interaction.Data.Current.Name switch
         {
             "item" when interaction.Data.CommandName == CommandIds.FindLogs => "Items.json",
@@ -109,7 +116,7 @@ public class InteractionHandler(IBot bot,
             cache.Set(cacheKey, suggestions, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6) });
         }
 
-        var input = userInput.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var input = interaction.Data.Current.Value.ToString()?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
         await interaction.RespondAsync(suggestions.Where(s => input.All(word => s.Name.Contains(word, StringComparison.OrdinalIgnoreCase))).Take(25));
     }
 }
