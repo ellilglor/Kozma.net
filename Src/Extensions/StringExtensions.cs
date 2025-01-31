@@ -41,7 +41,7 @@ public static partial class StringExtensions
 
     public static string CleanUp(this string content)
     {
-        var filtered = SpecialCharsRegex().Replace(content, string.Empty);
+        var filtered = SpecialCharsRegex().Replace(content, " ");
 
         foreach (var filter in Filters)
         {
@@ -51,7 +51,8 @@ public static partial class StringExtensions
             filtered = filtered.Replace(filter.Before, filter.After, StringComparison.OrdinalIgnoreCase);
         }
 
-        return filtered.RemoveExtraWhiteSpace().ToUpper(CultureInfo.InvariantCulture);
+        var result = filtered.RemoveExtraWhiteSpace().ToUpper(CultureInfo.InvariantCulture);
+        return result;
     }
 
     [GeneratedRegex(@"['""’\+\[\]()\-{},|]")]
