@@ -201,6 +201,8 @@ public partial class FindLogs(IMemoryCache cache,
         if (!family.Equals(default(KeyValuePair<string, List<string>>)))
         {
             var match = family.Value.First(name => item.Contains(name, StringComparison.OrdinalIgnoreCase));
+            if (match == "AVENGER" && items[0].Contains("helm", StringComparison.OrdinalIgnoreCase)) return;
+
             var uvs = item.Replace(match, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
 
             items.Clear();
