@@ -7,7 +7,7 @@ namespace Kozma.net.Src.Trackers;
 
 public class PunchTracker(IMemoryCache cache) : IPunchTracker
 {
-    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30) };
     private const string _types = "Types";
     private const string _grades = "Grades";
 

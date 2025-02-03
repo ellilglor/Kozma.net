@@ -24,7 +24,7 @@ public class StatPageTracker(IBot bot,
     ITradeLogService tradeLogService) : IStatPageTracker
 {
     private bool _buildingInProgess;
-    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(20) };
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30) };
     private const string _cacheKey = "stat_pages";
 
     public async Task BuildPagesAsync()
