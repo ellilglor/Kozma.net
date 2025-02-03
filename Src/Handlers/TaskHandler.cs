@@ -5,12 +5,14 @@ using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Handlers;
 
 public class TaskHandler(IBot bot,
     IConfiguration config,
+    IMemoryCache cache,
     IBotLogger logger,
     IEmbedHandler embedHandler,
     IRoleHandler roleHandler,
@@ -203,6 +205,7 @@ public class TaskHandler(IBot bot,
     private async Task<bool> CheckForNewLogsAsync()
     {
         var message = "Checking for new tradelogs";
+        var newLogs = false;
         logger.Log(LogLevel.Moderation, message);
         await logger.LogAsync(embed: embedHandler.GetLogEmbed(message, Colors.Moderation).Build());
 
@@ -218,9 +221,14 @@ public class TaskHandler(IBot bot,
             }
 
             var logs = await updateHelper.GetLogsAsync(channel);
-            if (logs.Count > 0) await tradeLogService.UpdateLogsAsync(logs);
+            if (logs.Count > 0)
+            {
+                await tradeLogService.UpdateLogsAsync(logs);
+                newLogs = true;
+            }
         }
 
+        if (newLogs) ClearFindLogsCache();
         return true;
     }
 
@@ -244,10 +252,21 @@ public class TaskHandler(IBot bot,
         await Task.WhenAll(tasks);
         logger.Log(LogLevel.Moderation, "Uploading logs to database...");
 
+        ClearFindLogsCache();
         await tradeLogService.DeleteAndUpdateLogsAsync(logs);
 
         logger.Log(LogLevel.Moderation, "Tradelogs have been reset");
         return true;
+    }
+
+    private void ClearFindLogsCache()
+    {
+        if (!cache.TryGetValue(CommandIds.FindLogs, out IEnumerable<string>? keys) || keys is null) return;
+
+        foreach (var key in keys)
+        {
+            cache.Remove(key);
+        }
     }
 
     private async Task<bool> ClearBotLogsAsync()

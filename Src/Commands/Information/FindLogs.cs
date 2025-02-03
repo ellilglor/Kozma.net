@@ -20,6 +20,8 @@ public partial class FindLogs(IMemoryCache cache,
     IFileReader jsonFileReader,
     IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
+    private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12) };
+
     [SlashCommand(CommandIds.FindLogs, "Search the tradelog database for any item.")]
     public async Task ExecuteAsync(
         [Summary(description: "Item the bot should look for."), Autocomplete(), MinLength(3), MaxLength(69)] string item,
@@ -68,7 +70,8 @@ public partial class FindLogs(IMemoryCache cache,
             var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
             matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
 
-            cache.Set(cacheKey, matches, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30) });
+            cache.Set(cacheKey, matches, _cacheOptions);
+            SaveCacheKey(cacheKey);
         }
 
         var matchCount = matches.Sum(collection => collection.Messages.Count);
@@ -249,6 +252,16 @@ public partial class FindLogs(IMemoryCache cache,
         swapped.Append(string.Join(" ", nameList.Skip(minIndex).Take(maxIndex - minIndex)) + " ");
 
         return swapped.ToString().Trim();
+    }
+
+    // Store the keys from searches so they can be deleted when logs get updated
+    private void SaveCacheKey(string key)
+    {
+        cache.TryGetValue(CommandIds.FindLogs, out List<string>? keys);
+        keys ??= [];
+
+        keys.Add(key);
+        cache.Set(CommandIds.FindLogs, keys, _cacheOptions);
     }
 
     [GeneratedRegex("(bout|rose|tabard|chapeau|buckled|clover|pipe|lumberfell)")]
