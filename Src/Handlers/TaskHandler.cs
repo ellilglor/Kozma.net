@@ -193,8 +193,8 @@ public class TaskHandler(IBot bot,
         if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:general")) is not IMessageChannel channel) return false;
 
         var embed = embedHandler.GetBasicEmbed("The online Auction House")
-            .WithDescription($"Want to check out what is available on the auction house, or want to know when a listing is about to end? Then check out {Format.Url("this project", config.GetValue<string>("auctionHouse"))}.")
-            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField("Features", "- Current Auction House listings\n- Up-to-Date Energy Market\n- Full item catalog") })
+            .WithDescription($"Want to check out what is available on the auction house, or want to know when a listing is about to end? Then check out {Format.Bold(Format.Url("this project", config.GetValue<string>("auctionHouse")))}.")
+            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField("Features", "- Current & historic Auction House listings\n- Up-to-Date Energy Market\n- Full item catalog") })
             .WithFooter(new EmbedFooterBuilder().WithText($"Brought to you by {Emotes.Ape}"));
 
         await channel.SendMessageAsync(embed: embed.Build());
