@@ -87,21 +87,21 @@ public class TaskHandler(IBot bot,
             2 => "/unbox",
             3 => "/punch",
             4 => "Emberlight Radio",
-            6 => "The Devilite podcast",
-            7 => "m.sound_test",
-            8 => "Harry Mack",
-            9 => "Traversing the Aurora Isles",
-            10 => "Feedback",
-            11 => "Chawkthree Weapon Demonstrations",
-            12 => "Tier 4 Ice Queen With Commentary",
-            13 => "Gun Guides: Ep. 10",
-            14 => "Gatemap Viewer",
-            15 => "m.jellycube_arena",
-            16 => "Soup making tutorial",
+            5 => "The Devilite podcast",
+            6 => "m.sound_test",
+            7 => "Harry Mack",
+            8 => "Traversing the Aurora Isles",
+            9 => "Feedback",
+            10 => "Chawkthree Weapon Demonstrations",
+            11 => "Tier 4 Ice Queen With Commentary",
+            12 => "Gun Guides: Ep. 10",
+            13 => "Gatemap Viewer",
+            14 => "m.jellycube_arena",
+            15 => "Soup making tutorial",
             _ => "Avengers: Age of Ultron"
         };
 
-        await bot.UpdateActivityAsync(name, type: random < 11 ? ActivityType.Listening : ActivityType.Watching);
+        await bot.UpdateActivityAsync(name, type: random < 10 ? ActivityType.Listening : ActivityType.Watching);
     }
 
     private async Task<bool> PostEnergyMarketAsync()
