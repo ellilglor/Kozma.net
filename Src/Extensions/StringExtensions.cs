@@ -1,5 +1,6 @@
 ﻿using Kozma.net.Src.Enums;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Extensions;
@@ -96,5 +97,20 @@ public static partial class StringExtensions
         }
 
         return new string(src, 0, index);
+    }
+
+    public static string ToTitleCase(this string input)
+    {
+        var words = input.Split(' ');
+        var final = new StringBuilder();
+
+        foreach (var word in words)
+        {
+#pragma warning disable CA1308 // We want lowercase here
+            final.Append(string.Concat(word[0].ToString().ToUpperInvariant(), word.ToLowerInvariant().AsSpan(1)) + ' ');
+#pragma warning restore CA1308 // Normalize strings to uppercase
+        }
+
+        return final.ToString().TrimEnd();
     }
 }

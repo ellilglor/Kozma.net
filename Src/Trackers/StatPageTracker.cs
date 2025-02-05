@@ -269,7 +269,7 @@ public class StatPageTracker(IBot bot,
         var index = 1;
         foreach (var item in data)
         {
-            names.AppendLine($"{index} {Format.Bold(item.Item)}");
+            names.AppendLine($"{index} {Format.Bold(item.Item.ToTitleCase())}");
             searches.AppendLine($"{item.Count:N0}");
             index++;
         }
