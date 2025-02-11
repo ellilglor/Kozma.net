@@ -73,7 +73,7 @@ public class UnboxTrackerTests : IDisposable
     [Fact]
     public void GetData_ReturnsStringEvenIfNoData()
     {
-        Assert.NotNull(_unboxTracker.GetData(_ID, _BOX));
+        Assert.IsType<string>(_unboxTracker.GetData(_ID, _BOX));
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class UnboxTrackerTests : IDisposable
     {
         SetPlayer();
 
-        Assert.NotNull(_unboxTracker.GetData(_ID, _BOX));
+        Assert.IsType<string>(_unboxTracker.GetData(_ID, _BOX));
     }
 
     [Fact]
