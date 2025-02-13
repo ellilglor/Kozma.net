@@ -1,5 +1,4 @@
-﻿using Kozma.net.Src.Enums;
-using Kozma.net.Src.Models;
+﻿using Kozma.net.Src.Models;
 using Kozma.net.Src.Trackers;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -13,8 +12,8 @@ public class PunchTrackerTests : IDisposable
     private const string _types = "Types";
     private const string _grades = "Grades";
 
-    private readonly MemoryCache _cache;
     private readonly PunchTracker _punchTracker;
+    private readonly MemoryCache _cache;
 
     public PunchTrackerTests()
     {
