@@ -9,7 +9,7 @@ public static partial class StringExtensions
     private sealed record TermFilter(string Before, string After, string? Exclude);
 
     private static readonly List<TermFilter> Filters = [new TermFilter("mixmaster", "overcharged mixmaster", "overcharged"),
-        new TermFilter("totem", "somnambulists totem", "somnambulists"),
+        new TermFilter("totem", "somnambulists totem", "somnambulist"),
         new TermFilter("orbit gun", "orbitgun", null),
         new TermFilter("orbitgun", "celestial orbitgun", "celestial"),
         new TermFilter("daybreaker", "daybreaker band", "band"),
@@ -23,12 +23,11 @@ public static partial class StringExtensions
         new TermFilter("asi m", "asi med", "asi med"),
         new TermFilter("asi h", "asi high", "asi high"),
         new TermFilter("ctr very high asi very high", "asi very high ctr very high", null),
+        new TermFilter("ctr very high asi high", "asi high ctr very high", null),
         new TermFilter("lite gm", "asi high ctr very high", null),
-        new TermFilter("lite gm ", "asi high ctr very high ", null),
         new TermFilter("gm lite", "asi high ctr very high", null),
-        new TermFilter("gm lite ", "asi high ctr very high ", null),
         new TermFilter(" gm", "asi very high ctr very high", null),
-        new TermFilter("gm ", "asi very high ctr very high ", null),
+        new TermFilter("gm ", "asi very high ctr very high", null),
         new TermFilter("medium", "med", null),
         new TermFilter("vhigh", "very high", null),
         new TermFilter("maximum", "max", null),
@@ -96,7 +95,7 @@ public static partial class StringExtensions
             }
         }
 
-        return new string(src, 0, index);
+        return new string(src, 0, index).Trim();
     }
 
     public static string ToTitleCase(this string input)
