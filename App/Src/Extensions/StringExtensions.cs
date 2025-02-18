@@ -68,7 +68,7 @@ public static partial class StringExtensions
     };
 
     public static PunchOption ConvertToPunchOption(this string item) =>
-        PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid option");
+        PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidCastException($"{item} is not a valid option");
 
     // https://stackoverflow.com/questions/6442421/c-sharp-fastest-way-to-remove-extra-white-spaces
     public static string RemoveExtraWhiteSpace(this string input)

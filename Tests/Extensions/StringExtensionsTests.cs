@@ -71,7 +71,7 @@ public class StringExtensionsTests
     {
         var template = "The God of Thunder";
 
-        Assert.Throws<InvalidOperationException>(() => template.ConvertToPunchOption());
+        Assert.Throws<InvalidCastException>(() => template.ConvertToPunchOption());
     }
 
     [Theory]
