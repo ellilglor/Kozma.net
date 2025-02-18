@@ -28,7 +28,7 @@ public static class EnumExtensions
     };
 
     public static BoxData ToBoxData(this Box box) =>
-        BoxDataMapping.TryGetValue(box, out var data) ? data : throw new InvalidOperationException($"Box '{box}' is not a valid box type.");
+        BoxDataMapping.TryGetValue(box, out var data) ? data : throw new  InvalidCastException($"Box '{box}' is not a valid box type.");
 
     // Lockbox extensions
     private static readonly Dictionary<LockboxOption, Box> LockboxOptionMapping = new()
@@ -45,7 +45,7 @@ public static class EnumExtensions
     };
 
     public static Box ConvertToBox(this LockboxOption box) =>
-        LockboxOptionMapping.TryGetValue(box, out var data) ? data : throw new InvalidOperationException($"Lockbox '{box}' is not a valid lockbox type.");
+        LockboxOptionMapping.TryGetValue(box, out var data) ? data : throw new InvalidCastException($"Lockbox '{box}' is not a valid lockbox type.");
 
     // PunchOption extensions
     private static readonly Dictionary<PunchOption, PunchItem> PunchOptionMapping = new()
@@ -63,7 +63,7 @@ public static class EnumExtensions
     };
 
     public static PunchItem ToPunchItem(this PunchOption item) =>
-        PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidOperationException($"{item} is not a valid PunchOption");
+        PunchOptionMapping.TryGetValue(item, out var data) ? data : throw new InvalidCastException($"{item} is not a valid PunchOption");
 
     // Logcolor extensions
     private static readonly Dictionary<LogLevel, string> LogLevelMapping = new()
