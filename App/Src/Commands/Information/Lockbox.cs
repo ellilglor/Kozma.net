@@ -5,8 +5,10 @@ using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("UnitTests")]
 namespace Kozma.net.Src.Commands.Information;
 
 public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInteractionContext>
@@ -136,7 +138,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
     private static string SlimeboxMatch(string code, string content, bool hasSpecial = true) =>
         $"The {code} Slime lockbox contains {(hasSpecial ? "the " : string.Empty)}{Format.Underline(content)} themed box.";
 
-    private string? FindItem(string item)
+    internal string FindItem(string item)
     {
         item = SpecialCharsRegex().Replace(item, string.Empty);
 
