@@ -19,9 +19,13 @@ public class SearchMore(IMemoryCache cache, IEmbedHandler embedHandler, ITradeLo
     {
         var context = (SocketMessageComponent)Context.Interaction;
         var command = new FindLogs(cache, embedHandler, tradeLogService, jsonFileReader, config);
-        var item = string.Join(" ", context.Message.Embeds.First().Title.Split(' ').Skip(5)).Replace("_", string.Empty, StringComparison.InvariantCulture);
+        var original = string.Join(" ", context.Message.Embeds.First().Title.Split(' ').Skip(5)).Replace("_", string.Empty, StringComparison.InvariantCulture);
+        var checkVariants = variantSearch == ComponentIds.FindLogsVar;
+        var altered = original.CleanUp();
+        var months = 120;
 
         await ModifyOriginalResponseAsync(msg => msg.Components = new ComponentBuilder().Build());
-        await command.SearchLogsAsync(item.CleanUp(), item, months: 120, checkVariants: variantSearch == ComponentIds.FindLogsVar, checkClean: false, checkMixed: true, user: context.User);
+        var matches = await command.SearchLogsAsync(altered, original, months, checkVariants, checkClean: false, checkMixed: true);
+        await command.SendMatchesAsync(context.User, matches, altered, original, months, checkVariants);
     }
 }
