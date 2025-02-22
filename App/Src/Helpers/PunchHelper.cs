@@ -7,6 +7,7 @@ using Kozma.net.Src.Models;
 using Kozma.net.Src.Trackers;
 
 namespace Kozma.net.Src.Helpers;
+public record PunchReward(string Author, string Url);
 
 public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader, IBotLogger logger) : IPunchHelper
 {
@@ -111,8 +112,6 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
             };
         }
     }
-
-    private sealed record PunchReward(string Author, string Url);
 
     public async Task<(string desc, string image)> CheckForGmAsync(string user, ItemType type, IReadOnlyCollection<string> uvs)
     {

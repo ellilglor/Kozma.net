@@ -9,9 +9,11 @@ using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("UnitTests")]
 namespace Kozma.net.Src.Commands.Information;
 
 public partial class FindLogs(IMemoryCache cache,
@@ -43,23 +45,23 @@ public partial class FindLogs(IMemoryCache cache,
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
         if (Context.User.Id != config.GetValue<ulong>("ids:owner")) await tradeLogService.UpdateOrSaveItemAsync(altered);
-        await SearchLogsAsync(altered, item, months, checkVariants: variants, checkClean: clean, checkMixed: mixed);
+
+        var matches = await SearchLogsAsync(altered, item, months, checkVariants: variants, checkClean: clean, checkMixed: mixed);
+        await SendMatchesAsync(Context.User, matches, altered, item, months, checkVariants: variants);
     }
 
-    public async Task SearchLogsAsync(string item, string original, int months, bool checkVariants, bool checkClean, bool checkMixed, SocketUser? user = null)
+    public async Task<IEnumerable<LogGroups>> SearchLogsAsync(string item, string original, int months, bool checkVariants, bool checkClean, bool checkMixed)
     {
         var cacheKey = $"{item}_{original}_{months}_{checkVariants}_{checkClean}_{checkMixed}";
-        var cmdUser = user ?? Context.User;
 
         if (!cache.TryGetValue(cacheKey, out IEnumerable<LogGroups>? matches) || matches is null)
         {
             var reverse = new List<string>();
             var ignore = new List<string>();
-            var items = new List<string>() { item };
+            var items = new List<string>() { AttachUvsToBack(item) };
             var stopHere = DateTime.Now.AddMonths(-months);
             var cleanFilter = new List<string>() { "CTR HIGH", "CTR VERY HIGH", "ASI HIGH", "ASI VERY HIGH", "NORMAL HIGH", "NORMAL MAX", "SHADOW HIGH", "SHADOW MAX", "FIRE HIGH", "FIRE MAX", "SHOCK HIGH", "SHOCK MAX" };
 
-            AttachUvsToBack(items);
             if (checkVariants) await AddVariantsAsync(items);
             if (items[0].Contains("ctr", StringComparison.OrdinalIgnoreCase) && items[0].Contains("asi", StringComparison.OrdinalIgnoreCase)) items.ForEach(item => reverse.Add(SwapUvs(item)));
             if (checkClean) items.ForEach(item => cleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
@@ -74,23 +76,21 @@ public partial class FindLogs(IMemoryCache cache,
             SaveCacheKey(cacheKey);
         }
 
-        var matchCount = matches.Sum(collection => collection.Messages.Count);
-        var sentMatchesSuccesfully = await SendMatchesAsync(matches, cmdUser);
-        if (sentMatchesSuccesfully) await FinishInteractionAsync(item, original, matchCount, months, checkVariants, cmdUser);
+        return matches;
     }
 
-    private async Task<bool> SendMatchesAsync(IEnumerable<LogGroups> matches, SocketUser user)
+    public async Task SendMatchesAsync(SocketUser user, IEnumerable<LogGroups> matches, string item, string original, int months, bool checkVariants)
     {
+        var matchCount = 0;
+
         try
         {
             foreach (var channel in matches)
             {
                 var count = channel.Messages.Count;
                 var charCount = 0;
-                var embeds = new List<Embed>()
-                {
-                    embedHandler.GetBasicEmbed($"I found {count:N0} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(Colors.Crown).Build()
-                };
+                var embeds = new List<Embed> { embedHandler.GetBasicEmbed($"I found {count:N0} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(Colors.Crown).Build() };
+                matchCount += count;
 
                 foreach (var message in channel.Messages)
                 {
@@ -113,18 +113,17 @@ public partial class FindLogs(IMemoryCache cache,
                 if (embeds.Count > 0) await user.SendMessageAsync(embeds: [.. embeds]);
             }
 
-            return true;
+            await FinishInteractionAsync(user, item, original, matchCount, months, checkVariants);
         }
         catch
         {
             await SendErrorEmbedAsync();
-            return false;
         }
     }
 
-    private async Task FinishInteractionAsync(string item, string copy, int matchCount, int months, bool checkVariants, SocketUser user)
+    private async Task FinishInteractionAsync(SocketUser user, string item, string original, int matchCount, int months, bool checkVariants)
     {
-        var embed = embedHandler.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing {Format.Underline(copy)}")
+        var embed = embedHandler.GetEmbed($"I found {matchCount} message{(matchCount != 1 ? "s" : string.Empty)} containing {Format.Underline(original)}")
             .WithColor(Colors.Crown)
             .WithDescription($"By default I only look at tradelogs from the past {Format.Bold("6 months")}!\n" +
                 $"If you want me to look past that use the {Format.Code("months")} option.\n\n" +
@@ -137,7 +136,7 @@ public partial class FindLogs(IMemoryCache cache,
         var spreadsheet = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "Spreadsheet.json"));
         if (spreadsheet.Any(equipment => item.Contains(equipment, StringComparison.OrdinalIgnoreCase)))
         {
-            embed.AddField(Emotes.Empty, $"{Format.Underline(copy)} can be found on the {Format.Url(Format.Bold("merchant sheet"), "https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#")}.");
+            embed.AddField(Emotes.Empty, $"{Format.Underline(original)} can be found on the {Format.Url(Format.Bold("merchant sheet"), "https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#")}.");
         }
 
         var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: ComponentIds.ClearMessages, style: ButtonStyle.Primary);
@@ -166,11 +165,11 @@ public partial class FindLogs(IMemoryCache cache,
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
     }
 
-    private static void AttachUvsToBack(List<string> items)
+    internal static string AttachUvsToBack(string item)
     {
         var uvTypes = new List<string>() { "CTR", "ASI", "NORMAL", "SHADOW", "FIRE", "SHOCK", "POISON", "STUN", "FREEZE", "ELEMENTAL", "PIERCING" };
         var uvGrades = new List<string>() { "LOW", "MED", "HIGH", "VERY", "MAX" };
-        var input = items[0].Split(" ");
+        var input = item.Split(" ");
 
         for (int i = 0; i < input.Length; i++)
         {
@@ -183,13 +182,15 @@ public partial class FindLogs(IMemoryCache cache,
                     if (i + 1 >= input.Length || !string.Equals(input[i + 1], grade, StringComparison.OrdinalIgnoreCase)) continue;
 
                     var uv = grade == "VERY" && (i + 2 < input.Length && string.Equals(input[i + 2], "HIGH", StringComparison.OrdinalIgnoreCase)) ? type + " VERY HIGH" : type + " " + grade;
-                    items[0] = (items[0].Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).RemoveExtraWhiteSpace().Trim();
+                    item = (item.Replace(uv, string.Empty, StringComparison.OrdinalIgnoreCase) + " " + uv).RemoveExtraWhiteSpace().Trim();
                 }
             }
         }
+
+        return item;
     }
 
-    private async Task AddVariantsAsync(List<string> items)
+    internal async Task AddVariantsAsync(List<string> items)
     {
         var item = items[0];
         var exceptions = new List<string> { "drakon", "maskeraith", "nog" };
@@ -240,18 +241,22 @@ public partial class FindLogs(IMemoryCache cache,
         }
     }
 
-    private static string SwapUvs(string name)
+    internal static string SwapUvs(string name)
     {
         var nameList = name.Split(' ');
-        int ctr = Array.IndexOf(nameList, "CTR");
-        int asi = Array.IndexOf(nameList, "ASI");
-        int minIndex = Math.Min(ctr, asi);
-        int maxIndex = Math.Max(ctr, asi);
+        var ctrIndex = Array.IndexOf(nameList, "CTR");
+        var asiIndex = Array.IndexOf(nameList, "ASI");
+
+        if (ctrIndex == -1 || asiIndex == -1) return name;
+
+        var separator = " ";
+        var minIndex = Math.Min(ctrIndex, asiIndex);
+        var maxIndex = Math.Max(ctrIndex, asiIndex);
         var swapped = new StringBuilder();
 
-        swapped.Append(string.Join(" ", nameList.Take(minIndex)) + " ");
-        swapped.Append(string.Join(" ", nameList.Skip(maxIndex)) + " ");
-        swapped.Append(string.Join(" ", nameList.Skip(minIndex).Take(maxIndex - minIndex)) + " ");
+        swapped.Append(string.Join(separator, nameList.Take(minIndex)) + separator);
+        swapped.Append(string.Join(separator, nameList.Skip(maxIndex)) + separator);
+        swapped.Append(string.Join(separator, nameList.Skip(minIndex).Take(maxIndex - minIndex)) + separator);
 
         return swapped.ToString().Trim();
     }

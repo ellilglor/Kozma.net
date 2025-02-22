@@ -1,9 +1,10 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kozma.net", "Kozma.net.csproj", "{B2AF1FF3-0311-4DD1-9C17-134C3B991CAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kozma.net", "App\Kozma.net.csproj", "{5CDFD6A7-9DF5-47E0-A958-4EF5EBF218D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "Tests\UnitTests.csproj", "{10178BBD-8B71-46F5-B873-E20F27A6ED18}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +12,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B2AF1FF3-0311-4DD1-9C17-134C3B991CAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B2AF1FF3-0311-4DD1-9C17-134C3B991CAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B2AF1FF3-0311-4DD1-9C17-134C3B991CAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B2AF1FF3-0311-4DD1-9C17-134C3B991CAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CDFD6A7-9DF5-47E0-A958-4EF5EBF218D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CDFD6A7-9DF5-47E0-A958-4EF5EBF218D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CDFD6A7-9DF5-47E0-A958-4EF5EBF218D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CDFD6A7-9DF5-47E0-A958-4EF5EBF218D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10178BBD-8B71-46F5-B873-E20F27A6ED18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10178BBD-8B71-46F5-B873-E20F27A6ED18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10178BBD-8B71-46F5-B873-E20F27A6ED18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10178BBD-8B71-46F5-B873-E20F27A6ED18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
