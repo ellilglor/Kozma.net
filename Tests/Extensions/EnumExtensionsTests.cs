@@ -9,9 +9,7 @@ public class EnumExtensionsTests
     [Fact]
     public void ToBoxData_ReturnsDataIfValidBox()
     {
-        var box = Box.Confection;
-
-        var result = box.ToBoxData();
+        var result = Box.Confection.ToBoxData();
 
         Assert.IsType<BoxData>(result);
     }
@@ -27,9 +25,7 @@ public class EnumExtensionsTests
     [Fact]
     public void ConvertToBox_ReturnsBoxIfValidOption()
     {
-        var option = LockboxOption.Iron;
-
-        var result = option.ConvertToBox();
+        var result = LockboxOption.Iron.ConvertToBox();
 
         Assert.IsType<Box>(result);
     }
@@ -45,9 +41,7 @@ public class EnumExtensionsTests
     [Fact]
     public void ToPunchItem_ReturnsItemIfValidOption()
     {
-        var item = PunchOption.Mixmaster;
-
-        var result = item.ToPunchItem();
+        var result = PunchOption.Mixmaster.ToPunchItem();
 
         Assert.IsType<PunchItem>(result);
     }
@@ -63,9 +57,7 @@ public class EnumExtensionsTests
     [Fact]
     public void Color_Valid_ReturnsString()
     {
-        var level = LogLevel.Special;
-
-        var result = level.Color();
+        var result = LogLevel.Special.Color();
 
         Assert.IsType<string>(result);
         Assert.NotEmpty(result);

@@ -129,7 +129,9 @@ public class StatPageTrackerTests : IDisposable
     {
         _embedHandlerMock.Setup(x => x.GetAndBuildEmbed(It.IsAny<string>())).Returns(new EmbedBuilder().Build());
 
-        Assert.IsType<Embed>(_tracker.GetPage(0));
+        var result = _tracker.GetPage(0);
+
+        Assert.IsType<Embed>(result);
     }
 
     [Theory]
@@ -149,22 +151,28 @@ public class StatPageTrackerTests : IDisposable
 
         _tracker.GetPage(pageCacheKey, action);
 
-        Assert.Equal(expectedPage, _cache.Get<int>(pageCacheKey));
+        var result = _cache.Get<int>(pageCacheKey);
+        Assert.Equal(expectedPage, result);
     }
 
     [Fact]
     public void GetComponents_ReturnsComponentsIfCacheIsEmpty()
     {
-        Assert.IsType<MessageComponent>(_tracker.GetComponents(0));
+        var result = _tracker.GetComponents(0);
+
+        Assert.IsType<MessageComponent>(result);
     }
 
     [Fact]
     public void GetComponents_ReturnsComponentsIfPagesExist()
     {
+        var id = 0UL;
         _cache.Set(_cacheKey, new List<Embed>());
-        _cache.Set(0, 0);
+        _cache.Set(id, 0);
 
-        Assert.IsType<MessageComponent>(_tracker.GetComponents(0));
+        var result = _tracker.GetComponents(id);
+
+        Assert.IsType<MessageComponent>(result);
     }
 
     public void Dispose()

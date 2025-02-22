@@ -28,7 +28,7 @@ public static class EnumExtensions
     };
 
     public static BoxData ToBoxData(this Box box) =>
-        BoxDataMapping.TryGetValue(box, out var data) ? data : throw new  InvalidCastException($"Box '{box}' is not a valid box type.");
+        BoxDataMapping.TryGetValue(box, out var data) ? data : throw new InvalidCastException($"Box '{box}' is not a valid box type.");
 
     // Lockbox extensions
     private static readonly Dictionary<LockboxOption, Box> LockboxOptionMapping = new()

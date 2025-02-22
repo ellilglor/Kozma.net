@@ -86,10 +86,10 @@ public class FindLogsTests : IDisposable
 
         await _command.SearchLogsAsync(template, template, months, checkX, checkX, checkX);
 
-        var keys = (List<string>)_cache.Get(CommandIds.FindLogs)!;
+        var result = (List<string>)_cache.Get(CommandIds.FindLogs)!;
 
-        Assert.NotEmpty(keys);
-        Assert.Equal(cacheKey, keys[0]);
+        Assert.NotEmpty(result);
+        Assert.Equal(cacheKey, result[0]);
     }
 
     [Theory]

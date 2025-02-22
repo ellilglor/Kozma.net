@@ -11,34 +11,36 @@ public class UnboxTrackerTests : IDisposable
     private const Box _BOX = Box.Equinox;
     private static readonly string _cacheKey = $"{_ID}_{_BOX}";
 
+    private readonly UnboxTracker _tracker;
     private readonly MemoryCache _cache;
-    private readonly UnboxTracker _unboxTracker;
 
     public UnboxTrackerTests()
     {
         _cache = new MemoryCache(new MemoryCacheOptions());
-        _unboxTracker = new UnboxTracker(_cache);
+        _tracker = new UnboxTracker(_cache);
     }
 
     private void SetPlayer()
     {
-        _unboxTracker.SetPlayer(_ID, _BOX);
+        _tracker.SetPlayer(_ID, _BOX);
     }
 
     [Fact]
     public void SetPlayer_CreatesEmptyListInCache()
     {
         SetPlayer();
-        Assert.Empty(_cache.Get<List<TrackerItem>>(_cacheKey)!);
+
+        var result = _cache.Get<List<TrackerItem>>(_cacheKey)!;
+        Assert.Empty(result);
     }
 
     [Fact]
     public void AddEntry_CreatesNewEntryWithValue1()
     {
         var expected = "Ultron";
-
         SetPlayer();
-        _unboxTracker.AddEntry(_ID, _BOX, expected);
+
+        _tracker.AddEntry(_ID, _BOX, expected);
 
         var items = _cache.Get<List<TrackerItem>>(_cacheKey)!;
         Assert.NotEmpty(items);
@@ -50,30 +52,34 @@ public class UnboxTrackerTests : IDisposable
     public void AddEntry_UpdatesExistingEntryBy1()
     {
         var value = "Thanos";
-
         SetPlayer();
-        _unboxTracker.AddEntry(_ID, _BOX, value);
-        _unboxTracker.AddEntry(_ID, _BOX, value);
 
-        Assert.Equal(2, _cache.Get<List<TrackerItem>>(_cacheKey)![0].Count);
+        _tracker.AddEntry(_ID, _BOX, value);
+        _tracker.AddEntry(_ID, _BOX, value);
+
+        var result = _cache.Get<List<TrackerItem>>(_cacheKey)!;
+        Assert.Equal(2, result[0].Count);
     }
 
     [Fact]
     public void AddEntry_AddsMultipleEntriesWithoutOverriding()
     {
         var expected = "Loki";
-
         SetPlayer();
-        _unboxTracker.AddEntry(_ID, _BOX, "Thanos");
-        _unboxTracker.AddEntry(_ID, _BOX, expected);
 
-        Assert.Equal(expected, _cache.Get<List<TrackerItem>>(_cacheKey)![1].Name);
+        _tracker.AddEntry(_ID, _BOX, "Thanos");
+        _tracker.AddEntry(_ID, _BOX, expected);
+
+        var result = _cache.Get<List<TrackerItem>>(_cacheKey)!;
+        Assert.Equal(expected, result[1].Name);
     }
 
     [Fact]
     public void GetData_ReturnsStringEvenIfNoData()
     {
-        Assert.IsType<string>(_unboxTracker.GetData(_ID, _BOX));
+        var result = _tracker.GetData(_ID, _BOX);
+
+        Assert.IsType<string>(result);
     }
 
     [Fact]
@@ -81,24 +87,29 @@ public class UnboxTrackerTests : IDisposable
     {
         SetPlayer();
 
-        Assert.IsType<string>(_unboxTracker.GetData(_ID, _BOX));
+        var result = _tracker.GetData(_ID, _BOX);
+
+        Assert.IsType<string>(result);
     }
 
     [Fact]
     public void GetData_StringContainsAddedItems()
     {
         var expected = "Ultron";
-
         SetPlayer();
-        _unboxTracker.AddEntry(_ID, _BOX, expected);
+        _tracker.AddEntry(_ID, _BOX, expected);
 
-        Assert.Contains(expected, _unboxTracker.GetData(_ID, _BOX), StringComparison.OrdinalIgnoreCase);
+        var result = _tracker.GetData(_ID, _BOX);
+
+        Assert.Contains(expected, result, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void GetItemCount_Returns0IfNoData()
     {
-        Assert.Equal(0, _unboxTracker.GetItemCount(_ID, _BOX));
+        var result = _tracker.GetItemCount(_ID, _BOX);
+
+        Assert.Equal(0, result);
     }
 
     [Fact]
@@ -106,17 +117,21 @@ public class UnboxTrackerTests : IDisposable
     {
         SetPlayer();
 
-        Assert.Equal(0, _unboxTracker.GetItemCount(_ID, _BOX));
+        var result = _tracker.GetItemCount(_ID, _BOX);
+
+        Assert.Equal(0, result);
     }
 
     [Fact]
     public void GetItemCount_ReturnsCorrectCount()
     {
         SetPlayer();
-        _unboxTracker.AddEntry(_ID, _BOX, "Thanos");
-        _unboxTracker.AddEntry(_ID, _BOX, "Loki");
+        _tracker.AddEntry(_ID, _BOX, "Thanos");
+        _tracker.AddEntry(_ID, _BOX, "Loki");
 
-        Assert.Equal(2, _unboxTracker.GetItemCount(_ID, _BOX));
+        var result = _tracker.GetItemCount(_ID, _BOX);
+
+        Assert.Equal(2, result);
     }
 
     public void Dispose()

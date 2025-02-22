@@ -19,7 +19,9 @@ public class UpdateHelperTests
     [Fact]
     public void GetChannels_ReturnsDictionaryOfChannels()
     {
-        Assert.IsType<IReadOnlyDictionary<string, ulong>>(_helper.GetChannels(), exactMatch: false);
+        var result = _helper.GetChannels();
+
+        Assert.IsType<IReadOnlyDictionary<string, ulong>>(result, exactMatch: false);
     }
 
     [Fact]

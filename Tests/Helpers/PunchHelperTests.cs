@@ -27,7 +27,9 @@ public class PunchHelperTests
     [Fact]
     public void GetAuthor_ReturnsEmbedAuthorBuilder()
     {
-        Assert.IsType<EmbedAuthorBuilder>(_helper.GetAuthor());
+        var result = _helper.GetAuthor();
+
+        Assert.IsType<EmbedAuthorBuilder>(result);
     }
 
     /*
@@ -57,7 +59,9 @@ public class PunchHelperTests
     [InlineData(0, 3)]
     public void GetComponents_AlwaysReturnsComponents(int uvCount, int lockCount)
     {
-        Assert.IsType<MessageComponent>(_helper.GetComponents(uvCount, lockCount));
+        var result = _helper.GetComponents(uvCount, lockCount);
+
+        Assert.IsType<MessageComponent>(result);
     }
 
     [Theory]
@@ -69,7 +73,9 @@ public class PunchHelperTests
     {
         var item = new PunchItem(string.Empty, itemType, string.Empty, string.Empty);
 
-        Assert.IsType<string>(_helper.RollUv(1, item, []));
+        var result = _helper.RollUv(1, item, []);
+
+        Assert.IsType<string>(result);
     }
 
     [Fact]

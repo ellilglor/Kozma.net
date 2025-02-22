@@ -12,18 +12,18 @@ public class PunchTrackerTests : IDisposable
     private const string _types = "Types";
     private const string _grades = "Grades";
 
-    private readonly PunchTracker _punchTracker;
+    private readonly PunchTracker _tracker;
     private readonly MemoryCache _cache;
 
     public PunchTrackerTests()
     {
         _cache = new MemoryCache(new MemoryCacheOptions());
-        _punchTracker = new PunchTracker(_cache);
+        _tracker = new PunchTracker(_cache);
     }
 
     private void SetPlayer()
     {
-        _punchTracker.SetPlayer(_ID, _ITEM);
+        _tracker.SetPlayer(_ID, _ITEM);
     }
 
     [Fact]
@@ -31,9 +31,9 @@ public class PunchTrackerTests : IDisposable
     {
         SetPlayer();
 
-        var cached = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
-        Assert.Empty(cached[_types]);
-        Assert.Empty(cached[_grades]);
+        var result = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
+        Assert.Empty(result[_types]);
+        Assert.Empty(result[_grades]);
     }
 
     [Fact]
@@ -41,19 +41,19 @@ public class PunchTrackerTests : IDisposable
     {
         var expectedType = "Susan Storm";
         var expectedGrade = "Johnny Storm";
-
         SetPlayer();
-        _punchTracker.AddEntry(_ID, _ITEM, expectedType, expectedGrade);
 
-        var cached = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
+        _tracker.AddEntry(_ID, _ITEM, expectedType, expectedGrade);
 
-        Assert.NotEmpty(cached[_types]);
-        Assert.Equal(1, cached[_types][0].Count);
-        Assert.Equal(expectedType, cached[_types][0].Name);
+        var result = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
 
-        Assert.NotEmpty(cached[_grades]);
-        Assert.Equal(1, cached[_grades][0].Count);
-        Assert.Equal(expectedGrade, cached[_grades][0].Name);
+        Assert.NotEmpty(result[_types]);
+        Assert.Equal(1, result[_types][0].Count);
+        Assert.Equal(expectedType, result[_types][0].Name);
+
+        Assert.NotEmpty(result[_grades]);
+        Assert.Equal(1, result[_grades][0].Count);
+        Assert.Equal(expectedGrade, result[_grades][0].Name);
     }
 
     [Fact]
@@ -61,14 +61,14 @@ public class PunchTrackerTests : IDisposable
     {
         var type = "Reed Richards";
         var grade = "Ben Grimm";
-
         SetPlayer();
-        _punchTracker.AddEntry(_ID, _ITEM, type, grade);
-        _punchTracker.AddEntry(_ID, _ITEM, type, grade);
 
-        var cached = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
-        Assert.Equal(2, cached[_types][0].Count);
-        Assert.Equal(2, cached[_grades][0].Count);
+        _tracker.AddEntry(_ID, _ITEM, type, grade);
+        _tracker.AddEntry(_ID, _ITEM, type, grade);
+
+        var result = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
+        Assert.Equal(2, result[_types][0].Count);
+        Assert.Equal(2, result[_grades][0].Count);
     }
 
     [Fact]
@@ -76,20 +76,22 @@ public class PunchTrackerTests : IDisposable
     {
         var expectedType = "Galactus";
         var expectedGrade = "Silver Surfer";
-
         SetPlayer();
-        _punchTracker.AddEntry(_ID, _ITEM, "Reed Richards", "Susan Storm");
-        _punchTracker.AddEntry(_ID, _ITEM, expectedType, expectedGrade);
 
-        var cached = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
-        Assert.Equal(expectedType, cached[_types][1].Name);
-        Assert.Equal(expectedGrade, cached[_grades][1].Name);
+        _tracker.AddEntry(_ID, _ITEM, "Reed Richards", "Susan Storm");
+        _tracker.AddEntry(_ID, _ITEM, expectedType, expectedGrade);
+
+        var result = _cache.Get<Dictionary<string, List<TrackerItem>>>(_cacheKey)!;
+        Assert.Equal(expectedType, result[_types][1].Name);
+        Assert.Equal(expectedGrade, result[_grades][1].Name);
     }
 
     [Fact]
     public void GetData_ReturnsStringEvenIfNoData()
     {
-        Assert.IsType<string>(_punchTracker.GetData(_ID, _ITEM));
+        var result = _tracker.GetData(_ID, _ITEM);
+
+        Assert.IsType<string>(result);
     }
 
     [Fact]
@@ -97,7 +99,9 @@ public class PunchTrackerTests : IDisposable
     {
         SetPlayer();
 
-        Assert.IsType<string>(_punchTracker.GetData(_ID, _ITEM));
+        var result = _tracker.GetData(_ID, _ITEM);
+
+        Assert.IsType<string>(result);
     }
 
     [Fact]
@@ -105,13 +109,13 @@ public class PunchTrackerTests : IDisposable
     {
         var expectedType = "Doctor";
         var expectedGrade = "Doom";
-
         SetPlayer();
-        _punchTracker.AddEntry(_ID, _ITEM, expectedType, expectedGrade);
+        _tracker.AddEntry(_ID, _ITEM, expectedType, expectedGrade);
 
-        var data = _punchTracker.GetData(_ID, _ITEM);
-        Assert.Contains(expectedType, data, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains(expectedGrade, data, StringComparison.OrdinalIgnoreCase);
+        var result = _tracker.GetData(_ID, _ITEM);
+
+        Assert.Contains(expectedType, result, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(expectedGrade, result, StringComparison.OrdinalIgnoreCase);
     }
 
     public void Dispose()

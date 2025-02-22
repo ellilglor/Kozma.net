@@ -8,8 +8,8 @@ public class CostCalculatorTests
 {
     private readonly CostCalculator _costCalculator;
 
-    public CostCalculatorTests() 
-    { 
+    public CostCalculatorTests()
+    {
         _costCalculator = new CostCalculator();
     }
 
@@ -61,19 +61,19 @@ public class CostCalculatorTests
     [Fact]
     public void CalculateBoxCost_Dollar_CalculatesBulkDiscounts()
     {
+        // 14 boxes at bulk rate (49.95)
+        // 5 boxes at medium rate (19.95)
+        // 1 box at single rate (4.95)
+        var expected = 49.95 + 19.95 + 4.95;
         var box = new BoxData(0, BoxCurrency.Dollar, string.Empty, string.Empty, string.Empty);
         var MinimumAmountForCalculation = 20;
 
         var result = _costCalculator.CalculateBoxCost(MinimumAmountForCalculation, box);
 
-        // 14 boxes at bulk rate (49.95)
-        // 5 boxes at medium rate (19.95)
-        // 1 box at single rate (4.95)
-        var expected = 49.95 + 19.95 + 4.95;
         Assert.Equal(Math.Round(expected, 2), result);
     }
 
-    
+
     [Fact]
     public void CalculateBoxCost_UnknownCurrency_ReturnsBoxPrice()
     {
