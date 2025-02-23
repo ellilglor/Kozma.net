@@ -271,7 +271,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> ClearBotLogsAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:botLogs")) is not ITextChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:kozmaLogs")) is not ITextChannel channel) return false;
 
         logger.Log(LogLevel.Moderation, "Cleaning BotLogs channel");
         var messages = await channel.GetMessagesAsync(limit: 420).FlattenAsync();

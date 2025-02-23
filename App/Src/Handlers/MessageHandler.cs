@@ -48,7 +48,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
                 await WarnIfContentTooLongAsync(message);
             }
 
-            if (channelId.Equals(config.GetValue<ulong>("ids:channels:general")) && message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:bot")) && !cache.TryGetValue(_cachekey, out int _))
+            if (channelId.Equals(config.GetValue<ulong>("ids:channels:general")) && message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:kozma")) && !cache.TryGetValue(_cachekey, out int _))
             {
                 await message.Channel.SendFileAsync(filePath: Path.Combine("Src", "Assets", "hello-there.gif"));
                 cache.Set(_cachekey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });

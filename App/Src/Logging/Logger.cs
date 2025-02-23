@@ -26,7 +26,7 @@ public partial class Logger(IBot bot,
     public async Task LogAsync(string? message = null, Embed? embed = null, bool pingOwner = false)
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:botLogs")) is not IMessageChannel channel) return;
+        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:kozmaLogs")) is not IMessageChannel channel) return;
         var msg = pingOwner ? string.Join(" ", MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner")), message) : message;
 
         await channel.SendMessageAsync(msg, embed: embed);
