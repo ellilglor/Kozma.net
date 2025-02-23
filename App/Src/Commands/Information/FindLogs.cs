@@ -46,13 +46,13 @@ public partial class FindLogs(IMemoryCache cache,
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
         if (Context.User.Id != config.GetValue<ulong>("ids:owner")) await tradeLogService.UpdateOrSaveItemAsync(altered);
 
-        var matches = await SearchLogsAsync(altered, item, months, checkVariants: variants, checkClean: clean, checkMixed: mixed);
+        var matches = await SearchLogsAsync(altered, months, checkVariants: variants, checkClean: clean, checkMixed: mixed);
         await SendMatchesAsync(Context.User, matches, altered, item, months, checkVariants: variants);
     }
 
-    public async Task<IEnumerable<LogGroups>> SearchLogsAsync(string item, string original, int months, bool checkVariants, bool checkClean, bool checkMixed)
+    public async Task<IEnumerable<LogGroups>> SearchLogsAsync(string item, int months, bool checkVariants, bool checkClean, bool checkMixed)
     {
-        var cacheKey = $"{item}_{original}_{months}_{checkVariants}_{checkClean}_{checkMixed}";
+        var cacheKey = $"{item}_{months}_{checkVariants}_{checkClean}_{checkMixed}";
 
         if (!cache.TryGetValue(cacheKey, out IEnumerable<LogGroups>? matches) || matches is null)
         {

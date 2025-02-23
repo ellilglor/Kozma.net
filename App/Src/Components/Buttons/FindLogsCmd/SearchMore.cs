@@ -25,7 +25,7 @@ public class SearchMore(IMemoryCache cache, IEmbedHandler embedHandler, ITradeLo
         var months = 120;
 
         await ModifyOriginalResponseAsync(msg => msg.Components = new ComponentBuilder().Build());
-        var matches = await command.SearchLogsAsync(altered, original, months, checkVariants, checkClean: false, checkMixed: true);
+        var matches = await command.SearchLogsAsync(altered, months, checkVariants, checkClean: false, checkMixed: true);
         await command.SendMatchesAsync(context.User, matches, altered, original, months, checkVariants);
     }
 }

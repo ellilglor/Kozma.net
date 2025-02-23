@@ -41,10 +41,10 @@ public class FindLogsTests : IDisposable
         var template = "Ant Man";
         var months = 1;
         var checkX = true;
-        var cacheKey = $"{template}_{template}_{months}_{checkX}_{checkX}_{checkX}";
+        var cacheKey = $"{template}_{months}_{checkX}_{checkX}_{checkX}";
         _cache.Set(cacheKey, new List<LogGroups>());
 
-        await _command.SearchLogsAsync(template, template, months, checkX, checkX, checkX);
+        await _command.SearchLogsAsync(template, months, checkX, checkX, checkX);
 
         _tradeLogServiceMock.Verify(x =>
             x.GetLogsAsync(It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<IReadOnlyCollection<string>>()), Times.Never);
@@ -64,7 +64,7 @@ public class FindLogsTests : IDisposable
         _fileReaderMock.Setup(x => x.ReadAsync<IEnumerable<string>>(It.IsAny<string>()))
             .ReturnsAsync([]);
 
-        var result = await _command.SearchLogsAsync(string.Empty, string.Empty, 0, false, false, false);
+        var result = await _command.SearchLogsAsync(string.Empty, 0, false, false, false);
 
         Assert.NotNull(result);
         Assert.Equal(expectedLogs, result);
@@ -76,7 +76,7 @@ public class FindLogsTests : IDisposable
         var template = "Ant Man";
         var months = 1;
         var checkX = false;
-        var cacheKey = $"{template}_{template}_{months}_{checkX}_{checkX}_{checkX}";
+        var cacheKey = $"{template}_{months}_{checkX}_{checkX}_{checkX}";
 
         _tradeLogServiceMock.Setup(x => x.GetLogsAsync(It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<IReadOnlyCollection<string>>()))
             .ReturnsAsync([]);
@@ -84,7 +84,7 @@ public class FindLogsTests : IDisposable
         _fileReaderMock.Setup(x => x.ReadAsync<IEnumerable<string>>(It.IsAny<string>()))
             .ReturnsAsync([]);
 
-        await _command.SearchLogsAsync(template, template, months, checkX, checkX, checkX);
+        await _command.SearchLogsAsync(template, months, checkX, checkX, checkX);
 
         var result = (List<string>)_cache.Get(CommandIds.FindLogs)!;
 
