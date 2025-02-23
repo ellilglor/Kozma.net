@@ -96,7 +96,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         }
     }
 
-    private async Task MuteUserAsync(IGuildUser user, IMessage message, ulong roleId)
+    private async Task MuteUserAsync(SocketGuildUser user, IMessage message, ulong roleId)
     {
         var isWtb = roleId == config.GetValue<ulong>("ids:roles:wtb");
         var success = await userService.SaveMuteAsync(user.Id, user.Username, isWtb, message.CreatedAt.DateTime);
