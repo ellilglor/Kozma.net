@@ -21,7 +21,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message, message.Channel.Id);
         else if (channel.GuildId.Equals(config.GetValue<ulong>("ids:haven"))) await HandleHavenMessageAsync(message);
 
-        if (KozmaRegex().IsMatch(message.Content) && _random.Next(2) == 0)
+        if (KozmaRegex().IsMatch(message.Content) && _random.Next(4) == 0)
         {
             try
             {
