@@ -84,8 +84,8 @@ public class InteractionHandler(IBot bot,
 
         var tryLater = interaction.Type switch
         {
-            InteractionType.ApplicationCommand when tradeLogService.LogsAreBeingReset => interaction is SocketSlashCommand command && command.CommandName.Equals(CommandIds.FindLogs, StringComparison.Ordinal),
-            InteractionType.MessageComponent when tradeLogService.LogsAreBeingReset => interaction is SocketMessageComponent component && component.Data.CustomId.Contains(ComponentIds.FindLogsBase, StringComparison.Ordinal),
+            InteractionType.ApplicationCommand when tradeLogService.LogsAreBeingUpdated => interaction is SocketSlashCommand command && command.CommandName.Equals(CommandIds.FindLogs, StringComparison.Ordinal),
+            InteractionType.MessageComponent when tradeLogService.LogsAreBeingUpdated => interaction is SocketMessageComponent component && component.Data.CustomId.Contains(ComponentIds.FindLogsBase, StringComparison.Ordinal),
             _ => false
         };
 

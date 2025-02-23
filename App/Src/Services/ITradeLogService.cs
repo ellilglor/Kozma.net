@@ -5,7 +5,7 @@ namespace Kozma.net.Src.Services;
 
 public interface ITradeLogService
 {
-    bool LogsAreBeingReset { get; }
+    bool LogsAreBeingUpdated { get; }
     Task UpdateOrSaveItemAsync(string item);
     Task<int> GetTotalLogCountAsync();
     Task<IEnumerable<DbStat>> GetLogStatsAsync(bool authors, int total);
