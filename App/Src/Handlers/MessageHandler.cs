@@ -66,8 +66,9 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
     private static async Task WarnIfWrongContentAsync(SocketUserMessage message, bool isWtsChannel)
     {
-        if (isWtsChannel && (!message.Content.Contains("wtb", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("buying", StringComparison.OrdinalIgnoreCase))) return;
-        if (!isWtsChannel && (!message.Content.Contains("wts", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("selling", StringComparison.OrdinalIgnoreCase))) return;
+        if (isWtsChannel && !message.Content.Contains("wtb", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("buying", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("looking for", StringComparison.OrdinalIgnoreCase)
+            && !(message.Content.Contains("lf", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("wolf", StringComparison.OrdinalIgnoreCase))) return;
+        if (!isWtsChannel && !message.Content.Contains("wts", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("selling", StringComparison.OrdinalIgnoreCase)) return;
 
         await ReplyAndDeleteAsync(message, $"It looks like you're selling or buying items in the incorrect channel.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.\nIf this is not the case, you can ignore this warning.");
     }
