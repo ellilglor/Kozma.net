@@ -202,12 +202,12 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> CheckForNewLogsAsync()
     {
+        var logs = new List<TradeLog>();
+        var channels = updateHelper.GetChannels();
         var message = "Checking for new tradelogs";
-        var newLogs = false;
         logger.Log(LogLevel.Moderation, message);
         await logger.LogAsync(embed: embedHandler.GetLogEmbed(message, Colors.Moderation).Build());
 
-        var channels = updateHelper.GetChannels();
         foreach (var channelData in channels)
         {
             if (await bot.Client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) continue;
@@ -218,30 +218,28 @@ public class TaskHandler(IBot bot,
                 await thread.ModifyAsync(t => t.Archived = false);
             }
 
-            var logs = await updateHelper.GetLogsAsync(channel);
-            if (logs.Count > 0)
-            {
-                await tradeLogService.UpdateLogsAsync(logs);
-                newLogs = true;
-            }
+            logs.AddRange(await updateHelper.GetLogsAsync(channel));
         }
 
-        if (newLogs) updateHelper.ClearFindLogsCache();
+        if (logs.Count > 0)
+        {
+            updateHelper.ClearFindLogsCache();
+            await tradeLogService.UpdateLogsAsync(logs);
+        }
+
         return true;
     }
 
     private async Task<bool> ResetLogsAsync()
     {
+        var logs = new List<TradeLog>();
+        var channels = updateHelper.GetChannels();
         var message = "Resetting tradelogs";
         logger.Log(LogLevel.Moderation, message);
         await logger.LogAsync(embed: embedHandler.GetLogEmbed(message, Colors.Moderation).Build());
 
-        var logs = new List<TradeLog>();
-        var channels = updateHelper.GetChannels();
-
         var tasks = channels.Select(async (channelData) =>
         {
-            var (name, id) = channelData;
             if (await bot.Client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) return;
 
             logs.AddRange(await updateHelper.GetLogsAsync(channel, limit: int.MaxValue));
