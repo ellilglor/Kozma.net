@@ -40,6 +40,7 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper, 
         await Task.WhenAll(tasks);
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle("Uploading logs to database...").Build());
 
+        updateHelper.ClearFindLogsCache();
         await tradeLogService.DeleteAndUpdateLogsAsync(data.SelectMany(c => c.Logs).ToList());
 
         totalTime.Stop();

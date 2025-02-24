@@ -1,13 +1,15 @@
 ﻿using Discord;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Helpers;
 
-public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHelper
+public partial class UpdateHelper(IMemoryCache cache, ITradeLogService tradeLogService) : IUpdateHelper
 {
     private static readonly Dictionary<string, ulong> _channels = new()
     {
@@ -71,6 +73,18 @@ public partial class UpdateHelper(ITradeLogService tradeLogService) : IUpdateHel
             OriginalContent = copy,
             Image = message.Attachments.Count > 0 ? message.Attachments.First().Url : null,
         };
+    }
+
+    public void ClearFindLogsCache()
+    {
+        if (!cache.TryGetValue(CommandIds.FindLogs, out IEnumerable<string>? keys) || keys is null) return;
+
+        foreach (var key in keys)
+        {
+            cache.Remove(key);
+        }
+
+        cache.Set(CommandIds.FindLogs, new List<string>());
     }
 
     [GeneratedRegex("[0-9]{2}/[0-9]{2}/[0-9]{4}")]

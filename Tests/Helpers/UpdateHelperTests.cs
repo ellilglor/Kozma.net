@@ -1,6 +1,8 @@
 ﻿using Discord;
+using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 
 namespace UnitTests.Helpers;
@@ -8,12 +10,14 @@ namespace UnitTests.Helpers;
 public class UpdateHelperTests
 {
     private readonly UpdateHelper _helper;
+    private readonly MemoryCache _cache;
     private readonly Mock<ITradeLogService> _tradeLogServiceMock;
 
     public UpdateHelperTests()
     {
+        _cache = new MemoryCache(new MemoryCacheOptions());
         _tradeLogServiceMock = new Mock<ITradeLogService>();
-        _helper = new UpdateHelper(_tradeLogServiceMock.Object);
+        _helper = new UpdateHelper(_cache, _tradeLogServiceMock.Object);
     }
 
     [Fact]
@@ -67,4 +71,26 @@ public class UpdateHelperTests
 
         Assert.Single(result);
     }*/
+
+    [Fact]
+    public void ClearFindLogsCache_ClearsKeyListFromCache()
+    {
+        _cache.Set(CommandIds.FindLogs, new List<string> { "key" });
+
+        _helper.ClearFindLogsCache();
+
+        Assert.Empty((List<string>)_cache.Get(CommandIds.FindLogs)!);
+    }
+
+    [Fact]
+    public void ClearFindLogsCache_ClearsCache()
+    {
+        var key = "key";
+        _cache.Set(key, "item");
+        _cache.Set(CommandIds.FindLogs, new List<string> { key });
+
+        _helper.ClearFindLogsCache();
+
+        Assert.Null(_cache.Get(key));
+    }
 }
