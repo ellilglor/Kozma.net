@@ -27,10 +27,14 @@ public class TaskHandler(IBot bot,
     private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IReadOnlyCollection<Offer> BuyOffers, IReadOnlyCollection<Offer> SellOffers);
 
     private static readonly Dictionary<string, TaskConfig> _tasks = new();
+    private static DateTime _lastExecuted = DateTime.UtcNow;
     private static readonly Random _random = new();
 
     public async Task LaunchTasksAsync()
     {
+        _lastExecuted = DateTime.UtcNow;
+
+        _tasks.Clear();
         _tasks.Add("energyMarket", new TaskConfig(6, PostEnergyMarketAsync));
         _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
         _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
@@ -44,6 +48,14 @@ public class TaskHandler(IBot bot,
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
         await Task.CompletedTask;
+    }
+
+    public async Task CheckIfTaskHandlerIsRunningAsync()
+    {
+        if (_lastExecuted > DateTime.UtcNow.AddHours(-2)) return;
+
+        logger.Log(LogLevel.Error, "Relaunching Tasks");
+        await LaunchTasksAsync();
     }
 
     private async Task CheckForExpiredTasksAsync()
@@ -69,6 +81,8 @@ public class TaskHandler(IBot bot,
                     await logger.LogAsync($"Error while executing task {task.Name}\n{ex.Message}", pingOwner: true);
                 }
             }
+
+            _lastExecuted = DateTime.UtcNow;
 
             await Task.Delay(TimeSpan.FromMinutes(30));
             await PostStillConnectedAsync();

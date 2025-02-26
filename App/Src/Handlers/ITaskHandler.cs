@@ -3,4 +3,5 @@
 public interface ITaskHandler
 {
     Task LaunchTasksAsync();
+    Task CheckIfTaskHandlerIsRunningAsync();
 }

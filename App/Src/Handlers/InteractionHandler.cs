@@ -18,6 +18,7 @@ public class InteractionHandler(IBot bot,
     IMemoryCache cache,
     IFileReader jsonFileReader,
     IEmbedHandler embedHandler,
+    ITaskHandler taskHandler,
     ITradeLogService tradeLogService,
     IServiceProvider services,
     InteractionService service) : IInteractionHandler
@@ -56,6 +57,9 @@ public class InteractionHandler(IBot bot,
 
         var context = new SocketInteractionContext(bot.Client, interaction);
         await service.ExecuteCommandAsync(context, services);
+
+        // Infinite loop can randomly stop running. This should restart the method in case that happens. If case => reduce amount of checks.
+        if (interaction.Type == InteractionType.ApplicationCommand) await taskHandler.CheckIfTaskHandlerIsRunningAsync();
     }
 
     private async Task<bool> CheckIfCanBeExecutedAsync(SocketInteraction interaction)
