@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
+using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 
@@ -50,11 +51,11 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         var guild = GetGuild();
         if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
 
-        var editRole = await guild.GetRoleAsync(config.GetValue<ulong>("ids:roles:edit"));
-        var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == editRole.Id)).ToList(); // Should be empty but exists just in case
+        var editRoleId = config.GetValue<ulong>("ids:roles:edit");
+        var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == editRoleId)); // Should be empty but exists just in case
         foreach (var user in users)
         {
-            await RemoveRoleAsync(user, config.GetValue<ulong>("ids:roles:edit"));
+            await RemoveRoleAsync(user, editRoleId);
         }
 
         await CheckMessagesAsync(guild, config.GetValue<ulong>("ids:channels:wts"), config.GetValue<ulong>("ids:roles:wts"), currentDate);
@@ -103,5 +104,38 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
         if (!success) await logger.LogAsync($"- {(isWtb ? "WTB" : "WTS")} {MentionUtils.MentionUser(user.Id)} is already in the database", pingOwner: true);
         else await GiveRoleAsync(user, roleId);
+    }
+
+    public async Task<bool> CheckOutdatedMutesAsync()
+    {
+        try
+        {
+            logger.Log(LogLevel.Moderation, "Checking for outdated mutes");
+            var mutes = await userService.GetMutesAsync();
+            var guild = GetGuild();
+
+            await CheckForOutdatedMutesAsync(guild, mutes, isWtb: true);
+            await CheckForOutdatedMutesAsync(guild, mutes, isWtb: false);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogAsync(ex.Message, pingOwner: true);
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task CheckForOutdatedMutesAsync(SocketGuild guild, IEnumerable<Mute> mutes, bool isWtb)
+    {
+        var roleId = config.GetValue<ulong>($"ids:roles:{(isWtb ? "wtb" : "wts")}");
+        var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == roleId));
+        var outdated = users.Where(u => !mutes.Any(m => m.IsWtb == isWtb && m.UserId == u.Id));
+
+        // Users that have the role while not in the database
+        foreach (var user in outdated)
+        {
+            await RemoveRoleAsync(user, roleId);
+        }
     }
 }

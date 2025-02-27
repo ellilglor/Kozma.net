@@ -76,6 +76,9 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
         return mutes;
     }
 
+    public async Task<IEnumerable<Mute>> GetMutesAsync() =>
+        await dbContext.TradeMutes.ToListAsync();
+
     public async Task<int> GetTotalUsersCountAsync() =>
         await dbContext.Users.CountAsync();
 

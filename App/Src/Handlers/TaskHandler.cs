@@ -42,6 +42,7 @@ public class TaskHandler(IBot bot,
         _tasks.Add("cleanBotLogs", new TaskConfig(48, ClearBotLogsAsync));
         _tasks.Add("resetLogs", new TaskConfig(168, ResetLogsAsync));
         _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
+        _tasks.Add("outdatedMutes", new TaskConfig(36, roleHandler.CheckOutdatedMutesAsync));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(CheckForExpiredTasksAsync); // Run like this to not block the thread

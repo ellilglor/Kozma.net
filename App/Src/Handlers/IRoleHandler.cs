@@ -9,4 +9,5 @@ public interface IRoleHandler
     Task HandleTradeCooldownAsync(IMessage message, ulong roleId);
     Task CheckTradeMessagesAsync();
     Task CheckExpiredMutesAsync();
+    Task<bool> CheckOutdatedMutesAsync();
 }
