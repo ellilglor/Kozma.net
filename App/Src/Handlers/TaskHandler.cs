@@ -174,7 +174,7 @@ public class TaskHandler(IBot bot,
         if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:wtb")) is not IMessageChannel wtbChannel) return false;
 
         var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the {Format.Underline($"{config.GetValue<int>("timers:slowmodeHours")} hour slowmode")} in this channel.")
-            .WithDescription($"You can edit your posts through the {Format.Code("/tradepostedit")} command.\nWe apologize for any inconvenience this may cause.")
+            .WithDescription($"You can edit your posts through the {Format.Code("/tradepostedit")} command.\nYou can use this command in any channel within this server.\nWe apologize for any inconvenience this may cause.")
             .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(Emotes.Empty, $"Interested in what an item has sold for in the past?\nUse the {Format.Code("/findlogs")} command.") })
             .Build();
 
