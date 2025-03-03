@@ -30,14 +30,8 @@ public class CommandService(KozmaDbContext dbContext) : ICommandService
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<int> GetCommandUsageAsync(bool isGame)
-    {
-        var query = await dbContext.Commands
-            .Where(cmd => cmd.IsGame == isGame)
-            .ToListAsync();
-
-        return query.Sum(cmd => cmd.Count);
-    }
+    public async Task<int> GetCommandUsageAsync(bool isGame) =>
+        await dbContext.Commands.Where(cmd => cmd.IsGame == isGame).SumAsync(cmd => cmd.Count);
 
     public async Task<IEnumerable<DbStat>> GetCommandsAsync(bool isGame, int total)
     {

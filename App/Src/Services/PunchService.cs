@@ -42,12 +42,8 @@ public class PunchService(KozmaDbContext dbContext, IConfiguration config) : IPu
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<long> GetTotalSpentAsync()
-    {
-        var query = await dbContext.Gamblers.ToListAsync();
-
-        return query.Sum(g => (long)g.Total);
-    }
+    public async Task<long> GetTotalSpentAsync() =>
+        await dbContext.Gamblers.SumAsync(g => (long)g.Total);
 
     public async Task<IEnumerable<DbStat>> GetGamblersAsync(int limit, long total)
     {

@@ -29,12 +29,8 @@ public class UnboxService(KozmaDbContext dbContext) : IUnboxService
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<int> GetBoxOpenedCountAsync()
-    {
-        var query = await dbContext.Boxes.ToListAsync();
-
-        return query.Sum(box => box.Count);
-    }
+    public async Task<int> GetBoxOpenedCountAsync() =>
+        await dbContext.Boxes.SumAsync(box => box.Count);
 
     public async Task<IEnumerable<UnboxStat>> GetBoxesAsync(int total)
     {
