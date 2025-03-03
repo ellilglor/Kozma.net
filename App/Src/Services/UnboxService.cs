@@ -39,6 +39,6 @@ public class UnboxService(KozmaDbContext dbContext) : IUnboxService
             .ThenBy(box => box.Name)
             .ToListAsync();
 
-        return query.Select(box => new UnboxStat((Box)Enum.Parse(typeof(Box), box.Name), box.Count, box.Count / (double)total));
+        return query.Select(box => new UnboxStat(Enum.Parse<Box>(box.Name), box.Count, box.Count / (double)total));
     }
 }
