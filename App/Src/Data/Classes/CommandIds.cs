@@ -14,6 +14,7 @@ public static class CommandIds
     public const string Help = "help";
     public const string LockBox = "lockbox";
     public const string Rate = "rate";
+    public const string ServerPortal = "servers";
 
     // Other
     public const string Clear = "clear";
