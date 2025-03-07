@@ -30,10 +30,10 @@ public static class ComponentIds
     public const string UnboxAgain = "again";
     public const string UnboxStats = "stats";
 
-    // Stats
+    // Pagination
     public const string StatsBase = "stats-";
-    public const string StatsFirst = "first";
-    public const string StatsPrev = "prev";
-    public const string StatsNext = "next";
-    public const string StatsLast = "last";
+    public const string First = "first";
+    public const string Previous = "prev";
+    public const string Next = "next";
+    public const string Last = "last";
 }

@@ -1,18 +1,21 @@
 ﻿using Discord.Interactions;
+using Kozma.net.Src.Commands.Server;
 using Kozma.net.Src.Data.Classes;
-using Kozma.net.Src.Trackers;
+using Kozma.net.Src.Helpers;
 
 namespace Kozma.net.Src.Components.Buttons.StatsCmd;
 
-public class Browse(IStatPageTracker pageTracker) : InteractionModuleBase<SocketInteractionContext>
+public class Browse(IDiscordPaginator paginator) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction($"{ComponentIds.StatsBase}*")]
     public async Task ExecuteAsync(string action)
     {
+        var userKey = $"{CommandIds.Stats}_{Context.User.Id}";
+
         await ModifyOriginalResponseAsync(msg =>
         {
-            msg.Embed = pageTracker.GetPage(Context.User.Id, action);
-            msg.Components = pageTracker.GetComponents(Context.User.Id);
+            msg.Embed = paginator.GetPage(Stats.PagesCacheKey, userKey, action);
+            msg.Components = paginator.GetComponents(Stats.PagesCacheKey, userKey, ComponentIds.StatsBase);
         });
     }
 }
