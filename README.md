@@ -14,6 +14,13 @@ Make sure you have the following enabled:
 
 ## Available Commands
 <details>
+<summary>/abbreviations</summary>
+  
+<br>Using this command gives you a list of commonly used abbreviations.
+</details>
+
+<br>
+<details>
 <summary>/bookchance</summary>
   
 <br>This command will tell you how bad your luck has been or if you should have played the lottery instead of farming for the Book of Dark Rituals.
@@ -82,6 +89,13 @@ This command has 3 options:
 <summary>/rate</summary>
 
 <br>Get the current crowns per energy conversion rate.
+</details>
+
+<br>
+<details>
+<summary>/servers</summary>
+  
+<br>This command returns a list of interesting community servers.
 </details>
 
 <br>

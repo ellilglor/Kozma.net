@@ -1,5 +1,9 @@
 [
   {
+    "Command": "/abbreviations",
+    "Description": "Using this command gives you a list of commonly used abbreviations."
+  },
+  {
     "Command": "/bookchance",
     "Description": "Get the % chance you have of getting at least 1 Book of Dark Rituals.\n`kats` Amount of Black Kats you encountered."
   },
@@ -26,6 +30,10 @@
   {
     "Command": "/rate",
     "Description": "Tells you the crowns per energy rate currently in use."
+  },
+  {
+    "Command": "/servers",
+    "Description": "This command returns a list of interesting community servers."
   },
   {
     "Command": "/shardsweeper",
