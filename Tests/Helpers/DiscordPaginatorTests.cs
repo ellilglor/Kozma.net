@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Kozma.net.Src;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
@@ -11,13 +12,15 @@ public class DiscordPaginatorTests : IDisposable
 {
     private readonly DiscordPaginator _paginator;
     private readonly MemoryCache _cache;
+    private readonly Mock<IBot> _botMock;
     private readonly Mock<IEmbedHandler> _embedHandlerMock;
 
     public DiscordPaginatorTests()
     {
         _cache = new MemoryCache(new MemoryCacheOptions());
+        _botMock = new Mock<IBot>();
         _embedHandlerMock = new Mock<IEmbedHandler>();
-        _paginator = new DiscordPaginator(_cache, _embedHandlerMock.Object);
+        _paginator = new DiscordPaginator(_botMock.Object, _cache, _embedHandlerMock.Object);
     }
 
     [Fact]
@@ -71,6 +74,17 @@ public class DiscordPaginatorTests : IDisposable
         var result = _paginator.GetComponents(pagesCacheKey, userCacheKey, string.Empty);
 
         Assert.IsType<MessageComponent>(result);
+    }
+
+    [Fact]
+    public void AddPageCounterAndSaveToCache_SavesToCache()
+    {
+        var key = "test_key";
+
+        _paginator.AddPageCounterAndSaveToCache([], key);
+
+        var result = _cache.Get<List<Embed>>(key)!;
+        Assert.Empty(result);
     }
 
     public void Dispose()

@@ -34,8 +34,12 @@ public class Stats(IBot bot,
     {
         var userKey = $"{CommandIds.Stats}_{Context.User.Id}";
 
-        await BuildPagesAsync();
-
+        if (!cache.TryGetValue(PagesCacheKey, out List<Embed>? _))
+        {
+            var pages = await BuildPagesAsync();
+            paginator.AddPageCounterAndSaveToCache(pages, PagesCacheKey, addTitle: true);
+        }
+        
         await ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = paginator.GetPage(PagesCacheKey, userKey, string.Empty);
@@ -43,10 +47,8 @@ public class Stats(IBot bot,
         });
     }
 
-    private async Task BuildPagesAsync()
+    private async Task<IList<EmbedBuilder>> BuildPagesAsync()
     {
-        if (cache.TryGetValue(PagesCacheKey, out List<Embed>? _)) return;
-
         var timer = System.Diagnostics.Stopwatch.StartNew();
         var pages = new List<EmbedBuilder>();
 
@@ -73,7 +75,6 @@ public class Stats(IBot bot,
         pages.Add(await BuildFindLogsPageAsync(totalSearchedTask.Result));
         timer.Stop();
 
-        var finalPages = new List<Embed>();
         var kozmaGuild = bot.Client.GetGuild(config.GetValue<ulong>("ids:server"));
         var fields = new List<EmbedFieldBuilder>()
         {
@@ -93,17 +94,7 @@ public class Stats(IBot bot,
 
         pages.Insert(0, embedHandler.GetBasicEmbed("General info").WithFields(fields));
 
-        for (int i = 0; i < pages.Count; i++)
-        {
-            pages[i].Title = $"{pages[i].Title} - {i + 1}/{pages.Count}";
-            pages[i].Footer = new EmbedFooterBuilder()
-                .WithText($"{i + 1}/{pages.Count}")
-                .WithIconUrl(bot.Client.CurrentUser.GetDisplayAvatarUrl());
-
-            finalPages.Add(pages[i].Build());
-        }
-
-        cache.Set(PagesCacheKey, finalPages, paginator.CacheOptions);
+        return pages;
     }
 
     private async Task BuildTradelogPagesAsync(List<EmbedBuilder> pages)
