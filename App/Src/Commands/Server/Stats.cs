@@ -27,7 +27,7 @@ public class Stats(IBot bot,
     IPunchService punchService,
     ITradeLogService tradeLogService) : InteractionModuleBase<SocketInteractionContext>
 {
-    public const string PagesCacheKey  = "stat_pages";
+    public const string PagesCacheKey = "stat_pages";
 
     [SlashCommand(CommandIds.Stats, "Kozma's Backpack staff only.")]
     public async Task ExecuteAsync()
@@ -39,7 +39,7 @@ public class Stats(IBot bot,
             var pages = await BuildPagesAsync();
             paginator.AddPageCounterAndSaveToCache(pages, PagesCacheKey, addTitle: true);
         }
-        
+
         await ModifyOriginalResponseAsync(msg =>
         {
             msg.Embed = paginator.GetPage(PagesCacheKey, userKey, string.Empty);

@@ -1,5 +1,5 @@
-﻿using Discord.Interactions;
-using Discord;
+﻿using Discord;
+using Discord.Interactions;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
