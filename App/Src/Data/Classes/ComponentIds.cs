@@ -32,6 +32,7 @@ public static class ComponentIds
 
     // Pagination
     public const string StatsBase = "stats-";
+    public const string AbbreviationBase = "abbreviation-";
     public const string First = "first";
     public const string Previous = "prev";
     public const string Next = "next";

@@ -8,6 +8,7 @@ public static class CommandIds
     public const string Unbox = "unbox";
 
     // Information
+    public const string Abbreviation = "abbreviations";
     public const string BookChance = "bookchance";
     public const string Convert = "convert";
     public const string FindLogs = "findlogs";

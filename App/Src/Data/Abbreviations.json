@@ -1,0 +1,378 @@
+[
+  [
+    {
+      "Title": "Popular farming spots",
+      "Abbreviations": [
+        {
+          "Short": [ "AoE", "Axes" ],
+          "Long": "Axes of Evil (Elite Orbs of Alchemy)"
+        },
+        {
+          "Short": [ "Stash" ],
+          "Long": "Sewer Stash (Elite Orbs of Alchemy)"
+        },
+        {
+          "Short": [ "ICB", "Cold Blood" ],
+          "Long": "In Cold Blood (Shining Fire Crystals and Eternal Orbs of Alchemy)"
+        },
+        {
+          "Short": [ "Metro", "Rotting Metro" ],
+          "Long": "The Rotting Metropolis (Shining Fire Crystals and Eternal Orbs of Alchemy)"
+        },
+        {
+          "Short": [ "DaN", "D&N", "Dreams" ],
+          "Long": "Dreams and Nightmares (Radiant Fire Crystals and Sparks of Life)"
+        }
+      ]
+    },
+    {
+      "Title": "Boss lairs",
+      "Abbreviations": [
+        {
+          "Short": [ "Snarb", "GWW", "SotB" ],
+          "Long": "Shadow of the Beast or Gloaming Wildwoods"
+        },
+        {
+          "Short": [ "RJP", "JK", "RJ", "TSS" ],
+          "Long": "The Sovereign Slime or Royal Jelly Palace"
+        },
+        {
+          "Short": [ "Roar", "IMF", "RT", "BtD" ],
+          "Long": "Built to Destroy! or Ironclaw Munitions Factory"
+        },
+        {
+          "Short": [ "FSC", "Vana", "TKoA" ],
+          "Long": "The King of Ashes or Firestorm Citadel"
+        },
+        {
+          "Short": [ "Rabids" ],
+          "Long": "Rabid Snarbolaxes"
+        },
+        {
+          "Short": [ "IQP", "IQ" ],
+          "Long": "Ice Queen"
+        },
+        {
+          "Short": [ "RRT" ],
+          "Long": "Red Roarmulus Twins"
+        },
+        {
+          "Short": [ "UFSC", "DFV" ],
+          "Long": "Darkfire Vanaduke"
+        },
+        {
+          "Short": [ "OCH" ],
+          "Long": "Operation Crimson Hammer"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "Title": "Prestige & event missions",
+      "Abbreviations": [
+        {
+          "Short": [ "LoA" ],
+          "Long": "Legion of Almire"
+        },
+        {
+          "Short": [ "C42" ],
+          "Long": "Compound 42"
+        },
+        {
+          "Short": [ "GitM" ],
+          "Long": "Ghosts in the Machine"
+        },
+        {
+          "Short": [ "Apocrea", "SotA", "Plateau" ],
+          "Long": "Shroud of the Apocrea"
+        },
+        {
+          "Short": [ "GA" ],
+          "Long": "Grinchlin Assault!"
+        },
+        {
+          "Short": [ "SW" ],
+          "Long": "Save Winterfest!"
+        },
+        {
+          "Short": [ "Torto, MotT" ],
+          "Long": "March of the Tortodrones"
+        },
+        {
+          "Short": [ "BK", "BK", "hunt", "Kat", "hunt" ],
+          "Long": "Black Kat farming (first floor of Alone in the Dark)"
+        },
+        {
+          "Short": [ "Knead, AGiK" ],
+          "Long": "A Gremlin in Knead"
+        }
+      ]
+    },
+    {
+      "Title": "Other areas",
+      "Abbreviations": [
+        {
+          "Short": [ "SL" ],
+          "Long": "Shadow Lair"
+        },
+        {
+          "Short": [ "HoH" ],
+          "Long": "Hall of Heroes"
+        },
+        {
+          "Short": [ "AH" ],
+          "Long": "Auction House"
+        },
+        {
+          "Short": [ "ATH" ],
+          "Long": "Advanced Training Hall"
+        },
+        {
+          "Short": [ "GTH" ],
+          "Long": "Guild Training Hall"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "Title": "Swords",
+      "Abbreviations": [
+        {
+          "Short": [ "BTB" ],
+          "Long": "Barbarous Thorn Blade"
+        },
+        {
+          "Short": [ "CIV" ],
+          "Long": "Cold Iron Vanquisher"
+        },
+        {
+          "Short": [ "DA" ],
+          "Long": "Divine Avenger"
+        },
+        {
+          "Short": [ "DVS" ],
+          "Long": "Dread Venom Striker"
+        },
+        {
+          "Short": [ "FoV" ],
+          "Long": "Fang of Vog"
+        },
+        {
+          "Short": [ "FF" ],
+          "Long": "Final Flourish"
+        },
+        {
+          "Short": [ "GF" ],
+          "Long": "Gran Faust"
+        },
+        {
+          "Short": [ "LB", "Levi" ],
+          "Long": "Leviathan Blade"
+        },
+        {
+          "Short": [ "OE" ],
+          "Long": "Obsidian Edge"
+        },
+        {
+          "Short": [ "SS" ],
+          "Long": "Sealed Sword"
+        },
+        {
+          "Short": [ "WHB" ],
+          "Long": "Wild Hunting Blade"
+        },
+        {
+          "Short": [ "WRH" ],
+          "Long": "Warmaster Rocket Hammer"
+        }
+      ]
+    },
+    {
+      "Title": "Guns",
+      "Abbreviations": [
+        {
+          "Short": [ "AP" ],
+          "Long": "Argent Peacemaker"
+        },
+        {
+          "Short": [ "GG" ],
+          "Long": "Gilded Griffin"
+        },
+        {
+          "Short": [ "GR" ],
+          "Long": "Grim Repeater"
+        },
+        {
+          "Short": [ "IS" ],
+          "Long": "Iron Slug"
+        },
+        {
+          "Short": [ "OC" ],
+          "Long": "Obsidian Carbine"
+        },
+        {
+          "Short": [ "VP" ],
+          "Long": "Volcanic Pepperbox"
+        },
+        {
+          "Short": [ "WG" ],
+          "Long": "Winter Grave"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "Title": "Bombs",
+      "Abbreviations": [
+        {
+          "Short": [ "AoA" ],
+          "Long": "Ash of Agni"
+        },
+        {
+          "Short": [ "BAB" ],
+          "Long": "Big Angry Bomb"
+        },
+        {
+          "Short": [ "CV" ],
+          "Long": "Celestial Vortex"
+        },
+        {
+          "Short": [ "DR" ],
+          "Long": "Dark Retribution"
+        },
+        {
+          "Short": [ "DBB" ],
+          "Long": "Dark Briar Barrage"
+        },
+        {
+          "Short": [ "DCB" ],
+          "Long": "Deadly Crystal Bomb"
+        },
+        {
+          "Short": [ "DDMB" ],
+          "Long": "Deadly Dark Matter Bomb"
+        },
+        {
+          "Short": [ "DSB" ],
+          "Long": "Deadly Shard Bomb or Deadly Splinter Bomb"
+        },
+        {
+          "Short": [ "EV" ],
+          "Long": "Electron Vortex"
+        },
+        {
+          "Short": [ "GV" ],
+          "Long": "Graviton Vortex"
+        },
+        {
+          "Short": [ "OC" ],
+          "Long": "Obsidian Crusher"
+        },
+        {
+          "Short": [ "RSS" ],
+          "Long": "Radiant Sun Shards"
+        },
+        {
+          "Short": [ "SmB" ],
+          "Long": "Shivermist Buster"
+        },
+        {
+          "Short": [ "SSB" ],
+          "Long": "Shocking Salt Bomb"
+        },
+        {
+          "Short": [ "SSS" ],
+          "Long": "Scintillating Sun Shards"
+        },
+        {
+          "Short": [ "VT" ],
+          "Long": "Voltaic Tempest"
+        },
+        {
+          "Short": [ "VV" ],
+          "Long": "Venom Veiler"
+        }
+      ]
+    },
+    {
+      "Title": "Shields",
+      "Abbreviations": [
+        {
+          "Short": [ "BTS" ],
+          "Long": "Barbarous Thorn Shield"
+        },
+        {
+          "Short": [ "CoA" ],
+          "Long": "Crest of Almire"
+        },
+        {
+          "Short": [ "DSS" ],
+          "Long": "Dragon Scale Shield or Dread Skelly Shield"
+        },
+        {
+          "Short": [ "GOS" ],
+          "Long": "Grey Owlite Shield"
+        },
+        {
+          "Short": [ "SSB" ],
+          "Long": "Swiftstrike Buckler"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "Title": "Trading",
+      "Abbreviations": [
+        {
+          "Short": [ "WTS" ],
+          "Long": "Want to sell / selling"
+        },
+        {
+          "Short": [ "WTB" ],
+          "Long": "Want to buy / buying"
+        },
+        {
+          "Short": [ "WTT" ],
+          "Long": "Want to trade / trading for"
+        }
+      ]
+    },
+    {
+      "Title": "Abilities & Unique Variants",
+      "Abbreviations": [
+        {
+          "Short": [ "ASI" ],
+          "Long": "Attack Speed Increase"
+        },
+        {
+          "Short": [ "ASD" ],
+          "Long": "Attack Speed Decrease"
+        },
+        {
+          "Short": [ "CTI" ],
+          "Long": "Charge Time Increase"
+        },
+        {
+          "Short": [ "CTR" ],
+          "Long": "Charge Time Reduction"
+        },
+        {
+          "Short": [ "MSD" ],
+          "Long": "Movement Speed Decrease"
+        },
+        {
+          "Short": [ "MSI" ],
+          "Long": "Movement Speed Increase"
+        },
+        {
+          "Short": [ "UV" ],
+          "Long": "Unique variant"
+        }
+      ]
+    }
+  ]
+]

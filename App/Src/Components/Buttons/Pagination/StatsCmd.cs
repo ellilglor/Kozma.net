@@ -3,9 +3,9 @@ using Kozma.net.Src.Commands.Server;
 using Kozma.net.Src.Data.Classes;
 using Kozma.net.Src.Helpers;
 
-namespace Kozma.net.Src.Components.Buttons.StatsCmd;
+namespace Kozma.net.Src.Components.Buttons.Pagination;
 
-public class Browse(IDiscordPaginator paginator) : InteractionModuleBase<SocketInteractionContext>
+public class StatsCmd(IDiscordPaginator paginator) : InteractionModuleBase<SocketInteractionContext>
 {
     [ComponentInteraction($"{ComponentIds.StatsBase}*")]
     public async Task ExecuteAsync(string action)
