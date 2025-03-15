@@ -11,7 +11,7 @@ public class EmbedHandler(IBot bot) : IEmbedHandler
         return GetBasicEmbed(title)
             .WithFooter(
                 new EmbedFooterBuilder()
-                    .WithText($"Thank you for using {bot.Client.CurrentUser.Username} bot!")
+                    .WithText($"Thank you for using the {bot.Client.CurrentUser.Username} app")
                     .WithIconUrl(bot.Client.CurrentUser.GetDisplayAvatarUrl())
             );
     }
