@@ -27,7 +27,7 @@ public partial class FindLogs(IMemoryCache cache,
     [SlashCommand(CommandIds.FindLogs, "Search the tradelog database for any item.")]
     public async Task ExecuteAsync(
         [Summary(description: "Item the bot should look for."), Autocomplete(), MinLength(3), MaxLength(69)] string item,
-        [Summary(description: "How far back the bot should search. Default: 6 months."), MinValue(1), MaxValue(120)] int months = 6,
+        [Summary(description: "How far back the bot should search. Default: 6 months."), MinValue(1), MaxValue(240)] int months = 6,
         [Summary(description: "Check for color variants / item family tree. Default: yes.")] bool variants = true,
         [Summary(description: "Filter out high value uvs. Default: no.")] bool clean = false,
         [Summary(description: "Check the mixed-trades channel. Default: yes.")] bool mixed = true)
