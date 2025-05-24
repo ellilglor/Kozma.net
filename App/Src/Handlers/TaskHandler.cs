@@ -29,6 +29,7 @@ public class TaskHandler(IBot bot,
     private static readonly Dictionary<string, TaskConfig> _tasks = new();
     private static DateTime _lastExecuted = DateTime.UtcNow;
     private static readonly Random _random = new();
+    private static bool _hasBeenWarnedForApi = false;
 
     public async Task LaunchTasksAsync()
     {
@@ -127,8 +128,11 @@ public class TaskHandler(IBot bot,
 
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
+                if (_hasBeenWarnedForApi) return false;
                 if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:dev")) is not IMessageChannel testChannel) return false;
+
                 await testChannel.SendMessageAsync($"{MentionUtils.MentionUser(config.GetValue<ulong>("ids:ape"))}\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
+                _hasBeenWarnedForApi = true;
                 return false;
             }
 
@@ -148,6 +152,8 @@ public class TaskHandler(IBot bot,
             await exchangeService.UpdateExchangeAsync(rate);
             await channel.SendMessageAsync(embed: embed.Build());
             logger.Log(LogLevel.Moderation, "Posted latest Energy Market");
+
+            if (_hasBeenWarnedForApi) _hasBeenWarnedForApi = false; // Energy Market is running again => reset for next downtime
             return true;
         }
         catch (Exception ex)
