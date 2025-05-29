@@ -29,7 +29,7 @@ public class TaskHandler(IBot bot,
     private static readonly Dictionary<string, TaskConfig> _tasks = new();
     private static DateTime _lastExecuted = DateTime.UtcNow;
     private static readonly Random _random = new();
-    private static bool _hasBeenWarnedForApi = false;
+    private static bool _hasBeenWarnedForApi;
 
     public async Task LaunchTasksAsync()
     {
