@@ -30,6 +30,8 @@ public class TaskHandler(IBot bot,
     private static DateTime _lastExecuted = DateTime.UtcNow;
     private static readonly Random _random = new();
     private static bool _hasBeenWarnedForApi;
+    private static bool _isRunning;
+    private static readonly object _lock = new();
 
     public async Task LaunchTasksAsync()
     {
@@ -62,32 +64,48 @@ public class TaskHandler(IBot bot,
 
     private async Task CheckForExpiredTasksAsync()
     {
-        while (true)
+        lock (_lock)
         {
-            await UpdateActivityAsync();
-            await roleHandler.CheckExpiredMutesAsync();
+            if (_isRunning) return;
+            _isRunning = true;
+        }
 
-            var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
-            foreach (var task in tasks)
+        try
+        {
+            while (true)
             {
-                var taskConfig = _tasks[task.Name];
-                if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now) continue;
+                await UpdateActivityAsync();
+                await roleHandler.CheckExpiredMutesAsync();
 
-                try
+                var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
+                foreach (var task in tasks)
                 {
-                    var success = await taskConfig.ExecuteAsync();
-                    if (success) await taskService.UpdateTaskAsync(task.Name);
+                    var taskConfig = _tasks[task.Name];
+                    if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now) continue;
+
+                    try
+                    {
+                        var success = await taskConfig.ExecuteAsync();
+                        if (success) await taskService.UpdateTaskAsync(task.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        await logger.LogAsync($"Error while executing task {task.Name}\n{ex.Message}", pingOwner: true);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    await logger.LogAsync($"Error while executing task {task.Name}\n{ex.Message}", pingOwner: true);
-                }
+
+                _lastExecuted = DateTime.UtcNow;
+
+                await Task.Delay(TimeSpan.FromMinutes(30));
+                await PostStillConnectedAsync();
             }
-
-            _lastExecuted = DateTime.UtcNow;
-
-            await Task.Delay(TimeSpan.FromMinutes(30));
-            await PostStillConnectedAsync();
+        }
+        finally
+        {
+            lock (_lock)
+            {
+                _isRunning = false;
+            }
         }
     }
 
