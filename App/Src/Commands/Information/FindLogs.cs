@@ -218,7 +218,7 @@ public partial class FindLogs(IMemoryCache cache,
             foreach (var color in set.Value)
             {
                 if (!item.Contains(color, StringComparison.OrdinalIgnoreCase)) continue;
-                if (set.Key == "GEMS" && GemExceptionRegex().IsMatch(item)) break;
+                if (set.Key == "GEMS" && (GemExceptionRegex().IsMatch(item) || item.Contains("of the", StringComparison.OrdinalIgnoreCase))) break;
                 if (set.Key == "SNIPES" && (item.Contains("slime", StringComparison.OrdinalIgnoreCase) ||
                     item.Contains("plume", StringComparison.OrdinalIgnoreCase) || item.Contains("pepper", StringComparison.OrdinalIgnoreCase))) break;
 
@@ -227,7 +227,7 @@ public partial class FindLogs(IMemoryCache cache,
                 if (set.Key == "GEMS" && template.Contains("floating", StringComparison.OrdinalIgnoreCase)) template = template.Replace(" s", string.Empty, StringComparison.OrdinalIgnoreCase);
 
                 items.Clear();
-                if (set.Key == "OBSIDIAN" || set.Key == "GEMS" || set.Key.Contains("ROSE", StringComparison.OrdinalIgnoreCase))
+                if (set.Key == "OBSIDIAN" || (set.Key == "GEMS" && template.Contains("floating", StringComparison.OrdinalIgnoreCase)) || set.Key.Contains("ROSE", StringComparison.OrdinalIgnoreCase))
                 {
                     set.Value.ForEach(value => items.Add($"{template} {value}".Trim()));
                 }
