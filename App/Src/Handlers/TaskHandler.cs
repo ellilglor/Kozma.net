@@ -81,7 +81,7 @@ public class TaskHandler(IBot bot,
                 foreach (var task in tasks)
                 {
                     var taskConfig = _tasks[task.Name];
-                    if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now) continue;
+                    if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now || !task.IsActive) continue;
 
                     try
                     {

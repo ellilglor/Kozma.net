@@ -11,6 +11,7 @@ public class TimedTask
     public ObjectId Id { get; set; }
     public required string Name { get; set; }
     public int Executed { get; set; }
+    public bool IsActive { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAt { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
