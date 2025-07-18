@@ -8,6 +8,7 @@ using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Driver.Linq;
 using System.Reflection;
 
 namespace Kozma.net.Src.Handlers;
@@ -19,10 +20,13 @@ public class InteractionHandler(IBot bot,
     IFileReader jsonFileReader,
     IEmbedHandler embedHandler,
     ITaskHandler taskHandler,
+    IApiFetcher apiFetcher,
     ITradeLogService tradeLogService,
     IServiceProvider services,
     InteractionService service) : IInteractionHandler
 {
+    private DateTime _lastCogmasterCheck = DateTime.UtcNow.AddHours(-1);
+
     public async Task InitializeAsync()
     {
         await service.AddModulesAsync(Assembly.GetEntryAssembly(), services);
@@ -45,6 +49,7 @@ public class InteractionHandler(IBot bot,
 
     public async Task HandleInteractionAsync(SocketInteraction interaction)
     {
+        if (interaction.User.Id != config.GetValue<ulong>("ids:owner")) return;
 
         if (interaction.Type == InteractionType.ApplicationCommandAutocomplete)
         {
@@ -105,22 +110,70 @@ public class InteractionHandler(IBot bot,
     private async Task HandleAutocompleteAsync(SocketAutocompleteInteraction interaction)
     {
         var cacheKey = $"Autocomplete_{interaction.Data.CommandName}_{interaction.Data.Current.Name}";
-        var fileName = interaction.Data.Current.Name switch
-        {
-            "item" when interaction.Data.CommandName == CommandIds.FindLogs => "Items.json",
-            "item" when interaction.Data.CommandName == CommandIds.LockBox => "LockboxItems.json",
-            "slime" => "SlimeCodes.json",
-            _ => throw new InvalidOperationException($"Unknown autocomplete option: {interaction.Data.Current.Name}")
-        };
 
-        if (!cache.TryGetValue(cacheKey, out List<AutocompleteResult>? suggestions) || suggestions is null)
+        if (!cache.TryGetValue(cacheKey, out IEnumerable<AutocompleteResult>? suggestions) || suggestions is null)
         {
-            var items = await jsonFileReader.ReadAsync<IReadOnlyList<string>>(Path.Combine("Data", "Autocomplete", fileName));
-            suggestions = items.Select(x => new AutocompleteResult(x, x)).ToList();
-            cache.Set(cacheKey, suggestions, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7) });
+            suggestions = await GetAutocompleteListAsync(interaction, cacheKey);
         }
 
         var input = interaction.Data.Current.Value.ToString()?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
         await interaction.RespondAsync(suggestions.Where(s => input.All(word => s.Name.Contains(word, StringComparison.OrdinalIgnoreCase))).Take(25));
+    }
+        
+    private async Task<IEnumerable<AutocompleteResult>> GetAutocompleteListAsync(SocketAutocompleteInteraction interaction, string cacheKey)
+    {
+        IReadOnlyList<string>? items = null;
+        var getFromFile = true;
+        var saveToCache = true;
+
+        if (interaction.Data.CommandName == CommandIds.FindLogs && interaction.Data.Current.Name == "item")
+        {
+            if (_lastCogmasterCheck > DateTime.UtcNow.AddMinutes(-15))
+            {
+                saveToCache = false;
+            }
+            else
+            {
+                try
+                {
+                    var fromApi = await apiFetcher.FetchAsync<IReadOnlyList<string>>($"{DotNetEnv.Env.GetString("cogmaster")}/index/info/search/names?tradeable=true", new() { PropertyNameCaseInsensitive = true });
+
+                    if (fromApi.Count == 0)
+                    {
+                        saveToCache = false;
+                    }
+                    else
+                    {
+                        items = [.. fromApi.Where(item => !string.IsNullOrEmpty(item)).OrderBy(item => item)];
+                        getFromFile = false;
+                    }
+                }
+                catch (HttpRequestException)
+                {
+                    _lastCogmasterCheck = DateTime.UtcNow;
+                    saveToCache = false;
+                }
+            }
+        }
+
+        if (getFromFile)
+        {
+            var fileName = interaction.Data.Current.Name switch
+            {
+                "item" when interaction.Data.CommandName == CommandIds.FindLogs => "Items.json", // backup if api is down
+                "item" when interaction.Data.CommandName == CommandIds.LockBox => "LockboxItems.json",
+                "slime" => "SlimeCodes.json",
+                _ => throw new InvalidOperationException($"Unknown autocomplete option: {interaction.Data.Current.Name}")
+            };
+
+            items = await jsonFileReader.ReadAsync<IReadOnlyList<string>>(Path.Combine("Data", "Autocomplete", fileName));
+        }
+
+        var suggestions = items!.Select(x => new AutocompleteResult(x, x)).ToArray();
+
+        if (saveToCache)
+            cache.Set(cacheKey, suggestions, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7) });
+
+        return suggestions;
     }
 }

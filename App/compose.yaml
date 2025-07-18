@@ -6,5 +6,12 @@
             - database=$database
             - botToken=$botToken
             - energyMarket=$energyMarket
+            - cogmaster=$cogmaster
         image: kozma
         restart: unless-stopped
+        networks:
+            - cogmaster-net
+
+networks:
+  cogmaster-net:
+    external: true
