@@ -49,8 +49,6 @@ public class InteractionHandler(IBot bot,
 
     public async Task HandleInteractionAsync(SocketInteraction interaction)
     {
-        if (interaction.User.Id != config.GetValue<ulong>("ids:owner")) return;
-
         if (interaction.Type == InteractionType.ApplicationCommandAutocomplete)
         {
             await HandleAutocompleteAsync((SocketAutocompleteInteraction)interaction);
