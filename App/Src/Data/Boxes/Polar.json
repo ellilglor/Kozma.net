@@ -136,7 +136,7 @@
   },
   {
     "Name": "Polar Day Wolf Coat",
-    "Chance": 3.333333333333333,
+    "Chance": 3.333333333333334,
     "Url": "https://media3.spiralknights.com/wiki-images/1/10/Polar_Day_Wolf_Coat-Equipped.png"
   },
   {
@@ -146,12 +146,12 @@
   },
   {
     "Name": "**Polar Wolver Tail**",
-    "Chance": 0.05,
+    "Chance": 0.5,
     "Url": "https://media3.spiralknights.com/wiki-images/a/a3/Polar_Wolver_Tail-Equipped.png"
   },
   {
     "Name": "**Polar Leafy Aura**",
-    "Chance": 0.05,
+    "Chance": 0.5,
     "Url": "https://media3.spiralknights.com/wiki-images/a/ae/Polar_Leafy_Aura-Equipped.png"
   }
 ]
