@@ -33,6 +33,12 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
     private async Task HandleKbpMessageAsync(SocketUserMessage message, ulong channelId)
     {
+        if (message.Author.IsWebhook && channelId.Equals(config.GetValue<ulong>("ids:channels:announcements")))
+        {
+            await message.CrosspostAsync();
+            return;
+        }
+
         if (message.Author.IsBot)
         {
             if (channelId.Equals(config.GetValue<ulong>("ids:channels:market"))) await message.CrosspostAsync();
