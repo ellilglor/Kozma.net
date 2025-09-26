@@ -239,6 +239,14 @@ public partial class FindLogs(IMemoryCache cache,
                 return;
             }
         }
+
+        if (item.Contains("Glyph", StringComparison.OrdinalIgnoreCase))
+        {
+            var glyphs = new string[] { "FIENDISH AMU GLYPH", "FIENDISH NOK GLYPH", "FIENDISH SOL GLYPH", "FIENDISH TOR GLYPH", "FIENDISH UR GLYPH" };
+            items.Clear();
+            items.AddRange(glyphs.Select(x => x));
+            return;
+        }
     }
 
     internal static string SwapUvs(string name)
