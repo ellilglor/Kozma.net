@@ -196,23 +196,43 @@ public partial class FindLogs(IMemoryCache cache,
         var exceptions = new List<string> { "drakon", "maskeraith", "nog" };
         if (exceptions.Any(keyword => item.Contains(keyword, StringComparison.OrdinalIgnoreCase))) return;
 
+        var equipmentWasFound = await AddEquipmentVariantsAsync(item, items);
+        if (equipmentWasFound) return;
+
+        var colorWasFound = await AddColorVariantsAsync(item, items);
+        if (colorWasFound) return;
+
+        if (item.Contains("Glyph", StringComparison.OrdinalIgnoreCase))
+        {
+            var glyphs = new string[] { "FIENDISH AMU GLYPH", "FIENDISH NOK GLYPH", "FIENDISH SOL GLYPH", "FIENDISH TOR GLYPH", "FIENDISH UR GLYPH" };
+            items.Clear();
+            items.AddRange(glyphs.Select(x => x));
+        }
+    }
+
+    private async Task<bool> AddEquipmentVariantsAsync(string item, List<string> items)
+    {
         var equipmentFamilies = await jsonFileReader.ReadAsync<IReadOnlyDictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "EquipmentFamilies.json"));
         var family = equipmentFamilies.FirstOrDefault(f => f.Value.Any(name => item.Contains(name, StringComparison.OrdinalIgnoreCase)));
 
-        if (!family.Equals(default(KeyValuePair<string, List<string>>)))
-        {
-            var match = family.Value.First(name => item.Contains(name, StringComparison.OrdinalIgnoreCase));
-            if (match == "AVENGER" && items[0].Contains("helm", StringComparison.OrdinalIgnoreCase)) return;
+        if (family.Equals(default(KeyValuePair<string, List<string>>)))
+            return false;
 
-            var uvs = item.Replace(match, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
+        var match = family.Value.First(name => item.Contains(name, StringComparison.OrdinalIgnoreCase));
+        if (match == "AVENGER" && items[0].Contains("helm", StringComparison.OrdinalIgnoreCase)) return true;
 
-            items.Clear();
-            family.Value.ForEach(entry => items.Add($"{entry} {uvs}".Trim()));
+        var uvs = item.Replace(match, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
 
-            return;
-        }
+        items.Clear();
+        family.Value.ForEach(entry => items.Add($"{entry} {uvs}".Trim()));
 
+        return true;
+    }
+
+    private async Task<bool> AddColorVariantsAsync(string item, List<string> items)
+    {
         var colorSets = await jsonFileReader.ReadAsync<IReadOnlyDictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "Colors.json"));
+
         foreach (var set in colorSets)
         {
             foreach (var color in set.Value)
@@ -236,17 +256,11 @@ public partial class FindLogs(IMemoryCache cache,
                     set.Value.ForEach(value => items.Add($"{value} {template}".Trim()));
                 }
 
-                return;
+                return true;
             }
         }
 
-        if (item.Contains("Glyph", StringComparison.OrdinalIgnoreCase))
-        {
-            var glyphs = new string[] { "FIENDISH AMU GLYPH", "FIENDISH NOK GLYPH", "FIENDISH SOL GLYPH", "FIENDISH TOR GLYPH", "FIENDISH UR GLYPH" };
-            items.Clear();
-            items.AddRange(glyphs.Select(x => x));
-            return;
-        }
+        return false;
     }
 
     internal static string SwapUvs(string name)
