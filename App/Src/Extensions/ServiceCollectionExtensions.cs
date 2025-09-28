@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
             .AddMemoryCache()
             .AddSingleton(config)
             .AddSingleton<IBot, Bot>()
-            .AddSingleton<IBotLogger, Logger>()
+            .AddScoped<IBotLogger, Logger>()
             .AddSingleton(x => new InteractionService(x.GetRequiredService<IBot>().Client))
             .AddDbContext<KozmaDbContext>(options => options.UseMongoDB(Env.GetString("dbToken"), Env.GetString("database")), contextLifetime: ServiceLifetime.Transient);
     }
@@ -34,10 +34,10 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddSingleton<IEmbedHandler, EmbedHandler>()
-            .AddSingleton<IInteractionHandler, InteractionHandler>()
-            .AddSingleton<IMessageHandler, MessageHandler>()
-            .AddSingleton<IRoleHandler, RoleHandler>()
-            .AddSingleton<ITaskHandler, TaskHandler>()
+            .AddScoped<IInteractionHandler, InteractionHandler>()
+            .AddScoped<IMessageHandler, MessageHandler>()
+            .AddScoped<IRoleHandler, RoleHandler>()
+            .AddScoped<ITaskHandler, TaskHandler>()
             .AddSingleton<IRateLimitHandler, RateLimitHandler>();
     }
 
@@ -45,8 +45,7 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddScoped<IPunchHelper, PunchHelper>()
-            .AddSingleton<IPunchHelper, PunchHelper>()
-            .AddSingleton<IUpdateHelper, UpdateHelper>()
+            .AddScoped<IUpdateHelper, UpdateHelper>()
             .AddSingleton<IFileReader, JsonFileReader>()
             .AddSingleton<IDiscordPaginator, DiscordPaginator>()
             .AddSingleton<IApiFetcher, ApiFetcher>()
@@ -57,12 +56,12 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         return services
-            .AddSingleton<ITradeLogService, TradeLogService>()
-            .AddSingleton<IExchangeService, ExchangeService>()
-            .AddSingleton<ICommandService, CommandService>()
-            .AddSingleton<IUserService, UserService>()
-            .AddSingleton<IUnboxService, UnboxService>()
-            .AddSingleton<IPunchService, PunchService>()
-            .AddSingleton<ITaskService, TaskService>();
+            .AddScoped<ITradeLogService, TradeLogService>()
+            .AddScoped<IExchangeService, ExchangeService>()
+            .AddScoped<ICommandService, CommandService>()
+            .AddScoped<IUserService, UserService>()
+            .AddScoped<IUnboxService, UnboxService>()
+            .AddScoped<IPunchService, PunchService>()
+            .AddScoped<ITaskService, TaskService>();
     }
 }
