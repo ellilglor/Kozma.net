@@ -18,7 +18,6 @@ namespace Kozma.net.Src.Commands.Games;
 public class Unbox(IConfiguration config,
     IMemoryCache cache,
     IEmbedHandler embedHandler,
-    ICostCalculator costCalculator,
     IUnboxTracker unboxTracker,
     IUnboxService unboxService,
     IFileReader jsonFileReader,
@@ -38,7 +37,7 @@ public class Unbox(IConfiguration config,
     {
         var boxData = box.ToBoxData();
         var author = new EmbedAuthorBuilder().WithName(box.ToString()).WithIconUrl(boxData.Url);
-        var cost = costCalculator.CalculateBoxCost(opened, boxData);
+        var cost = boxData.CalculateBoxCost(opened);
         var fields = new List<EmbedFieldBuilder>
         {
             embedHandler.CreateField("Opened", opened.ToString()),

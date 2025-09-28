@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureHelpers(this IServiceCollection services)
     {
         return services
-            .AddSingleton<ICostCalculator, CostCalculator>()
+            .AddScoped<IPunchHelper, PunchHelper>()
             .AddSingleton<IPunchHelper, PunchHelper>()
             .AddSingleton<IUpdateHelper, UpdateHelper>()
             .AddSingleton<IFileReader, JsonFileReader>()

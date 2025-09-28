@@ -17,7 +17,6 @@ namespace Kozma.net.Src.Components.Buttons.UnboxCmd;
 public class Unbox(IConfiguration config,
     IMemoryCache cache,
     IEmbedHandler embedHandler,
-    ICostCalculator costCalculator,
     IUnboxTracker unboxTracker,
     IUnboxService unboxService,
     IFileReader jsonFileReader,
@@ -33,7 +32,7 @@ public class Unbox(IConfiguration config,
         {
             if (action == ComponentIds.UnboxAgain)
             {
-                var command = new Commands.Games.Unbox(config, cache, embedHandler, costCalculator, unboxTracker, unboxService, jsonFileReader, logger);
+                var command = new Commands.Games.Unbox(config, cache, embedHandler, unboxTracker, unboxService, jsonFileReader, logger);
                 await command.UnboxAsync(Context.Interaction, Context.User.Id, box, int.Parse(embed.Fields[0].Value) + 1);
             }
             else

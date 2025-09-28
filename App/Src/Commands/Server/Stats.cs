@@ -19,7 +19,6 @@ public class Stats(IBot bot,
     IConfiguration config,
     IMemoryCache cache,
     IEmbedHandler embedHandler,
-    ICostCalculator costCalculator,
     IDiscordPaginator paginator,
     ICommandService commandService,
     IUserService userService,
@@ -192,7 +191,7 @@ public class Stats(IBot bot,
             switch (boxData.Currency)
             {
                 case BoxCurrency.Energy: energy += boxData.Price; break;
-                case BoxCurrency.Dollar: dollars += costCalculator.CalculateBoxCost(box.Count, boxData); break;
+                case BoxCurrency.Dollar: dollars += boxData.CalculateBoxCost(box.Count); break;
             }
 
             boxes.AppendLine($"{index} {Format.Bold(box.Name.ToString())}");

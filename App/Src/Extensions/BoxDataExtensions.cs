@@ -1,11 +1,11 @@
 ﻿using Kozma.net.Src.Enums;
 using Kozma.net.Src.Models;
 
-namespace Kozma.net.Src.Helpers;
+namespace Kozma.net.Src.Extensions;
 
-public class CostCalculator : ICostCalculator
+public static class BoxDataExtensions
 {
-    public double CalculateBoxCost(int amount, BoxData box)
+    public static double CalculateBoxCost(this BoxData box, int amount)
     {
         switch (box.Currency)
         {

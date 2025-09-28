@@ -1,17 +1,11 @@
 ﻿using Kozma.net.Src.Enums;
-using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
+using Kozma.net.Src.Extensions;
 
 namespace UnitTests.Helpers;
 
 public class CostCalculatorTests
 {
-    private readonly CostCalculator _costCalculator;
-
-    public CostCalculatorTests()
-    {
-        _costCalculator = new CostCalculator();
-    }
 
     [Fact]
     public void CalculateBoxCost_Energy_ReturnsAmountTimesPrice()
@@ -20,7 +14,7 @@ public class CostCalculatorTests
         var amount = 5;
         var expectedCost = amount * box.Price;
 
-        var result = _costCalculator.CalculateBoxCost(amount, box);
+        var result = box.CalculateBoxCost(amount);
 
         Assert.Equal(expectedCost, result);
     }
@@ -30,7 +24,7 @@ public class CostCalculatorTests
     {
         var box = new BoxData(0, BoxCurrency.Dollar, string.Empty, string.Empty, string.Empty);
 
-        var result = _costCalculator.CalculateBoxCost(1, box);
+        var result = box.CalculateBoxCost(1);
 
         Assert.Equal(4.95, result);
     }
@@ -41,7 +35,7 @@ public class CostCalculatorTests
         var box = new BoxData(0, BoxCurrency.Dollar, string.Empty, string.Empty, string.Empty);
         var amountForFirstBulkDiscount = 5;
 
-        var result = _costCalculator.CalculateBoxCost(amountForFirstBulkDiscount, box);
+        var result = box.CalculateBoxCost(amountForFirstBulkDiscount);
 
         Assert.Equal(19.95, result);
     }
@@ -53,7 +47,7 @@ public class CostCalculatorTests
         var box = new BoxData(0, BoxCurrency.Dollar, string.Empty, string.Empty, string.Empty);
         var amountForSecondBulkDiscount = 14;
 
-        var result = _costCalculator.CalculateBoxCost(amountForSecondBulkDiscount, box);
+        var result = box.CalculateBoxCost(amountForSecondBulkDiscount);
 
         Assert.Equal(49.95, result);
     }
@@ -68,7 +62,7 @@ public class CostCalculatorTests
         var box = new BoxData(0, BoxCurrency.Dollar, string.Empty, string.Empty, string.Empty);
         var MinimumAmountForCalculation = 20;
 
-        var result = _costCalculator.CalculateBoxCost(MinimumAmountForCalculation, box);
+        var result = box.CalculateBoxCost(MinimumAmountForCalculation);
 
         Assert.Equal(Math.Round(expected, 2), result);
     }
@@ -79,7 +73,7 @@ public class CostCalculatorTests
     {
         var box = new BoxData(int.MaxValue, (BoxCurrency)999, string.Empty, string.Empty, string.Empty);
 
-        var result = _costCalculator.CalculateBoxCost(0, box);
+        var result = box.CalculateBoxCost(0);
 
         Assert.Equal(box.Price, result);
     }
@@ -92,7 +86,7 @@ public class CostCalculatorTests
     {
         var box = new BoxData(0, currency, string.Empty, string.Empty, string.Empty);
 
-        var result = _costCalculator.CalculateBoxCost(0, box);
+        var result = box.CalculateBoxCost(0);
 
         Assert.Equal(0, result);
     }
