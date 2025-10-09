@@ -18,11 +18,18 @@ public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandle
 
     private async Task RespondAsync(SocketInteraction interaction)
     {
-        await interaction.ModifyOriginalResponseAsync(msg =>
+        try
         {
-            msg.Embed = embedHandler.GetAndBuildEmbed("Clearing messages.");
-            msg.Components = new ComponentBuilder().Build();
-        });
+            await interaction.ModifyOriginalResponseAsync(msg =>
+            {
+                msg.Embed = embedHandler.GetAndBuildEmbed("Clearing messages.");
+                msg.Components = new ComponentBuilder().Build();
+            });
+        }
+        catch (Exception e) when (e.Message.Contains("10008", StringComparison.InvariantCulture))
+        {
+            return;
+        }
     }
 
     private async Task ClearMessagesAsync(SocketUser user)
