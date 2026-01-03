@@ -23,6 +23,7 @@ public partial class FindLogs(IMemoryCache cache,
     IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12) };
+    private static readonly string[] snipeVariantExceptions = ["slime", "plume", "pepper", "sugar"];
 
     [SlashCommand(CommandIds.FindLogs, "Search the tradelog database for any item.")]
     public async Task ExecuteAsync(
@@ -240,11 +241,10 @@ public partial class FindLogs(IMemoryCache cache,
             {
                 if (!item.Contains(color, StringComparison.OrdinalIgnoreCase)) continue;
                 if (set.Key == "GEMS" && (GemExceptionRegex().IsMatch(item) || item.Contains("of the", StringComparison.OrdinalIgnoreCase))) break;
-                if (set.Key == "SNIPES" && (item.Contains("slime", StringComparison.OrdinalIgnoreCase) ||
-                    item.Contains("plume", StringComparison.OrdinalIgnoreCase) || item.Contains("pepper", StringComparison.OrdinalIgnoreCase))) break;
+                if (set.Key == "SNIPES" && snipeVariantExceptions.Any(x => item.Contains(x, StringComparison.OrdinalIgnoreCase))) break;
 
                 var template = item.Replace(color, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
-                if (color == "ROSE" && ((template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase)) || RoseColorRegex().IsMatch(template))) break;
+                if (color == "ROSE" && (template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase) || RoseColorRegex().IsMatch(template))) break;
                 if (set.Key == "GEMS" && template.Contains("floating", StringComparison.OrdinalIgnoreCase)) template = template.Replace(" s", string.Empty, StringComparison.OrdinalIgnoreCase);
 
                 items.Clear();
