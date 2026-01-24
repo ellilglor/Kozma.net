@@ -102,6 +102,24 @@ public class InteractionHandler(IBot bot,
             return false;
         }
 
+        if (interaction is SocketSlashCommand ClearCommand && ClearCommand.CommandName.Equals(CommandIds.Clear, StringComparison.Ordinal) ||
+            interaction is SocketMessageComponent ClearComponent && ClearComponent.Data.CustomId.Equals(ComponentIds.ClearMessages, StringComparison.Ordinal))
+        {
+            var cacheKey = $"clear_{interaction.User.Id}";
+
+            if (cache.TryGetValue(cacheKey, out int _))
+            {
+                await interaction.ModifyOriginalResponseAsync(msg =>
+                {
+                    msg.Embed = embedHandler.GetAndBuildEmbed("You can only use this command once every 60 seconds.");
+                    msg.Components = new ComponentBuilder().Build();
+                });
+                return false;
+            }
+
+            cache.Set(cacheKey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });
+        }
+
         return true;
     }
 
