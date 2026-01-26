@@ -20,6 +20,9 @@ public partial class Logger(IBot bot,
     IUserService userService,
     ICommandService commandService) : IBotLogger
 {
+
+    private const string IntErrorMsg = "Value was either too large or too small for an Int32.";
+
     public void Log(LogLevel level, string message) =>
         Console.WriteLine($"{level.Color()}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
 
@@ -118,7 +121,9 @@ public partial class Logger(IBot bot,
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
 
-        await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
+        if (result.ErrorReason != IntErrorMsg)
+            await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
+
         await InformUserAsync(interaction, result);
     }
 
@@ -132,6 +137,7 @@ public partial class Logger(IBot bot,
             InteractionCommandError.UnmetPrecondition => "Unmet Precondition.",
             InteractionCommandError.UnknownCommand => "It looks like this command is missing.",
             InteractionCommandError.BadArgs => "Invalid number of arguments given.",
+            InteractionCommandError.Exception when result.ErrorReason == IntErrorMsg => "The number you entered was too large or too small.",
             InteractionCommandError.Exception => "An exception was thrown during execution.",
             InteractionCommandError.Unsuccessful => "Command could not be executed.",
             InteractionCommandError.ConvertFailed => "Failed to convert one or more parameters.",
