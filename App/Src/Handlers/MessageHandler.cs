@@ -52,6 +52,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
             {
                 await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:channels:wts"));
                 await WarnIfContentTooLongAsync(message);
+                await WarnIfIncorrectFormat(message);
             }
 
             if (channelId.Equals(config.GetValue<ulong>("ids:channels:general")) && message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:kozma")) && !cache.TryGetValue(_cachekey, out int _))
@@ -85,6 +86,14 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         if (count < 15) return;
 
         await ReplyAndDeleteAsync(message, $"Your message is too long, check the pinned messages for the channel guidelines.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.\nIgnoring this warning may result in your post being deleted and a timeout.");
+    }
+
+    private static async Task WarnIfIncorrectFormat(SocketUserMessage message)
+    {
+        if (!message.Content.StartsWith('#'))
+            return;
+
+        await ReplyAndDeleteAsync(message, $"Your message appears to be incorrectly formatted.\ncheck the pinned messages for the channel guidelines.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.");
     }
 
     private static async Task ReplyAndDeleteAsync(SocketUserMessage message, string msg)
