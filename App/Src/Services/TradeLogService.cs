@@ -177,11 +177,11 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
         {
             "equipment" => "Equipments.json",
             "costumes" => "Costumes.json",
-            "helm-top" => "HelmTops.json",
+            "helm-top-brow" => "HelmTops.json",
             "helm-front" => "HelmFronts.json",
             "helm-back" => "HelmBacks.json",
             "helm-side" => "HelmSides.json",
-            "armor-front" => "ArmorFronts.json",
+            "armor-front-arms" => "ArmorFronts.json",
             "armor-back" => "ArmorBacks.json",
             "armor-rear" => "ArmorRears.json",
             "armor-ankle" => "ArmorAnkles.json",
