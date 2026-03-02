@@ -38,6 +38,12 @@
     "TECH ORANGE",
     "TECH PINK"
   ],
+  "TECH 2": [
+    "TECH RED",
+    "TECH VIOLET",
+    "TECH YELLOW",
+    "TECH AZURE"
+  ],
   "SNIPES": [
     "FERN",
     "LAVENDER",
@@ -163,5 +169,13 @@
   "ROSE 4": [
     "THE CORAL ROSE",
     "THE VIOLET ROSE"
+  ],
+  "TOYS": [
+    "RED COAT",
+    "BLUE COAT"
+  ],
+  "TOYS 2": [
+    "SUGARPLUM",
+    "SNOW QUEEN"
   ]
 }
