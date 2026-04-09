@@ -130,6 +130,7 @@ public class TaskHandler(IBot bot,
             13 => "Gatemap Viewer",
             14 => "m.jellycube_arena",
             15 => "Soup making tutorial",
+            16 => "Damageless DFV",
             _ => "Avengers: Age of Ultron"
         };
 
