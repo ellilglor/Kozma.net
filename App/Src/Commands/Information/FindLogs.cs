@@ -164,7 +164,14 @@ public partial class FindLogs(IMemoryCache cache,
                 $"{Format.Italics("Allow direct messages from server members")} in User Settings > Privacy & Safety\n\nAnd don't block me!")
                 .WithColor(Colors.Error);
 
-        await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
+        try
+        {
+            await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
+        }
+        catch (NullReferenceException)
+        {
+            // still not 100% sure how this happens
+        }
     }
 
     internal static string AttachUvsToBack(string item)
