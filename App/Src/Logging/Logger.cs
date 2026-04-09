@@ -22,6 +22,7 @@ public partial class Logger(IBot bot,
 {
 
     private const string IntErrorMsg = "Value was either too large or too small for an Int32.";
+    private const string ServiceUnavailableMsg = "The server responded with error 503: ServiceUnavailable";
 
     public void Log(LogLevel level, string message) =>
         Console.WriteLine($"{level.Color()}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
@@ -116,12 +117,13 @@ public partial class Logger(IBot bot,
         };
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
 
+        var innerMessage = result.Exception.InnerException?.Message ?? string.Empty;
         var errorEmbed = embedHandler.GetLogEmbed($"Error while executing {Format.Underline(interactionName)} for {Format.Underline(interaction.User.Username)}", Colors.Error)
-            .WithDescription(string.Join("\n\n", result.Exception.InnerException?.Message, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
+            .WithDescription(string.Join("\n\n", innerMessage, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
 
-        if (result.ErrorReason != IntErrorMsg)
+        if (result.ErrorReason != IntErrorMsg && innerMessage != ServiceUnavailableMsg)
             await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
         await InformUserAsync(interaction, result);
