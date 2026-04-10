@@ -102,8 +102,9 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         var isWtb = roleId == config.GetValue<ulong>("ids:roles:wtb");
         var success = await userService.SaveMuteAsync(user.Id, user.Username, isWtb, message.CreatedAt.DateTime);
 
-        if (!success) await logger.LogAsync($"- {(isWtb ? "WTB" : "WTS")} {MentionUtils.MentionUser(user.Id)} is already in the database", pingOwner: true);
-        else await GiveRoleAsync(user, roleId);
+        if (success) await GiveRoleAsync(user, roleId);
+        /*if (!success) await logger.LogAsync($"- {(isWtb ? "WTB" : "WTS")} {MentionUtils.MentionUser(user.Id)} is already in the database", pingOwner: true);
+        else await GiveRoleAsync(user, roleId);*/
     }
 
     public async Task<bool> CheckOutdatedMutesAsync()
