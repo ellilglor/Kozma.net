@@ -69,6 +69,7 @@ public partial class FindLogs(IMemoryCache cache,
             if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("NOG BLASTER");
             if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("RECIPE");
             if (items[0].Contains("pollinator", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("plate", StringComparison.OrdinalIgnoreCase)) ignore.Add("PLATE");
+            if (items[0].Contains("cozzzy", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("tech", StringComparison.OrdinalIgnoreCase)) ignore.Add("TECH");
 
             var commonFeatured = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json"));
             var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
