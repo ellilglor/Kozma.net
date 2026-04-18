@@ -118,12 +118,13 @@ public partial class Logger(IBot bot,
         if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
 
         var innerMessage = result.Exception.InnerException?.Message ?? string.Empty;
+        var description = string.Join("\n\n", innerMessage, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars)));
         var errorEmbed = embedHandler.GetLogEmbed($"Error while executing {Format.Underline(interactionName)} for {Format.Underline(interaction.User.Username)}", Colors.Error)
-            .WithDescription(string.Join("\n\n", innerMessage, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars))))
+            .WithDescription(description)
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
 
-        if (result.ErrorReason != IntErrorMsg && innerMessage != ServiceUnavailableMsg)
+        if (result.ErrorReason != IntErrorMsg && innerMessage != ServiceUnavailableMsg && !string.IsNullOrEmpty(description))
             await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
         await InformUserAsync(interaction, result);
