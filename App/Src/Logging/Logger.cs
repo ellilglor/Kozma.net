@@ -124,7 +124,7 @@ public partial class Logger(IBot bot,
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
 
-        if (result.ErrorReason != IntErrorMsg && innerMessage != ServiceUnavailableMsg && !string.IsNullOrEmpty(description))
+        if (result.ErrorReason != IntErrorMsg && innerMessage != ServiceUnavailableMsg && !string.IsNullOrWhiteSpace(description))
             await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
         await InformUserAsync(interaction, result);
