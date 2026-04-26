@@ -22,7 +22,7 @@ public partial class Logger(IBot bot,
 {
 
     private const string IntErrorMsg = "Value was either too large or too small for an Int32.";
-    private const string ServiceUnavailableMsg = "The server responded with error 503: ServiceUnavailable";
+    private const string ServiceUnavailableMsg = "503: Service Unavailable";
 
     public void Log(LogLevel level, string message) =>
         Console.WriteLine($"{level.Color()}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
@@ -124,7 +124,7 @@ public partial class Logger(IBot bot,
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
 
-        if (result.ErrorReason != IntErrorMsg && innerMessage != ServiceUnavailableMsg && !string.IsNullOrWhiteSpace(description))
+        if (result.ErrorReason != IntErrorMsg && !innerMessage.Contains(ServiceUnavailableMsg, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(description))
             await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
         await InformUserAsync(interaction, result);
