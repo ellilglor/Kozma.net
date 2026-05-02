@@ -7,12 +7,14 @@ using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver.Linq;
 using System.Reflection;
 
 namespace Kozma.net.Src.Handlers;
 
-public class InteractionHandler(IBot bot,
+public class InteractionHandler(IConfiguration config,
+    IBot bot,
     IBotLogger logger,
     IMemoryCache cache,
     IFileReader jsonFileReader,
@@ -65,12 +67,12 @@ public class InteractionHandler(IBot bot,
 
     private async Task<bool> CheckIfCanBeExecutedAsync(SocketInteraction interaction)
     {
-        /*if (interaction.User.Id != Data.Constants.Ids.Owner)
+        if (interaction.User.Id != Data.Constants.Ids.Owner && !config.GetValue<bool>("available"))
         {
             await interaction.RespondAsync(embed: embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later."), ephemeral: true);
             logger.Log(LogLevel.Info, interaction.User.Username);
             return false;
-        }*/
+        }
 
         await interaction.DeferAsync(ephemeral: true);
 
