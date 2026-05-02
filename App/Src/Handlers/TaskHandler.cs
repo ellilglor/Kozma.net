@@ -1,5 +1,5 @@
 ﻿using Discord;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
@@ -141,16 +141,16 @@ public class TaskHandler(IBot bot,
     {
         try
         {
-            if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:market")) is not IMessageChannel channel) return false;
+            if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.Market) is not IMessageChannel channel) return false;
 
             var data = await apiFetcher.FetchAsync<EnergyMarketData>(DotNetEnv.Env.GetString("energyMarket"), new() { PropertyNameCaseInsensitive = true });
 
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
                 if (_hasBeenWarnedForApi) return false;
-                if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:dev")) is not IMessageChannel testChannel) return false;
+                if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.Dev) is not IMessageChannel testChannel) return false;
 
-                await testChannel.SendMessageAsync($"{MentionUtils.MentionUser(config.GetValue<ulong>("ids:ape"))}\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
+                await testChannel.SendMessageAsync($"{MentionUtils.MentionUser(Data.Constants.Ids.Ape)}\nThe Energy Market api seems to be outdated, last updated: {data.Datetime}");
                 _hasBeenWarnedForApi = true;
                 return false;
             }
@@ -195,10 +195,10 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> PostSlowModeReminderAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:wts")) is not IMessageChannel wtsChannel) return false;
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:wtb")) is not IMessageChannel wtbChannel) return false;
+        if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.WTS) is not IMessageChannel wtsChannel) return false;
+        if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.WTB) is not IMessageChannel wtbChannel) return false;
 
-        var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the {Format.Underline($"{config.GetValue<int>("timers:slowmodeHours")} hour slowmode")} in this channel.")
+        var embed = embedHandler.GetBasicEmbed($"This message is a reminder of the {Format.Underline($"{config.GetValue<int>("slowmodeHours")} hour slowmode")} in this channel.")
             .WithDescription($"You can edit your posts through the {Format.Code("/tradepostedit")} command.\nYou can use this command in any channel within this server.\nWe apologize for any inconvenience this may cause.")
             .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(Emotes.Empty, $"Interested in what an item has sold for in the past?\nUse the {Format.Code("/findlogs")} command.") })
             .Build();
@@ -211,7 +211,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> PostScamPreventionAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:wts")) is not IMessageChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.WTS) is not IMessageChannel channel) return false;
         var reminders = await jsonFileReader.ReadAsync<IReadOnlyList<Reminder>>(Path.Combine("Data", "Reminders.json"));
         var reminder = reminders[_random.Next(reminders.Count)];
 
@@ -228,7 +228,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> PostAuctionHouseReminderAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:general")) is not IMessageChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.General) is not IMessageChannel channel) return false;
 
         var embed = embedHandler.GetBasicEmbed("The online Auction House")
             .WithDescription($"Want to check out what is available on the auction house, or want to know when a listing is about to end? Then check out {Format.Bold(Format.Url("this project", config.GetValue<string>("auctionHouse")))}.")
@@ -297,7 +297,7 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> ClearBotLogsAsync()
     {
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:kozmaLogs")) is not ITextChannel channel) return false;
+        if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.KozmaLogs) is not ITextChannel channel) return false;
 
         logger.Log(LogLevel.Moderation, "Cleaning BotLogs channel");
         var messages = await channel.GetMessagesAsync(limit: 420).FlattenAsync();
@@ -318,7 +318,8 @@ public class TaskHandler(IBot bot,
             }
         }
 
-        if (toDelete.Count > 0) await channel.DeleteMessagesAsync(toDelete);
+        if (toDelete.Count > 0) 
+            await channel.DeleteMessagesAsync(toDelete);
 
         return true;
     }

@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Models;
@@ -26,9 +26,8 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         await Task.Delay(delayInMs); // Give the gif time to play
     }
 
-    public MessageComponent GetComponents(int uvCount, int lockCount = 0)
-    {
-        return new ComponentBuilder()
+    public MessageComponent GetComponents(int uvCount, int lockCount = 0) =>
+        new ComponentBuilder()
             .WithButton(emote: new Emoji(Emotes.Locked), customId: ComponentIds.PunchInfoBase + ComponentIds.PunchInfoLock, style: ButtonStyle.Primary)
             .WithButton(emote: new Emoji(Emotes.One), customId: $"{ComponentIds.PunchLock}1", style: ButtonStyle.Secondary, disabled: uvCount < 1)
             .WithButton(emote: new Emoji(Emotes.Two), customId: $"{ComponentIds.PunchLock}2", style: ButtonStyle.Secondary, disabled: uvCount < 2)
@@ -40,7 +39,6 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
             .WithButton(emote: new Emoji(Emotes.Three), customId: $"{ComponentIds.PunchGamble}3", style: ButtonStyle.Secondary, disabled: lockCount > 2)
             .WithButton(emote: new Emoji(Emotes.QMark), customId: ComponentIds.PunchInfoBase + ComponentIds.PunchInfoOdds, style: ButtonStyle.Primary)
             .Build();
-    }
 
     public string RollUv(ulong id, PunchItem item, IReadOnlyCollection<string> uvs, bool crafting = false)
     {
@@ -48,9 +46,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         var uvType = GetUvType(item.Type, crafting);
 
         while (uvs.Any(uv => uv.Contains(uvType, StringComparison.OrdinalIgnoreCase)))
-        {
             uvType = GetUvType(item.Type, crafting);
-        }
 
         punchTracker.AddEntry(id, item.Name, uvType, uvGrade);
 

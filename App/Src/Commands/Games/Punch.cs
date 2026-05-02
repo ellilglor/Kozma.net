@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -63,9 +63,7 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
         var uvs = new List<string>();
 
         for (int i = 0; i < limit; i++)
-        {
             uvs.Add(punchHelper.RollUv(id, item, uvs, crafting: true));
-        }
 
         return uvs;
     }

@@ -1,19 +1,17 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Logging;
 
 public partial class Logger(IBot bot,
-    IConfiguration config,
     IMemoryCache cache,
     IEmbedHandler embedHandler,
     IRateLimitHandler rateLimitHandler,
@@ -30,8 +28,8 @@ public partial class Logger(IBot bot,
     public async Task LogAsync(string? message = null, Embed? embed = null, bool pingOwner = false)
     {
         if (string.IsNullOrEmpty(message) && embed is null) return;
-        if (await bot.Client.GetChannelAsync(config.GetValue<ulong>("ids:channels:kozmaLogs")) is not IMessageChannel channel) return;
-        var msg = pingOwner ? string.Join(" ", MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner")), message) : message;
+        if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.KozmaLogs) is not IMessageChannel channel) return;
+        var msg = pingOwner ? string.Join(" ", MentionUtils.MentionUser(Data.Constants.Ids.Owner), message) : message;
 
         await channel.SendMessageAsync(msg, embed: embed);
     }
@@ -47,7 +45,7 @@ public partial class Logger(IBot bot,
         }
 
         if (AdminCommandsRegex().IsMatch(command.Name)) return;
-        if (context.User.Id == config.GetValue<ulong>("ids:owner")) return;
+        if (context.User.Id == Data.Constants.Ids.Owner) return;
 
         switch (context.Interaction.Type)
         {
@@ -68,7 +66,8 @@ public partial class Logger(IBot bot,
         };
 
         var desc = interaction.Data is SocketSlashCommandData data && data.Options.Count > 0 ? ExtractOptions(data.Options) : string.Empty;
-        if (command == CommandIds.FindLogs && cache.TryGetValue($"{CommandIds.FindLogs}_{interaction.User.Id}", out int matches)) desc += $"\n- {Format.Bold("matches")}: {matches}";
+        if (command == CommandIds.FindLogs && cache.TryGetValue($"{CommandIds.FindLogs}_{interaction.User.Id}", out int matches))
+            desc += $"\n- {Format.Bold("matches")}: {matches}";
 
         var embed = embedHandler.GetLogEmbed(string.Empty, Colors.Default)
             .WithDescription(desc)
@@ -106,7 +105,8 @@ public partial class Logger(IBot bot,
             InteractionType.MessageComponent => (interaction as IComponentInteraction)?.Data.CustomId,
             _ => command
         };
-        if (string.IsNullOrEmpty(interactionName)) interactionName = command;
+        if (string.IsNullOrEmpty(interactionName))
+            interactionName = command;
 
         var stackTrace = result.Exception.InnerException?.StackTrace;
         var fields = new List<EmbedFieldBuilder>
@@ -115,7 +115,8 @@ public partial class Logger(IBot bot,
             embedHandler.CreateField("Location", location),
             embedHandler.CreateField("Locale", interaction.UserLocale),
         };
-        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0) fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
+        if (interaction.Data is SocketSlashCommandData data && data.Options.Count > 0)
+            fields.Add(embedHandler.CreateField("Options", ExtractOptions(data.Options)));
 
         var innerMessage = result.Exception.InnerException?.Message ?? string.Empty;
         var description = string.Join("\n\n", innerMessage, stackTrace?.Substring(0, Math.Min(stackTrace.Length, ExtendedDiscordConfig.MaxEmbedDescChars)));
@@ -148,7 +149,7 @@ public partial class Logger(IBot bot,
             _ => "Unknown reason."
         };
         var userEmbed = embedHandler.GetEmbed("Something went wrong while executing this command.")
-            .WithDescription(string.Join("\n\n", description, $"{MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner"))} has been notified"))
+            .WithDescription(string.Join("\n\n", description, $"{MentionUtils.MentionUser(Data.Constants.Ids.Owner)} has been notified"))
             .WithColor(Colors.Error);
 
         Log(LogLevel.Error, result.Exception.InnerException?.Message ?? description);

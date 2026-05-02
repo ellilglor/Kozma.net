@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models.Entities;
@@ -51,12 +51,9 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper, 
     private static void DisplayData(IReadOnlyCollection<Channel> data)
     {
         Console.WriteLine("{0,-20} {1,-10} {2,-10}", "Name", "Count", "Time (s)");
-
         Console.WriteLine(new string('-', 40));
 
         foreach (var channel in data)
-        {
             Console.WriteLine("{0,-20} {1,-10} {2,-10}", channel.Name, channel.Logs.Count, channel.Time);
-        }
     }
 }

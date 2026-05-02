@@ -27,7 +27,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
     public async Task HandleTradeCooldownAsync(IMessage message, ulong roleId)
     {
         if (message.Author is not SocketGuildUser user) return;
-        if (user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:roles:admin") || r.Id == config.GetValue<ulong>("ids:roles:mod"))) return;
+        if (user.Roles.Any(r => r.Id == Data.Constants.RoleIds.Admin || r.Id == Data.Constants.RoleIds.Mod)) return;
 
         await MuteUserAsync(user, message, roleId);
     }
@@ -51,15 +51,12 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         var guild = GetGuild();
         if (!guild.HasAllMembers) await guild.DownloadUsersAsync(); // Assure the users will be in the cache
 
-        var editRoleId = config.GetValue<ulong>("ids:roles:edit");
-        var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == editRoleId)); // Should be empty but exists just in case
+        var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == Data.Constants.RoleIds.TradeEdit)); // Should be empty but exists just in case
         foreach (var user in users)
-        {
-            await RemoveRoleAsync(user, editRoleId);
-        }
+            await RemoveRoleAsync(user, Data.Constants.RoleIds.TradeEdit);
 
-        await CheckMessagesAsync(guild, config.GetValue<ulong>("ids:channels:wts"), config.GetValue<ulong>("ids:roles:wts"), currentDate);
-        await CheckMessagesAsync(guild, config.GetValue<ulong>("ids:channels:wtb"), config.GetValue<ulong>("ids:roles:wtb"), currentDate);
+        await CheckMessagesAsync(guild, Data.Constants.ChannelIds.WTS, Data.Constants.RoleIds.WTS, currentDate);
+        await CheckMessagesAsync(guild, Data.Constants.ChannelIds.WTB, Data.Constants.RoleIds.WTB, currentDate);
         await taskService.UpdateTaskAsync(taskName);
     }
 
@@ -75,12 +72,12 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
         foreach (var mute in mutes)
         {
             if (guild.GetUser(mute.UserId) is not IGuildUser user) continue; // User left the server
-            await RemoveRoleAsync(user, config.GetValue<ulong>($"ids:roles:{(mute.IsWtb ? "wtb" : "wts")}"));
+            await RemoveRoleAsync(user, mute.IsWtb ? Data.Constants.RoleIds.WTB : Data.Constants.RoleIds.WTS);
         }
     }
 
     private SocketGuild GetGuild() =>
-        bot.Client.GetGuild(config.GetValue<ulong>("ids:server"));
+        bot.Client.GetGuild(Data.Constants.Ids.Server);
 
     private async Task CheckMessagesAsync(SocketGuild guild, ulong channelId, ulong roleId, DateTime d)
     {
@@ -89,9 +86,9 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
         foreach (var message in messages)
         {
-            if (d > message.CreatedAt.DateTime.AddHours(config.GetValue<double>("timers:slowmodeHours"))) break;
+            if (d > message.CreatedAt.DateTime.AddHours(config.GetValue<double>("slowmodeHours"))) break;
             if (message.Author.IsBot || message.Author is not SocketGuildUser user) continue;
-            if (user.Roles.Any(r => r.Id == roleId || r.Id == config.GetValue<ulong>("ids:roles:admin") || r.Id == config.GetValue<ulong>("ids:roles:mod"))) continue;
+            if (user.Roles.Any(r => r.Id == roleId || r.Id == Data.Constants.RoleIds.Admin || r.Id == Data.Constants.RoleIds.Mod)) continue;
 
             await MuteUserAsync(user, message, roleId);
         }
@@ -99,8 +96,7 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     private async Task MuteUserAsync(SocketGuildUser user, IMessage message, ulong roleId)
     {
-        var isWtb = roleId == config.GetValue<ulong>("ids:roles:wtb");
-        var success = await userService.SaveMuteAsync(user.Id, user.Username, isWtb, message.CreatedAt.DateTime);
+        var success = await userService.SaveMuteAsync(user.Id, user.Username, isWtb: roleId == Data.Constants.RoleIds.WTB, message.CreatedAt.DateTime);
 
         if (success) await GiveRoleAsync(user, roleId);
         /*if (!success) await logger.LogAsync($"- {(isWtb ? "WTB" : "WTS")} {MentionUtils.MentionUser(user.Id)} is already in the database", pingOwner: true);
@@ -129,14 +125,12 @@ public class RoleHandler(IBot bot, IConfiguration config, IBotLogger logger, IUs
 
     private async Task CheckForOutdatedMutesAsync(SocketGuild guild, IEnumerable<Mute> mutes, bool isWtb)
     {
-        var roleId = config.GetValue<ulong>($"ids:roles:{(isWtb ? "wtb" : "wts")}");
+        var roleId = isWtb ? Data.Constants.RoleIds.WTB : Data.Constants.RoleIds.WTS;
         var users = guild.Users.Where(u => u.Roles.Any(r => r.Id == roleId));
         var outdated = users.Where(u => !mutes.Any(m => m.IsWtb == isWtb && m.UserId == u.Id));
 
         // Users that have the role while not in the database
         foreach (var user in outdated)
-        {
             await RemoveRoleAsync(user, roleId);
-        }
     }
 }

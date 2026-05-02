@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -8,7 +8,6 @@ using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using System.Text;
 
 namespace Kozma.net.Src.Commands.Server;
@@ -16,7 +15,6 @@ namespace Kozma.net.Src.Commands.Server;
 [DontAutoRegister]
 [DefaultMemberPermissions(GuildPermission.Administrator | GuildPermission.KickMembers | GuildPermission.BanMembers)]
 public class Stats(IBot bot,
-    IConfiguration config,
     IMemoryCache cache,
     IEmbedHandler embedHandler,
     IDiscordPaginator paginator,
@@ -74,7 +72,7 @@ public class Stats(IBot bot,
         pages.Add(await BuildFindLogsPageAsync(totalSearchedTask.Result));
         timer.Stop();
 
-        var kozmaGuild = bot.Client.GetGuild(config.GetValue<ulong>("ids:server"));
+        var kozmaGuild = bot.Client.GetGuild(Data.Constants.Ids.Server);
         var fields = new List<EmbedFieldBuilder>()
         {
             embedHandler.CreateField("Bot Id", bot.Client.CurrentUser.Id.ToString()),
@@ -114,9 +112,7 @@ public class Stats(IBot bot,
     private async Task<int> GetUserCountAsync()
     {
         foreach (var guild in bot.Client.Guilds)
-        {
             if (!guild.HasAllMembers) await guild.DownloadUsersAsync();
-        }
 
         return bot.Client.Guilds
             .SelectMany(guild => guild.Users)
@@ -168,7 +164,8 @@ public class Stats(IBot bot,
             embedHandler.CreateField(forUnboxed ? "Opened" : "Commands", counts),
             embedHandler.CreateField("Percentage", percentages)
         };
-        if (totalUsers > 0) fields.Add(embedHandler.CreateField("Unique Users", $"{totalUsers:N0}"));
+        if (totalUsers > 0) 
+            fields.Add(embedHandler.CreateField("Unique Users", $"{totalUsers:N0}"));
         fields.Add(embedHandler.CreateField("Total", $"{totalUsed:N0}"));
 
         return embedHandler.GetBasicEmbed($"Top {limit} {(forUnboxed ? "unboxers" : "bot users")}").WithFields(fields);

@@ -1,12 +1,11 @@
 ﻿using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
-using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Server;
 
 [DontAutoRegister]
-public class TradeEdit(IConfiguration config, IEmbedHandler embedHandler, IRoleHandler roleHandler) : InteractionModuleBase<SocketInteractionContext>
+public class TradeEdit(IEmbedHandler embedHandler, IRoleHandler roleHandler) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand(CommandIds.TradeEdit, "Gives you 2 minutes to edit your tradeposts.")]
     public async Task ExecuteAsync()
@@ -16,12 +15,12 @@ public class TradeEdit(IConfiguration config, IEmbedHandler embedHandler, IRoleH
             .WithDescription("Using this command to bypass the slowmode will result in a timeout.");
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
-        await roleHandler.GiveRoleAsync(user, config.GetValue<ulong>("ids:roles:edit"));
+        await roleHandler.GiveRoleAsync(user, Data.Constants.RoleIds.TradeEdit);
 
-        // wait 2 minutes
+        // Give user 2 minutes to edit their message
         await Task.Delay(TimeSpan.FromMinutes(2));
 
-        await roleHandler.RemoveRoleAsync(user, config.GetValue<ulong>("ids:roles:edit"));
+        await roleHandler.RemoveRoleAsync(user, Data.Constants.RoleIds.TradeEdit);
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle("Your time is up!").WithDescription(null).Build());
     }
 }

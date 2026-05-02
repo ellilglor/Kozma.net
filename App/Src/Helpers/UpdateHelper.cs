@@ -1,5 +1,5 @@
 ﻿using Discord;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Models.Entities;
 using Kozma.net.Src.Services;
@@ -61,7 +61,8 @@ public partial class UpdateHelper(IMemoryCache cache, ITradeLogService tradeLogS
         var filtered = message.Content.CleanUp();
         var copy = message.Content;
         var date = DateRegex().Match(filtered) is Match match && match.Success ? DateTime.ParseExact(match.Value, "dd/MM/yyyy", CultureInfo.InvariantCulture) : message.CreatedAt.DateTime;
-        if (message.Attachments.Count > 1) copy += $"\n\n{Format.Italics("This message had multiple images")}\n{Format.Italics("Click the date to look at them")}";
+        if (message.Attachments.Count > 1) 
+            copy += $"\n\n{Format.Italics("This message had multiple images")}\n{Format.Italics("Click the date to look at them")}";
 
         return new TradeLog()
         {
@@ -81,9 +82,7 @@ public partial class UpdateHelper(IMemoryCache cache, ITradeLogService tradeLogS
         if (!cache.TryGetValue(CommandIds.FindLogs, out IEnumerable<string>? keys) || keys is null) return;
 
         foreach (var key in keys)
-        {
             cache.Remove(key);
-        }
 
         cache.Set(CommandIds.FindLogs, new List<string>());
     }

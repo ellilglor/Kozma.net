@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -73,9 +73,7 @@ public partial class Roll(IEmbedHandler embedHandler, IPunchHelper punchHelper, 
             .ToList();
 
         for (int i = uvs.Count; i < count; i++)
-        {
             uvs.Add($"{Emotes.Unlocked} UV #{i + 1}:{punchHelper.RollUv(id, item, uvs)}");
-        }
 
         return uvs;
     }

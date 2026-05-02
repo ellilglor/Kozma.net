@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 
@@ -23,13 +23,9 @@ public class Lock(IEmbedHandler embedHandler, IPunchHelper punchHelper) : Intera
             var field = uvFields[i];
 
             if (i + 1 == int.Parse(number))
-            {
                 fields.Add(embedHandler.CreateField(field.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase) ? field.Name.Replace(Emotes.Locked, Emotes.Unlocked, StringComparison.OrdinalIgnoreCase) : field.Name.Replace(Emotes.Unlocked, Emotes.Locked, StringComparison.OrdinalIgnoreCase), field.Value));
-            }
             else
-            {
                 fields.Add(embedHandler.CreateField(field.Name, field.Value));
-            }
         }
         var lockCount = fields.Count(f => f.Name.Contains(Emotes.Locked, StringComparison.OrdinalIgnoreCase));
         fields.AddRange(otherFields.Select(field => embedHandler.CreateField(field.Name, field.Value, field.Name != "Crowns Spent")));

@@ -2,15 +2,14 @@
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Services;
 
-public class PunchService(KozmaDbContext dbContext, IConfiguration config) : IPunchService
+public class PunchService(KozmaDbContext dbContext) : IPunchService
 {
     public async Task UpdateOrSaveGamblerAsync(ulong id, string name, PunchPrices ticket)
     {
-        if (id == config.GetValue<ulong>("ids:owner")) return;
+        if (id == Data.Constants.Ids.Owner) return;
 
         var user = await dbContext.Gamblers.FirstOrDefaultAsync(u => u.Id == id);
         var cost = (int)ticket;

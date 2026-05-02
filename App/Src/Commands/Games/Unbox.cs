@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -11,12 +11,10 @@ using Kozma.net.Src.Models;
 using Kozma.net.Src.Services;
 using Kozma.net.Src.Trackers;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Games;
 
-public class Unbox(IConfiguration config,
-    IMemoryCache cache,
+public class Unbox(IMemoryCache cache,
     IEmbedHandler embedHandler,
     IUnboxTracker unboxTracker,
     IUnboxService unboxService,
@@ -61,7 +59,9 @@ public class Unbox(IConfiguration config,
         var components = new ComponentBuilder()
             .WithButton(emote: new Emoji(Emotes.Repeat), customId: ComponentIds.UnboxBase + ComponentIds.UnboxAgain, style: ButtonStyle.Secondary)
             .WithButton(emote: new Emoji(Emotes.Book), customId: ComponentIds.UnboxBase + ComponentIds.UnboxStats, style: ButtonStyle.Primary, disabled: opened == 1);
-        if (opened == 69) components.WithButton(emote: new Emoji(Emotes.Money), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
+
+        if (opened == 69) 
+            components.WithButton(emote: new Emoji(Emotes.Money), url: "https://www.gamblersanonymous.org/ga/", style: ButtonStyle.Link);
 
         await SendOpeningAnimationAsync(interaction, author, boxData.Gif);
 
@@ -74,12 +74,11 @@ public class Unbox(IConfiguration config,
 
     private async Task SaveUnboxedAsync(ulong userId, Box box, IReadOnlyList<ItemData> unboxed)
     {
-        if (userId != config.GetValue<ulong>("ids:owner")) await unboxService.UpdateOrSaveBoxAsync(box);
+        if (userId != Data.Constants.Ids.Owner) 
+            await unboxService.UpdateOrSaveBoxAsync(box);
 
         foreach (var item in unboxed)
-        {
             unboxTracker.AddEntry(userId, box, item.Name);
-        }
     }
 
     private async Task SendOpeningAnimationAsync(SocketInteraction interaction, EmbedAuthorBuilder author, string url)

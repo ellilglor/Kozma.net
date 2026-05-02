@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
 
 namespace Kozma.net.Src.Commands.Server;
@@ -13,7 +13,6 @@ public class Test(IEmbedHandler embedHandler) : InteractionModuleBase<SocketInte
     public async Task ExecuteAsync()
     {
         var embed = embedHandler.GetAndBuildEmbed("Command used for testing.");
-
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed);
     }
 }

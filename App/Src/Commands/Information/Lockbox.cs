@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -73,9 +73,7 @@ public partial class Lockbox(IEmbedHandler embedHandler) : InteractionModuleBase
         }
 
         if (!string.IsNullOrEmpty(slimeCode))
-        {
             embed.WithTitle(GetSlimeboxDescription(slimeCode.ToUpper(CultureInfo.InvariantCulture)));
-        }
 
         if (!string.IsNullOrEmpty(item))
         {

@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 
 namespace Kozma.net.Src.Commands.Games;
 
@@ -28,7 +28,7 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
         await SendAnimationAsync();
 
         var field = new int[_size, _size];
-        var finalField = "";
+        var finalField = string.Empty;
 
         SetShards(field);
         var (startRow, startCol) = DetermineStartCoords(field);

@@ -1,12 +1,11 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Handlers;
 
-public partial class MessageHandler(IConfiguration config, IMemoryCache cache, IRoleHandler roleHandler) : IMessageHandler
+public partial class MessageHandler(IMemoryCache cache, IRoleHandler roleHandler) : IMessageHandler
 {
     private const string _cachekey = "Kozma_Mentioned";
     private static readonly Random _random = new();
@@ -18,14 +17,17 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
         if (channelType is null || channelType != ChannelType.Text && channelType != ChannelType.News) return;
 
         var channel = (ITextChannel)message.Channel;
-        if (channel.GuildId.Equals(config.GetValue<ulong>("ids:server"))) await HandleKbpMessageAsync(message, message.Channel.Id);
-        else if (channel.GuildId.Equals(config.GetValue<ulong>("ids:haven"))) await HandleHavenMessageAsync(message);
+        switch (channel.GuildId)
+        {
+            case Data.Constants.Ids.Server: await HandleKbpMessageAsync(message, message.Channel.Id); break;
+            case Data.Constants.Ids.Haven: await HandleHavenMessageAsync(message); break;
+        }
 
         if (KozmaRegex().IsMatch(message.Content) && _random.Next(4) == 0)
         {
             try
             {
-                await message.AddReactionAsync(new Emote(config.GetValue<ulong>("ids:logoEmote"), "kbplogo"));
+                await message.AddReactionAsync(new Emote(Data.Constants.Ids.LogoEmote, "kbplogo"));
             }
             catch { } // in case no permission to react
         }
@@ -33,7 +35,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
     private async Task HandleKbpMessageAsync(SocketUserMessage message, ulong channelId)
     {
-        if (message.Author.IsWebhook && channelId.Equals(config.GetValue<ulong>("ids:channels:announcements")))
+        if (message.Author.IsWebhook && channelId == Data.Constants.ChannelIds.Announcements)
         {
             await message.CrosspostAsync();
             return;
@@ -41,34 +43,41 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
         if (message.Author.IsBot)
         {
-            if (channelId.Equals(config.GetValue<ulong>("ids:channels:market"))) await message.CrosspostAsync();
+            if (channelId == Data.Constants.ChannelIds.Market)
+                await message.CrosspostAsync();
+
+            return;
         }
-        else
+
+        switch (channelId)
         {
-            if (channelId.Equals(config.GetValue<ulong>("ids:channels:wts"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:roles:wts"));
-            else if (channelId.Equals(config.GetValue<ulong>("ids:channels:wtb"))) await roleHandler.HandleTradeCooldownAsync(message, config.GetValue<ulong>("ids:roles:wtb"));
-
-            if (channelId.Equals(config.GetValue<ulong>("ids:channels:wts")) || channelId.Equals(config.GetValue<ulong>("ids:channels:wtb")))
-            {
-                await WarnIfWrongContentAsync(message, isWtsChannel: channelId == config.GetValue<ulong>("ids:channels:wts"));
-                await WarnIfContentTooLongAsync(message);
-                await WarnIfIncorrectFormat(message);
-            }
-
-            if (channelId.Equals(config.GetValue<ulong>("ids:channels:general")) && message.MentionedUsers.Count > 0 && message.MentionedUsers.Any(user => user.Id == config.GetValue<ulong>("ids:kozma")) && !cache.TryGetValue(_cachekey, out int _))
-            {
+            case Data.Constants.ChannelIds.WTS: 
+                await roleHandler.HandleTradeCooldownAsync(message, Data.Constants.RoleIds.WTS);
+                await CheckTradePostWarnings(message, isWtsChannel: true);
+                break;
+            case Data.Constants.ChannelIds.WTB: 
+                await roleHandler.HandleTradeCooldownAsync(message, Data.Constants.RoleIds.WTB);
+                await CheckTradePostWarnings(message, isWtsChannel: false);
+                break;
+            case Data.Constants.ChannelIds.General when message.MentionedUsers.Any(user => user.Id == Data.Constants.Ids.Kozma) && !cache.TryGetValue(_cachekey, out int _):
                 await message.Channel.SendFileAsync(filePath: Path.Combine("Src", "Assets", "hello-there.gif"));
                 cache.Set(_cachekey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });
-            }
+                break;
+            default: break;
         }
     }
 
-    private async Task HandleHavenMessageAsync(IMessage message)
+    private static async Task HandleHavenMessageAsync(IMessage message)
     {
-        if (message.Channel.Id.Equals(config.GetValue<ulong>("ids:channels:havenListings")) && message.Author.IsWebhook)
-        {
-            await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(config.GetValue<ulong>("ids:roles:havenListings"))} The following has been posted:\n{message.Content}");
-        }
+        if (message.Channel.Id == Data.Constants.ChannelIds.HavenListings && message.Author.IsWebhook)
+            await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(Data.Constants.RoleIds.HavenListings)} The following has been posted:\n{message.Content}");
+    }
+
+    private static async Task CheckTradePostWarnings(SocketUserMessage message, bool isWtsChannel)
+    {
+        await WarnIfWrongContentAsync(message, isWtsChannel);
+        await WarnIfContentTooLongAsync(message);
+        await WarnIfIncorrectFormat(message);
     }
 
     private static async Task WarnIfWrongContentAsync(SocketUserMessage message, bool isWtsChannel)
@@ -90,8 +99,7 @@ public partial class MessageHandler(IConfiguration config, IMemoryCache cache, I
 
     private static async Task WarnIfIncorrectFormat(SocketUserMessage message)
     {
-        if (!message.Content.StartsWith('#'))
-            return;
+        if (!message.Content.StartsWith('#')) return;
 
         await ReplyAndDeleteAsync(message, $"Your message appears to be incorrectly formatted.\ncheck the pinned messages for the channel guidelines.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.");
     }

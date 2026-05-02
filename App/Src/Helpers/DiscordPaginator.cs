@@ -1,5 +1,5 @@
 ﻿using Discord;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -46,7 +46,9 @@ class DiscordPaginator(IBot bot, IMemoryCache cache, IEmbedHandler embedHandler)
 
         for (int i = 0; i < pages.Count; i++)
         {
-            if (addTitle) pages[i].Title = $"{pages[i].Title} - {i + 1}/{pages.Count}";
+            if (addTitle) 
+                pages[i].Title = $"{pages[i].Title} - {i + 1}/{pages.Count}";
+
             pages[i].Footer = new EmbedFooterBuilder()
                 .WithText($"{i + 1}/{pages.Count}")
                 .WithIconUrl(bot.Client.CurrentUser.GetDisplayAvatarUrl());

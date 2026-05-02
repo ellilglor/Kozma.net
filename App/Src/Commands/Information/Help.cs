@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +17,7 @@ public class Help(IEmbedHandler embedHandler, IConfiguration config, IFileReader
         var info = await jsonFileReader.ReadAsync<IEnumerable<CommandInfo>>(Path.Combine("Data", "Help.json"));
 
         var embed = embedHandler.GetEmbed("Here are all my commands:")
-            .WithDescription(Format.Italics($"If you notice a problem please contact {MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner"))}"))
+            .WithDescription(Format.Italics($"If you notice a problem please contact {MentionUtils.MentionUser(Data.Constants.Ids.Owner)}"))
             .WithFields(info.Select(cmd => embedHandler.CreateField(cmd.Command, cmd.Description, isInline: false)).ToList());
 
         var components = new ComponentBuilder()

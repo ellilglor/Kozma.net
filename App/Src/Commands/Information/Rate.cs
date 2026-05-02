@@ -1,13 +1,12 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
-using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Commands.Information;
 
-public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
+public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService) : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand(CommandIds.Rate, "View the current crowns per energy rate used for /convert.")]
     public async Task ExecuteAsync(
@@ -20,7 +19,7 @@ public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, 
         {
             var user = Context.Guild?.GetUser(Context.User.Id);
 
-            if (user != null && user.Roles.Any(r => r.Id == config.GetValue<ulong>("ids:roles:admin") || r.Id == config.GetValue<ulong>("ids:roles:mod")))
+            if (user != null && user.Roles.Any(r => r.Id == Data.Constants.RoleIds.Admin || r.Id == Data.Constants.RoleIds.Mod))
             {
                 await exchangeService.UpdateExchangeAsync(newRate.Value);
                 embed.WithTitle($"The conversion rate has been changed to: {newRate}.");
@@ -33,7 +32,6 @@ public class Rate(IEmbedHandler embedHandler, IExchangeService exchangeService, 
         else
         {
             var rate = await exchangeService.GetExchangeRateAsync();
-
             embed.WithTitle(rate == -1 ? "Something went wrong while fetching the data." : $"The current crowns per energy rate is: {rate}.");
         }
 

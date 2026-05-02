@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
@@ -45,7 +45,8 @@ public partial class FindLogs(IMemoryCache cache,
                 $"- {Format.Bold("Sprite pods:")}\nType out as seen in game.\nExample: Drakon Pod (Divine)");
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
-        if (Context.User.Id != config.GetValue<ulong>("ids:owner")) await tradeLogService.UpdateOrSaveItemAsync(altered);
+        if (Context.User.Id != Data.Constants.Ids.Owner) 
+            await tradeLogService.UpdateOrSaveItemAsync(altered);
 
         var matches = await SearchLogsAsync(altered, months, checkVariants: variants, checkClean: clean, checkMixed: mixed);
         await SendMatchesAsync(Context.User, matches, altered, item, months, checkVariants: variants);
@@ -58,22 +59,18 @@ public partial class FindLogs(IMemoryCache cache,
         if (!cache.TryGetValue(cacheKey, out IEnumerable<LogGroups>? matches) || matches is null)
         {
             var reverse = new List<string>();
-            var ignore = new List<string>();
             var items = new List<string>() { AttachUvsToBack(item) };
             var stopHere = DateTime.Now.AddMonths(-months);
-            var cleanFilter = new List<string>() { "CTR HIGH", "CTR VERY HIGH", "ASI HIGH", "ASI VERY HIGH", "NORMAL HIGH", "NORMAL MAX", "SHADOW HIGH", "SHADOW MAX", "FIRE HIGH", "FIRE MAX", "SHOCK HIGH", "SHOCK MAX" };
 
-            if (checkVariants) await AddVariantsAsync(items);
-            if (items[0].Contains("ctr", StringComparison.OrdinalIgnoreCase) && items[0].Contains("asi", StringComparison.OrdinalIgnoreCase)) items.ForEach(item => reverse.Add(SwapUvs(item)));
-            if (checkClean) items.ForEach(item => cleanFilter.ForEach(uv => ignore.Add($"{item} {uv}")));
-            if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) ignore.Add("NOG BLASTER");
-            if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) ignore.Add("RECIPE");
-            if (items[0].Contains("pollinator", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("plate", StringComparison.OrdinalIgnoreCase)) ignore.Add("PLATE");
-            if (items[0].Contains("cozzzy", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("tech", StringComparison.OrdinalIgnoreCase)) ignore.Add("TECH");
+            if (checkVariants) 
+                await AddVariantsAsync(items);
+            if (items[0].Contains("ctr", StringComparison.OrdinalIgnoreCase) && items[0].Contains("asi", StringComparison.OrdinalIgnoreCase)) 
+                items.ForEach(item => reverse.Add(SwapUvs(item)));
 
+            var exceptions = GetExceptions(items, checkClean);
             var commonFeatured = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "CommonFeatured.json"));
             var skipSpecial = commonFeatured.Any(item => items[0].Contains(item, StringComparison.OrdinalIgnoreCase));
-            matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, ignore);
+            matches = await tradeLogService.GetLogsAsync([.. items, .. reverse], stopHere, checkMixed, skipSpecial, exceptions);
 
             cache.Set(cacheKey, matches, _cacheOptions);
             SaveCacheKey(cacheKey);
@@ -113,7 +110,8 @@ public partial class FindLogs(IMemoryCache cache,
                         .Build());
                 }
 
-                if (embeds.Count > 0) await user.SendMessageAsync(embeds: [.. embeds]);
+                if (embeds.Count > 0) 
+                    await user.SendMessageAsync(embeds: [.. embeds]);
             }
 
             await FinishInteractionAsync(user, item, original, matchCount, months, checkVariants);
@@ -133,17 +131,16 @@ public partial class FindLogs(IMemoryCache cache,
                 $"- Only want to see your item and no variants?\nSet {Format.Code("variants")} to {Format.Italics("False")}.\n" +
                 $"- Want to filter out higher value UV's?\nSet {Format.Code("clean")} to {Format.Italics("True")}.\n" +
                 $"- Not interested in item trades?\nSet {Format.Code("mixed")} to {Format.Italics("False")}.\n\n" +
-                $"If you notice a problem please contact {MentionUtils.MentionUser(config.GetValue<ulong>("ids:owner"))}!\n" +
+                $"If you notice a problem please contact {MentionUtils.MentionUser(Data.Constants.Ids.Owner)}!\n" +
                 $"Did you know we have our own {Format.Url(Format.Bold("Discord server"), config.GetValue<string>("serverInvite"))}?");
 
         var spreadsheet = await jsonFileReader.ReadAsync<IEnumerable<string>>(Path.Combine("Data", "FindLogs", "Spreadsheet.json"));
         if (spreadsheet.Any(equipment => item.Contains(equipment, StringComparison.OrdinalIgnoreCase)))
-        {
             embed.AddField(Emotes.Empty, $"{Format.Underline(original)} can be found on the {Format.Url(Format.Bold("merchant sheet"), "https://docs.google.com/spreadsheets/d/1h-SoyMn3kVla27PRW_kQQO6WefXPmLZYy7lPGNUNW7M/htmlview#")}.");
-        }
 
         var components = new ComponentBuilder().WithButton(label: "Delete messages", customId: ComponentIds.ClearMessages, style: ButtonStyle.Primary);
-        if (months < 24) components.WithButton(label: "Search all tradelogs", customId: $"{ComponentIds.FindLogsBase}{(checkVariants ? ComponentIds.FindLogsVar : ComponentIds.FindLogsSingle)}", style: ButtonStyle.Primary);
+        if (months < 24) 
+            components.WithButton(label: "Search all tradelogs", customId: $"{ComponentIds.FindLogsBase}{(checkVariants ? ComponentIds.FindLogsVar : ComponentIds.FindLogsSingle)}", style: ButtonStyle.Primary);
 
         cache.Set($"{CommandIds.FindLogs}_{user.Id}", matchCount, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });
 
@@ -200,6 +197,25 @@ public partial class FindLogs(IMemoryCache cache,
         return item;
     }
 
+    private static List<string> GetExceptions(List<string> items, bool checkClean)
+    {
+        var exceptions = new List<string>();
+        var cleanFilter = new List<string>() { "CTR HIGH", "CTR VERY HIGH", "ASI HIGH", "ASI VERY HIGH", "NORMAL HIGH", "NORMAL MAX", "SHADOW HIGH", "SHADOW MAX", "FIRE HIGH", "FIRE MAX", "SHOCK HIGH", "SHOCK MAX" };
+
+        if (checkClean) 
+            items.ForEach(item => cleanFilter.ForEach(uv => exceptions.Add($"{item} {uv}")));
+        if (items[0].Contains("blaster", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("nog", StringComparison.OrdinalIgnoreCase)) 
+            exceptions.Add("NOG BLASTER");
+        if (!items[0].Contains("recipe", StringComparison.OrdinalIgnoreCase)) 
+            exceptions.Add("RECIPE");
+        if (items[0].Contains("pollinator", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("plate", StringComparison.OrdinalIgnoreCase)) 
+            exceptions.Add("PLATE");
+        if (items[0].Contains("cozzzy", StringComparison.OrdinalIgnoreCase) && !items[0].Contains("tech", StringComparison.OrdinalIgnoreCase)) 
+            exceptions.Add("TECH");
+
+        return exceptions;
+    }
+
     internal async Task AddVariantsAsync(List<string> items)
     {
         var item = items[0];
@@ -225,8 +241,7 @@ public partial class FindLogs(IMemoryCache cache,
         var equipmentFamilies = await jsonFileReader.ReadAsync<IReadOnlyDictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "EquipmentFamilies.json"));
         var family = equipmentFamilies.FirstOrDefault(f => f.Value.Any(name => item.Contains(name, StringComparison.OrdinalIgnoreCase)));
 
-        if (family.Equals(default(KeyValuePair<string, List<string>>)))
-            return false;
+        if (family.Equals(default(KeyValuePair<string, List<string>>))) return false;
 
         var match = family.Value.First(name => item.Contains(name, StringComparison.OrdinalIgnoreCase));
         if (match == "AVENGER" && items[0].Contains("helm", StringComparison.OrdinalIgnoreCase)) return true;
@@ -253,17 +268,14 @@ public partial class FindLogs(IMemoryCache cache,
 
                 var template = item.Replace(color, string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
                 if (color == "ROSE" && (template.Contains("tabard", StringComparison.OrdinalIgnoreCase) || template.Contains("chapeau", StringComparison.OrdinalIgnoreCase) || RoseColorRegex().IsMatch(template))) break;
-                if (set.Key == "GEMS" && template.Contains("floating", StringComparison.OrdinalIgnoreCase)) template = template.Replace(" s", string.Empty, StringComparison.OrdinalIgnoreCase);
+                if (set.Key == "GEMS" && template.Contains("floating", StringComparison.OrdinalIgnoreCase)) 
+                    template = template.Replace(" s", string.Empty, StringComparison.OrdinalIgnoreCase);
 
                 items.Clear();
                 if (set.Key == "OBSIDIAN" || (set.Key == "GEMS" && template.Contains("floating", StringComparison.OrdinalIgnoreCase)) || set.Key.Contains("ROSE", StringComparison.OrdinalIgnoreCase))
-                {
                     set.Value.ForEach(value => items.Add($"{template} {value}".Trim()));
-                }
                 else
-                {
                     set.Value.ForEach(value => items.Add($"{value} {template}".Trim()));
-                }
 
                 return true;
             }

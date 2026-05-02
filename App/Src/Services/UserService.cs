@@ -1,4 +1,4 @@
-﻿using Kozma.net.Src.Data.Classes;
+﻿using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
 {
     public async Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, string command)
     {
-        if (id == config.GetValue<ulong>("ids:owner")) return;
+        if (id == Data.Constants.Ids.Owner) return;
 
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
 
@@ -56,7 +56,7 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
             UserId = id,
             IsWtb = isWtb,
             CreatedAt = DateTime.Now,
-            ExpiresAt = msgCreatedAt.AddHours(config.GetValue<double>("timers:slowmodeHours"))
+            ExpiresAt = msgCreatedAt.AddHours(config.GetValue<double>("slowmodeHours"))
         });
 
         await dbContext.SaveChangesAsync();

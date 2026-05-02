@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
 
 namespace Kozma.net.Src.Commands.Other;
@@ -40,9 +40,7 @@ public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandle
         foreach (var msg in messages.Where(msg => msg.Author.IsBot))
         {
             while (rateLimitHandler.IsRateLimited())
-            {
                 await Task.Delay(500);
-            }
 
             try
             {

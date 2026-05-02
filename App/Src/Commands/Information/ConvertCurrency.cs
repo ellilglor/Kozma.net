@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Services;
@@ -28,7 +28,8 @@ public class ConvertCurrency(IEmbedHandler embedHandler, IExchangeService exchan
         var embed = embedHandler.GetEmbed(title)
             .WithDescription($"Used conversion rate: {Format.Bold(exchange.ToString())} Crowns per Energy.");
 
-        if (currency == Currency.crowns) embed.WithColor(Colors.Crown);
+        if (currency == Currency.crowns) 
+            embed.WithColor(Colors.Crown);
 
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
     }

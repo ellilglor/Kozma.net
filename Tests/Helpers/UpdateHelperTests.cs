@@ -1,5 +1,5 @@
 ﻿using Discord;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Caching.Memory;

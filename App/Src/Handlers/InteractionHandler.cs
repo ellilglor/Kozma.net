@@ -1,13 +1,12 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using MongoDB.Driver.Linq;
 using System.Reflection;
 
@@ -15,7 +14,6 @@ namespace Kozma.net.Src.Handlers;
 
 public class InteractionHandler(IBot bot,
     IBotLogger logger,
-    IConfiguration config,
     IMemoryCache cache,
     IFileReader jsonFileReader,
     IEmbedHandler embedHandler,
@@ -42,7 +40,7 @@ public class InteractionHandler(IBot bot,
             .Where(x => (x.IsSlashGroup && x.IsTopLevelGroup || !x.IsSubModule) && x.DontAutoRegister)
             .ToArray();
 
-        await service.AddModulesToGuildAsync(config.GetValue<ulong>("ids:server"), deleteMissing: true, kozmaCommands);
+        await service.AddModulesToGuildAsync(Data.Constants.Ids.Server, deleteMissing: true, kozmaCommands);
 
         logger.Log(LogLevel.Discord, "Commands have been registered");
     }
@@ -67,7 +65,7 @@ public class InteractionHandler(IBot bot,
 
     private async Task<bool> CheckIfCanBeExecutedAsync(SocketInteraction interaction)
     {
-        /*if (interaction.User.Id != config.GetValue<ulong>("ids:owner"))
+        /*if (interaction.User.Id != Data.Constants.Ids.Owner)
         {
             await interaction.RespondAsync(embed: embedHandler.GetAndBuildEmbed("The bot is currently being worked on.\nPlease try again later."), ephemeral: true);
             logger.Log(LogLevel.Info, interaction.User.Username);
@@ -76,9 +74,9 @@ public class InteractionHandler(IBot bot,
 
         await interaction.DeferAsync(ephemeral: true);
 
-        if (interaction.GuildId != config.GetValue<ulong>("ids:server") && interaction.User.Id != config.GetValue<ulong>("ids:owner"))
+        if (interaction.GuildId != Data.Constants.Ids.Server && interaction.User.Id != Data.Constants.Ids.Owner)
         {
-            var guild = bot.Client.GetGuild(config.GetValue<ulong>("ids:server"));
+            var guild = bot.Client.GetGuild(Data.Constants.Ids.Server);
             var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
 
             if (isBanned) // :)

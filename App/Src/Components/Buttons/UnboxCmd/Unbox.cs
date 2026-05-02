@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
 using Kozma.net.Src.Handlers;
@@ -10,12 +10,10 @@ using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
 using Kozma.net.Src.Trackers;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Components.Buttons.UnboxCmd;
 
-public class Unbox(IConfiguration config,
-    IMemoryCache cache,
+public class Unbox(IMemoryCache cache,
     IEmbedHandler embedHandler,
     IUnboxTracker unboxTracker,
     IUnboxService unboxService,
@@ -32,7 +30,7 @@ public class Unbox(IConfiguration config,
         {
             if (action == ComponentIds.UnboxAgain)
             {
-                var command = new Commands.Games.Unbox(config, cache, embedHandler, unboxTracker, unboxService, jsonFileReader, logger);
+                var command = new Commands.Games.Unbox(cache, embedHandler, unboxTracker, unboxService, jsonFileReader, logger);
                 await command.UnboxAsync(Context.Interaction, Context.User.Id, box, int.Parse(embed.Fields[0].Value) + 1);
             }
             else

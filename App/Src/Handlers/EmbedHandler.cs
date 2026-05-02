@@ -1,29 +1,25 @@
 ﻿using Discord;
-using Kozma.net.Src.Data.Classes;
+using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Extensions;
 
 namespace Kozma.net.Src.Handlers;
 
 public class EmbedHandler(IBot bot) : IEmbedHandler
 {
-    public EmbedBuilder GetEmbed(string title)
-    {
-        return GetBasicEmbed(title)
+    public EmbedBuilder GetEmbed(string title) =>
+        GetBasicEmbed(title)
             .WithFooter(
                 new EmbedFooterBuilder()
                     .WithText($"Thank you for using the {bot.Client.CurrentUser.Username} app")
                     .WithIconUrl(bot.Client.CurrentUser.GetDisplayAvatarUrl())
             );
-    }
 
-    public EmbedBuilder GetBasicEmbed(string title)
-    {
-        return new EmbedBuilder
+    public EmbedBuilder GetBasicEmbed(string title) =>
+        new EmbedBuilder
         {
             Title = title.Substring(0, Math.Min(title.Length, ExtendedDiscordConfig.MaxEmbedTitleChars)),
             Color = Colors.Default
         };
-    }
 
     public Embed GetAndBuildEmbed(string title) =>
         GetEmbed(title).Build();
