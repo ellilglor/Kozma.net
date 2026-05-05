@@ -238,6 +238,8 @@ public partial class FindLogs(IMemoryCache cache,
 
     private async Task<bool> AddEquipmentVariantsAsync(string item, List<string> items)
     {
+        if (item.Contains("great defender", StringComparison.OrdinalIgnoreCase)) return true;
+
         var equipmentFamilies = await jsonFileReader.ReadAsync<IReadOnlyDictionary<string, List<string>>>(Path.Combine("Data", "FindLogs", "EquipmentFamilies.json"));
         var family = equipmentFamilies.FirstOrDefault(f => f.Value.Any(name => item.Contains(name, StringComparison.OrdinalIgnoreCase)));
 
