@@ -76,18 +76,8 @@ public class InteractionHandler(IConfiguration config,
 
         await interaction.DeferAsync(ephemeral: true);
 
-        if (interaction.GuildId != Data.Constants.Ids.Server && interaction.User.Id != Data.Constants.Ids.Owner)
-        {
-            var guild = bot.Client.GetGuild(Data.Constants.Ids.Server);
-            var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
-
-            if (isBanned) // :)
-            {
-                var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
-                await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
-                return false;
-            }
-        }
+        var isBanned = await CheckIfBannedAsync(interaction);
+        if (isBanned) return false;
 
         var tryLater = interaction.Type switch
         {
@@ -121,6 +111,24 @@ public class InteractionHandler(IConfiguration config,
         }
 
         return true;
+    }
+
+    private async Task<bool> CheckIfBannedAsync(SocketInteraction interaction)
+    {
+        if (interaction.GuildId != Data.Constants.Ids.Server && interaction.User.Id != Data.Constants.Ids.Owner)
+        {
+            var guild = bot.Client.GetGuild(Data.Constants.Ids.Server);
+            var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
+
+            if (isBanned) // :)
+            {
+                var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
+                await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task HandleAutocompleteAsync(SocketAutocompleteInteraction interaction)
