@@ -96,18 +96,19 @@ public class InteractionHandler(IConfiguration config,
             interaction is SocketMessageComponent ClearComponent && ClearComponent.Data.CustomId.Equals(ComponentIds.ClearMessages, StringComparison.Ordinal))
         {
             var cacheKey = $"clear_{interaction.User.Id}";
+            var timeout = 60;
 
             if (cache.TryGetValue(cacheKey, out int _))
             {
                 await interaction.ModifyOriginalResponseAsync(msg =>
                 {
-                    msg.Embed = embedHandler.GetAndBuildEmbed("You can only use this command once every 60 seconds.");
+                    msg.Embed = embedHandler.GetAndBuildEmbed($"You can only use this command once every {timeout} seconds.");
                     msg.Components = new ComponentBuilder().Build();
                 });
                 return false;
             }
 
-            cache.Set(cacheKey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });
+            cache.Set(cacheKey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(timeout) });
         }
 
         return true;
@@ -115,20 +116,18 @@ public class InteractionHandler(IConfiguration config,
 
     private async Task<bool> CheckIfBannedAsync(SocketInteraction interaction)
     {
-        if (interaction.GuildId != Data.Constants.Ids.Server && interaction.User.Id != Data.Constants.Ids.Owner)
-        {
-            var guild = bot.Client.GetGuild(Data.Constants.Ids.Server);
-            var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
+        if (interaction.GuildId == Data.Constants.Ids.Server || interaction.User.Id == Data.Constants.Ids.Owner)
+            return false;
 
-            if (isBanned) // :)
-            {
-                var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
-                await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
-                return true;
-            }
-        }
+        var guild = bot.Client.GetGuild(Data.Constants.Ids.Server);
+        var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
 
-        return false;
+        if (!isBanned)
+            return false;
+
+        var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
+        await interaction.ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
+        return true;
     }
 
     private async Task HandleAutocompleteAsync(SocketAutocompleteInteraction interaction)
@@ -136,9 +135,7 @@ public class InteractionHandler(IConfiguration config,
         var cacheKey = $"Autocomplete_{interaction.Data.CommandName}_{interaction.Data.Current.Name}";
 
         if (!cache.TryGetValue(cacheKey, out IEnumerable<AutocompleteResult>? suggestions) || suggestions is null)
-        {
             suggestions = await GetAutocompleteListAsync(interaction, cacheKey);
-        }
 
         var input = interaction.Data.Current.Value.ToString()?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
         await interaction.RespondAsync(suggestions.Where(s => input.All(word => s.Name.Contains(word, StringComparison.OrdinalIgnoreCase))).Take(25));

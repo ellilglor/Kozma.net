@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.Net;
 using Discord.WebSocket;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Handlers;
@@ -26,7 +27,7 @@ public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandle
                 msg.Components = new ComponentBuilder().Build();
             });
         }
-        catch (Exception e) when (e.Message.Contains("10008", StringComparison.InvariantCulture))
+        catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.UnknownMessage)
         {
             return;
         }
@@ -46,7 +47,7 @@ public class Clear(IEmbedHandler embedHandler, IRateLimitHandler rateLimitHandle
             {
                 await msg.DeleteAsync();
             }
-            catch (Exception e) when (e.Message.Contains("10008", StringComparison.InvariantCulture) || e.Message.Contains("50003", StringComparison.InvariantCulture))
+            catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.UnknownMessage || e.DiscordCode == DiscordErrorCode.CannotExecuteForDM)
             {
                 continue; // Can happen if /clear gets run twice before the first one has finished or a random "cannot execute action on a DM channel"
             }

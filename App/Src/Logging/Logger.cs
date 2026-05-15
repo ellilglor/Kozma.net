@@ -125,10 +125,22 @@ public partial class Logger(IBot bot,
             .WithFooter(new EmbedFooterBuilder().WithText($"ID: {interaction.User.Id}"))
             .WithFields(fields);
 
-        if (result.ErrorReason != IntErrorMsg && !innerMessage.Contains(ServiceUnavailableMsg, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(description))
+        if (ShouldLog(result, innerMessage, description))
             await LogAsync(embed: errorEmbed.Build(), pingOwner: true);
 
         await InformUserAsync(interaction, result);
+    }
+
+    private static bool ShouldLog(ExecuteResult result, string innerMessage, string description)
+    {
+        if (string.IsNullOrWhiteSpace(description))
+            return false;
+        if (result.ErrorReason == IntErrorMsg)
+            return false;
+        if (innerMessage.Contains(ServiceUnavailableMsg, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return true;
     }
 
     private static string ExtractOptions(IReadOnlyCollection<SocketSlashCommandDataOption> options) =>
@@ -163,10 +175,13 @@ public partial class Logger(IBot bot,
     public async Task HandleDiscordLog(LogMessage msg)
     {
         var message = $"{msg.Source}\t{msg.Message}";
-        if (!string.IsNullOrEmpty(msg.Message)) Log(LogLevel.Discord, message);
+        if (!string.IsNullOrEmpty(msg.Message)) 
+            Log(LogLevel.Discord, message);
 
-        if (msg.Severity == LogSeverity.Critical || msg.Severity == LogSeverity.Error) await LogAsync(message, pingOwner: true);
-        if (msg.Message != null && msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) rateLimitHandler.SetRateLimit(msg.Message);
+        if (msg.Severity == LogSeverity.Critical || msg.Severity == LogSeverity.Error) 
+            await LogAsync(message, pingOwner: true);
+        if (msg.Message != null && msg.Message.Contains("Rate limit triggered", StringComparison.OrdinalIgnoreCase)) 
+            rateLimitHandler.SetRateLimit(msg.Message);
     }
 
     [GeneratedRegex(@"(pricecheck|stats|test|update)")]
