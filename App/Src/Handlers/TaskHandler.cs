@@ -300,7 +300,7 @@ public class TaskHandler(IBot bot,
         if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.KozmaLogs) is not ITextChannel channel) return false;
 
         logger.Log(LogLevel.Moderation, "Cleaning BotLogs channel");
-        var messages = await channel.GetMessagesAsync(limit: 420).FlattenAsync();
+        var messages = await channel.GetMessagesAsync(limit: 1000).FlattenAsync();
         var toDelete = new List<IMessage>();
         var messageAgeLimit = DateTimeOffset.UtcNow.AddDays(-14);
 
