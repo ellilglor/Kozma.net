@@ -18,7 +18,6 @@ public partial class Logger(IBot bot,
     IUserService userService,
     ICommandService commandService) : IBotLogger
 {
-
     private const string IntErrorMsg = "Value was either too large or too small for an Int32.";
 
     public void Log(LogLevel level, string message) =>

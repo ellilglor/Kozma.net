@@ -23,7 +23,7 @@ public partial class FindLogs(IMemoryCache cache,
     IConfiguration config) : InteractionModuleBase<SocketInteractionContext>
 {
     private static readonly MemoryCacheEntryOptions _cacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12) };
-    private static readonly string[] snipeVariantExceptions = ["slime", "plume", "pepper", "sugar", "scalding hot"];
+    private static readonly string[] snipeVariantExceptions = ["slime", "plume", "pepper", "sugar", "scalding hot", "aura"];
 
     [SlashCommand(CommandIds.FindLogs, "Search the tradelog database for any item.")]
     public async Task ExecuteAsync(
