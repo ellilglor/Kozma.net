@@ -20,7 +20,6 @@ public partial class Logger(IBot bot,
 {
 
     private const string IntErrorMsg = "Value was either too large or too small for an Int32.";
-    private const string ServiceUnavailableMsg = "503: Service Unavailable";
 
     public void Log(LogLevel level, string message) =>
         Console.WriteLine($"{level.Color()}[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\u001b[0m {message}");
@@ -137,7 +136,7 @@ public partial class Logger(IBot bot,
             return false;
         if (result.ErrorReason == IntErrorMsg)
             return false;
-        if (innerMessage.Contains(ServiceUnavailableMsg, StringComparison.OrdinalIgnoreCase))
+        if (innerMessage.Contains("503", StringComparison.OrdinalIgnoreCase)) // Service unavailable
             return false;
 
         return true;
