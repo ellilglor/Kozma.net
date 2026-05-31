@@ -129,7 +129,7 @@ public class Stats(IBot bot,
             .OrderByDescending(g => g.MemberCount)
             .Select((server, index) => $"{index + 1}. {Format.Bold(server.Name)}: {server.Users.Count}")
             .Select((info, index) => new { info, index })
-            .GroupBy(x => x.index / 20)
+            .GroupBy(x => x.index / 25)
             .Select(group => string.Join("\n", group.Select(x => x.info)))
             .ToList();
 
