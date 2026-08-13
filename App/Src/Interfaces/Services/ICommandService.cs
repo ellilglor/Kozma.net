@@ -1,6 +1,6 @@
 ﻿using Kozma.net.Src.Models;
 
-namespace Kozma.net.Src.Services;
+namespace Kozma.net.Src.Interfaces.Services;
 
 public interface ICommandService
 {

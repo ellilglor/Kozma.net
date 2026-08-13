@@ -1,8 +1,8 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Src.Data.Constants;
-using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Services;
+using Kozma.net.Src.Interfaces.Handlers;
+using Kozma.net.Src.Interfaces.Services;
 
 namespace Kozma.net.Src.Commands.Information;
 

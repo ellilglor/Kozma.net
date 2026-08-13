@@ -24,6 +24,5 @@ public static class CommandIds
     public const string PriceCheck = "pricecheck";
     public const string Stats = "stats";
     public const string Test = "test";
-    public const string TradeEdit = "tradepostedit";
     public const string UpdateLogs = "update";
 }

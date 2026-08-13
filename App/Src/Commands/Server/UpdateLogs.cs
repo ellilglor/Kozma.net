@@ -1,10 +1,10 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Kozma.net.Src.Data.Constants;
-using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Helpers;
+using Kozma.net.Src.Interfaces.Handlers;
+using Kozma.net.Src.Interfaces.Helpers;
+using Kozma.net.Src.Interfaces.Services;
 using Kozma.net.Src.Models.Entities;
-using Kozma.net.Src.Services;
 
 namespace Kozma.net.Src.Commands.Server;
 

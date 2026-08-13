@@ -1,11 +1,12 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Src.Interfaces.Handlers;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Handlers;
 
-public partial class MessageHandler(IMemoryCache cache, IRoleHandler roleHandler) : IMessageHandler
+public partial class MessageHandler(IMemoryCache cache) : IMessageHandler
 {
     private const string _cachekey = "Kozma_Mentioned";
     private static readonly Random _random = new();
@@ -51,14 +52,6 @@ public partial class MessageHandler(IMemoryCache cache, IRoleHandler roleHandler
 
         switch (channelId)
         {
-            case Data.Constants.ChannelIds.WTS: 
-                await roleHandler.HandleTradeCooldownAsync(message, Data.Constants.RoleIds.WTS);
-                await CheckTradePostWarnings(message, isWtsChannel: true);
-                break;
-            case Data.Constants.ChannelIds.WTB: 
-                await roleHandler.HandleTradeCooldownAsync(message, Data.Constants.RoleIds.WTB);
-                await CheckTradePostWarnings(message, isWtsChannel: false);
-                break;
             case Data.Constants.ChannelIds.General when message.MentionedUsers.Any(user => user.Id == Data.Constants.Ids.Kozma) && !cache.TryGetValue(_cachekey, out int _):
                 await message.Channel.SendFileAsync(filePath: Path.Combine("Src", "Assets", "hello-there.gif"));
                 cache.Set(_cachekey, 0, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) });
@@ -73,53 +66,6 @@ public partial class MessageHandler(IMemoryCache cache, IRoleHandler roleHandler
             await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(Data.Constants.RoleIds.HavenListings)} The following has been posted:\n{message.Content}");
     }
 
-    private static async Task CheckTradePostWarnings(SocketUserMessage message, bool isWtsChannel)
-    {
-        await WarnIfWrongContentAsync(message, isWtsChannel);
-        await WarnIfContentTooLongAsync(message);
-        await WarnIfIncorrectFormat(message);
-    }
-
-    private static async Task WarnIfWrongContentAsync(SocketUserMessage message, bool isWtsChannel)
-    {
-        if (isWtsChannel && !message.Content.Contains("wtb", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("buying", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("looking for", StringComparison.OrdinalIgnoreCase)
-            && !(message.Content.Contains("lf", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("wolf", StringComparison.OrdinalIgnoreCase))) return;
-        if (!isWtsChannel && !message.Content.Contains("wts", StringComparison.OrdinalIgnoreCase) && !message.Content.Contains("selling", StringComparison.OrdinalIgnoreCase)) return;
-
-        await ReplyAndDeleteAsync(message, $"It looks like you're selling or buying items in the incorrect channel.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.\nIf this is not the case, you can ignore this warning.");
-    }
-
-    private static async Task WarnIfContentTooLongAsync(SocketUserMessage message)
-    {
-        var count = NewLineRegex().Matches(message.Content).Count;
-        if (count < 15) return;
-
-        await ReplyAndDeleteAsync(message, $"Your message is too long, check the pinned messages for the channel guidelines.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.\nIgnoring this warning may result in your post being deleted and a timeout.");
-    }
-
-    private static async Task WarnIfIncorrectFormat(SocketUserMessage message)
-    {
-        if (!message.Content.StartsWith('#')) return;
-
-        await ReplyAndDeleteAsync(message, $"Your message appears to be incorrectly formatted.\ncheck the pinned messages for the channel guidelines.\nPlease edit your post through the {Format.Code("/tradepostedit")} command.");
-    }
-
-    private static async Task ReplyAndDeleteAsync(SocketUserMessage message, string msg)
-    {
-        var response = await message.ReplyAsync(msg);
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        Task.Run(async () =>
-        {
-            await Task.Delay(TimeSpan.FromMinutes(1));
-            await response.DeleteAsync();
-        });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-    }
-
     [GeneratedRegex(@"\bkozma\b", RegexOptions.IgnoreCase)]
     private static partial Regex KozmaRegex();
-
-    [GeneratedRegex("\n")]
-    private static partial Regex NewLineRegex();
 }

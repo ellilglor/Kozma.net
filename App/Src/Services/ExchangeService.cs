@@ -1,4 +1,5 @@
-﻿using Kozma.net.Src.Logging;
+﻿using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Services;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;

@@ -1,6 +1,6 @@
 ﻿using Kozma.net.Src.Extensions;
-using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Logging;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Kozma.net.Src;
@@ -40,7 +40,6 @@ internal sealed class Program
 
         client.Log += services.GetRequiredService<IBotLogger>().HandleDiscordLog;
         //client.Ready += interactionHandler.RegisterCommandsAsync;
-        client.Ready += services.GetRequiredService<IRoleHandler>().CheckTradeMessagesAsync;
         client.Ready += services.GetRequiredService<ITaskHandler>().LaunchTasksAsync;
         client.InteractionCreated += interactionHandler.HandleInteractionAsync;
         client.MessageReceived += services.GetRequiredService<IMessageHandler>().HandleMessageAsync;

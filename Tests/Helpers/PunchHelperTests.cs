@@ -1,9 +1,9 @@
 ﻿using Discord;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Helpers;
-using Kozma.net.Src.Logging;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Helpers;
 using Kozma.net.Src.Models;
-using Kozma.net.Src.Trackers;
 using Moq;
 
 namespace UnitTests.Helpers;

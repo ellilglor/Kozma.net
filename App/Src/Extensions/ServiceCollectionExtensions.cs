@@ -2,6 +2,10 @@
 using DotNetEnv;
 using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Handlers;
+using Kozma.net.Src.Interfaces.Helpers;
+using Kozma.net.Src.Interfaces.Services;
 using Kozma.net.Src.Logging;
 using Kozma.net.Src.Services;
 using Kozma.net.Src.Trackers;
@@ -36,7 +40,6 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IEmbedHandler, EmbedHandler>()
             .AddScoped<IInteractionHandler, InteractionHandler>()
             .AddScoped<IMessageHandler, MessageHandler>()
-            .AddScoped<IRoleHandler, RoleHandler>()
             .AddScoped<ITaskHandler, TaskHandler>()
             .AddSingleton<IRateLimitHandler, RateLimitHandler>();
     }

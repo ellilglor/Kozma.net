@@ -2,7 +2,7 @@
 using Discord.Interactions;
 using Kozma.net.Src.Enums;
 
-namespace Kozma.net.Src.Logging;
+namespace Kozma.net.Src.Interfaces;
 
 public interface IBotLogger
 {

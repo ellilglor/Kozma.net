@@ -3,7 +3,7 @@ using Discord.Interactions;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
-using Kozma.net.Src.Handlers;
+using Kozma.net.Src.Interfaces.Handlers;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;

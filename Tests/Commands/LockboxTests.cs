@@ -1,5 +1,5 @@
 ﻿using Kozma.net.Src.Commands.Information;
-using Kozma.net.Src.Handlers;
+using Kozma.net.Src.Interfaces.Handlers;
 using Moq;
 
 namespace UnitTests.Commands;

@@ -1,7 +1,7 @@
 ﻿using Kozma.net.Src.Enums;
 using Kozma.net.Src.Models.Entities;
 
-namespace Kozma.net.Src.Services;
+namespace Kozma.net.Src.Interfaces.Services;
 
 public interface IUnboxService
 {

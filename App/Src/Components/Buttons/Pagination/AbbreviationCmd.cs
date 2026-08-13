@@ -1,7 +1,7 @@
 ﻿using Discord.Interactions;
 using Kozma.net.Src.Commands.Information;
 using Kozma.net.Src.Data.Constants;
-using Kozma.net.Src.Helpers;
+using Kozma.net.Src.Interfaces.Helpers;
 
 namespace Kozma.net.Src.Components.Buttons.Pagination;
 

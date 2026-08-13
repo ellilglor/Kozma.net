@@ -1,6 +1,6 @@
 ﻿using Kozma.net.Src.Enums;
 
-namespace Kozma.net.Src.Trackers;
+namespace Kozma.net.Src.Interfaces;
 
 public interface IUnboxTracker
 {

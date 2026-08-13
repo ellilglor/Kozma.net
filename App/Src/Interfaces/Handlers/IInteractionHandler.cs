@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 
-namespace Kozma.net.Src.Handlers;
+namespace Kozma.net.Src.Interfaces.Handlers;
 
 public interface IInteractionHandler
 {

@@ -1,8 +1,8 @@
 ﻿using Discord;
-using Kozma.net.Src;
 using Kozma.net.Src.Data.Constants;
-using Kozma.net.Src.Handlers;
 using Kozma.net.Src.Helpers;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Handlers;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 

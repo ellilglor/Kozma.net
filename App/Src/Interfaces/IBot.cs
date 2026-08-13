@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 
-namespace Kozma.net.Src;
+namespace Kozma.net.Src.Interfaces;
 
 public interface IBot
 {

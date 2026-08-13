@@ -3,7 +3,7 @@ using Discord.WebSocket;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Models;
 
-namespace Kozma.net.Src.Helpers;
+namespace Kozma.net.Src.Interfaces.Helpers;
 
 public interface IPunchHelper
 {

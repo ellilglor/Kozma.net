@@ -1,4 +1,5 @@
-﻿using Kozma.net.Src.Helpers;
+﻿using Kozma.net.Src.Interfaces.Helpers;
+using Kozma.net.Src.Interfaces.Services;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;

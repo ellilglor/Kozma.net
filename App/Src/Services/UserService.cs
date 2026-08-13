@@ -1,13 +1,12 @@
 ﻿using Kozma.net.Src.Data.Constants;
+using Kozma.net.Src.Interfaces.Services;
 using Kozma.net.Src.Models;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using MongoDB.Bson;
 
 namespace Kozma.net.Src.Services;
 
-public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUserService
+public class UserService(KozmaDbContext dbContext) : IUserService
 {
     public async Task UpdateOrSaveUserAsync(ulong id, string name, bool isCommand, string command)
     {
@@ -44,40 +43,6 @@ public class UserService(KozmaDbContext dbContext, IConfiguration config) : IUse
 
         await dbContext.SaveChangesAsync();
     }
-
-    public async Task<bool> SaveMuteAsync(ulong id, string name, bool isWtb, DateTime msgCreatedAt)
-    {
-        if (await dbContext.TradeMutes.FirstOrDefaultAsync(u => u.UserId == id && u.IsWtb == isWtb) != null) return false;
-
-        await dbContext.TradeMutes.AddAsync(new Mute()
-        {
-            Id = ObjectId.GenerateNewId(),
-            Name = name,
-            UserId = id,
-            IsWtb = isWtb,
-            CreatedAt = DateTime.Now,
-            ExpiresAt = msgCreatedAt.AddHours(config.GetValue<double>("slowmodeHours"))
-        });
-
-        await dbContext.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<IEnumerable<Mute>> GetAndDeleteExpiredMutesAsync()
-    {
-        var mutes = await dbContext.TradeMutes.Where(x => x.ExpiresAt <= DateTime.Now).ToListAsync();
-
-        if (mutes.Count > 0)
-        {
-            dbContext.TradeMutes.RemoveRange(mutes);
-            await dbContext.SaveChangesAsync();
-        }
-
-        return mutes;
-    }
-
-    public async Task<IEnumerable<Mute>> GetMutesAsync() =>
-        await dbContext.TradeMutes.ToListAsync();
 
     public async Task<int> GetTotalUsersCountAsync() =>
         await dbContext.Users.CountAsync();

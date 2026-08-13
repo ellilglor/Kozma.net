@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Kozma.net.Src.Interfaces;
 
 namespace Kozma.net.Src;
 
@@ -13,7 +14,7 @@ public class Bot : IBot, IDisposable
     {
         DiscordSocketConfig intents = new()
         {
-            GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.GuildMembers | GatewayIntents.MessageContent
+            GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent
         };
 
         Client = new DiscordSocketClient(intents);

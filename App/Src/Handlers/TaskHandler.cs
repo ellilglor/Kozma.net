@@ -1,10 +1,11 @@
 ﻿using Discord;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
-using Kozma.net.Src.Helpers;
-using Kozma.net.Src.Logging;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Handlers;
+using Kozma.net.Src.Interfaces.Helpers;
+using Kozma.net.Src.Interfaces.Services;
 using Kozma.net.Src.Models.Entities;
-using Kozma.net.Src.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace Kozma.net.Src.Handlers;
@@ -13,7 +14,6 @@ public class TaskHandler(IBot bot,
     IConfiguration config,
     IBotLogger logger,
     IEmbedHandler embedHandler,
-    IRoleHandler roleHandler,
     IUpdateHelper updateHelper,
     ITaskService taskService,
     ITradeLogService tradeLogService,
@@ -45,7 +45,6 @@ public class TaskHandler(IBot bot,
         _tasks.Add("cleanBotLogs", new TaskConfig(48, ClearBotLogsAsync));
         _tasks.Add("resetLogs", new TaskConfig(168, ResetLogsAsync));
         _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
-        _tasks.Add("outdatedMutes", new TaskConfig(36, roleHandler.CheckOutdatedMutesAsync));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(CheckForExpiredTasksAsync); // Run like this to not block the thread
@@ -75,7 +74,6 @@ public class TaskHandler(IBot bot,
             while (true)
             {
                 await UpdateActivityAsync();
-                await roleHandler.CheckExpiredMutesAsync();
 
                 var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
                 foreach (var task in tasks)

@@ -4,8 +4,9 @@ using Discord.WebSocket;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
 using Kozma.net.Src.Extensions;
-using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Services;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Handlers;
+using Kozma.net.Src.Interfaces.Services;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.RegularExpressions;
 

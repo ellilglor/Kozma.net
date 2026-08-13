@@ -3,9 +3,9 @@ using Discord.WebSocket;
 using Kozma.net.Src.Commands.Games;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Extensions;
-using Kozma.net.Src.Handlers;
-using Kozma.net.Src.Helpers;
-using Kozma.net.Src.Trackers;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Handlers;
+using Kozma.net.Src.Interfaces.Helpers;
 
 namespace Kozma.net.Src.Components.Buttons.PunchCmd;
 

@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace Kozma.net.Src.Helpers;
+namespace Kozma.net.Src.Interfaces.Helpers;
 
 public interface IDiscordPaginator
 {

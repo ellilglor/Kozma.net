@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Kozma.net.Src.Models.Entities;
 
-namespace Kozma.net.Src.Helpers;
+namespace Kozma.net.Src.Interfaces.Helpers;
 
 public interface IUpdateHelper
 {

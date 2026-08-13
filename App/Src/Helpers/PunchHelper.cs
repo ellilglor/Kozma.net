@@ -2,9 +2,9 @@
 using Discord.WebSocket;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Enums;
-using Kozma.net.Src.Logging;
+using Kozma.net.Src.Interfaces;
+using Kozma.net.Src.Interfaces.Helpers;
 using Kozma.net.Src.Models;
-using Kozma.net.Src.Trackers;
 
 namespace Kozma.net.Src.Helpers;
 public record PunchReward(string Author, string Url);

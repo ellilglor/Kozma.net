@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Kozma.net.Src.Helpers;
+namespace Kozma.net.Src.Interfaces.Helpers;
 
 public interface IApiFetcher
 {
