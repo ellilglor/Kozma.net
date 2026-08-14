@@ -16,4 +16,5 @@ public class TimedTask
     public DateTime CreatedAt { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime UpdatedAt { get; set; }
+    public int Interval { get; set; }
 }

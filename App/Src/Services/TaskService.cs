@@ -32,7 +32,8 @@ public class TaskService(KozmaDbContext dbContext) : ITaskService
             Name = name,
             Executed = 0,
             CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
+            UpdatedAt = DateTime.Now,
+            Interval = 24
         };
 
         await dbContext.TimedTasks.AddAsync(task);

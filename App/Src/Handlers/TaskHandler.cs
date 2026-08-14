@@ -21,12 +21,11 @@ public class TaskHandler(IBot bot,
     IFileReader jsonFileReader,
     IApiFetcher apiFetcher) : ITaskHandler
 {
-    private sealed record TaskConfig(double Interval, Func<Task<bool>> ExecuteAsync);
     private sealed record Reminder(string Title, string Description);
     private sealed record Offer(int Price, int Volume);
     private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IReadOnlyCollection<Offer> BuyOffers, IReadOnlyCollection<Offer> SellOffers);
 
-    private static readonly Dictionary<string, TaskConfig> _tasks = new();
+    private static readonly Dictionary<string, Func<Task<bool>>> _tasks = [];
     private static DateTime _lastExecuted = DateTime.UtcNow;
     private static readonly Random _random = new();
     private static bool _hasBeenWarnedForApi;
@@ -38,13 +37,13 @@ public class TaskHandler(IBot bot,
         _lastExecuted = DateTime.UtcNow;
 
         _tasks.Clear();
-        _tasks.Add("energyMarket", new TaskConfig(6, PostEnergyMarketAsync));
-        _tasks.Add("slowmodeReminder", new TaskConfig(36, PostSlowModeReminderAsync));
-        _tasks.Add("scamPrevention", new TaskConfig(72, PostScamPreventionAsync));
-        _tasks.Add("onlineAHReminder", new TaskConfig(84, PostAuctionHouseReminderAsync));
-        _tasks.Add("cleanBotLogs", new TaskConfig(48, ClearBotLogsAsync));
-        _tasks.Add("resetLogs", new TaskConfig(168, ResetLogsAsync));
-        _tasks.Add("newLogs", new TaskConfig(6, CheckForNewLogsAsync));
+        _tasks.Add("energyMarket", PostEnergyMarketAsync);
+        _tasks.Add("slowmodeReminder", PostSlowModeReminderAsync);
+        _tasks.Add("scamPrevention", PostScamPreventionAsync);
+        _tasks.Add("onlineAHReminder", PostAuctionHouseReminderAsync);
+        _tasks.Add("cleanBotLogs", ClearBotLogsAsync);
+        _tasks.Add("resetLogs", ResetLogsAsync);
+        _tasks.Add("newLogs", CheckForNewLogsAsync);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(CheckForExpiredTasksAsync); // Run like this to not block the thread
@@ -77,7 +76,7 @@ public class TaskHandler(IBot bot,
 
                 var tasks = (await taskService.GetTasksAsync()).ToDictionary(t => t.Name, StringComparer.Ordinal);
 
-                foreach (var (name, config) in _tasks)
+                foreach (var (name, execute) in _tasks)
                 {
                     if (!tasks.TryGetValue(name, out var task))
                     {
@@ -85,11 +84,11 @@ public class TaskHandler(IBot bot,
                         continue;
                     }
 
-                    if (task.UpdatedAt.AddHours(config.Interval) > DateTime.Now || !task.IsActive) continue;
+                    if (task.UpdatedAt.AddHours(task.Interval) > DateTime.Now || !task.IsActive) continue;
 
                     try
                     {
-                        var success = await config.ExecuteAsync();
+                        var success = await execute();
                         if (success) await taskService.UpdateTaskAsync(task.Name);
                     }
                     catch (Exception ex)
