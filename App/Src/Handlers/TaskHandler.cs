@@ -75,16 +75,21 @@ public class TaskHandler(IBot bot,
             {
                 await UpdateActivityAsync();
 
-                var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
-                foreach (var task in tasks)
+                var tasks = (await taskService.GetTasksAsync()).ToDictionary(t => t.Name, StringComparer.Ordinal);
+
+                foreach (var (name, config) in _tasks)
                 {
-                    if (task.Name == "outdatedMutes") continue;
-                    var taskConfig = _tasks[task.Name];
-                    if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now || !task.IsActive) continue;
+                    if (!tasks.TryGetValue(name, out var task))
+                    {
+                        await taskService.CreateTaskAsync(name);
+                        continue;
+                    }
+
+                    if (task.UpdatedAt.AddHours(config.Interval) > DateTime.Now || !task.IsActive) continue;
 
                     try
                     {
-                        var success = await taskConfig.ExecuteAsync();
+                        var success = await config.ExecuteAsync();
                         if (success) await taskService.UpdateTaskAsync(task.Name);
                     }
                     catch (Exception ex)
