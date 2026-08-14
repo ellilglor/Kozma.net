@@ -78,6 +78,7 @@ public class TaskHandler(IBot bot,
                 var tasks = await taskService.GetTasksAsync(except: "offlineMutes");
                 foreach (var task in tasks)
                 {
+                    if (task.Name == "outdatedMutes") continue;
                     var taskConfig = _tasks[task.Name];
                     if (task.UpdatedAt.AddHours(taskConfig.Interval) > DateTime.Now || !task.IsActive) continue;
 
