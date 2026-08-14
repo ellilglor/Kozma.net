@@ -50,7 +50,6 @@ public class Stats(IBot bot,
         var timer = System.Diagnostics.Stopwatch.StartNew();
         var pages = new List<EmbedBuilder>();
 
-        var userCountTask = GetUserCountAsync();
         var commandUsageTask = commandService.GetCommandUsageAsync(isGame: false);
         var gameUsageTask = commandService.GetCommandUsageAsync(isGame: true);
         var cmdUserCountTask = userService.GetTotalUsersCountAsync();
@@ -58,9 +57,9 @@ public class Stats(IBot bot,
         var logCountTask = tradeLogService.GetTotalLogCountAsync();
         var totalSearchedTask = tradeLogService.GetTotalSearchCountAsync();
 
-        await Task.WhenAll(userCountTask, commandUsageTask, gameUsageTask, cmdUserCountTask, unboxedCountTask, logCountTask, totalSearchedTask);
+        await Task.WhenAll(commandUsageTask, gameUsageTask, cmdUserCountTask, unboxedCountTask, logCountTask, totalSearchedTask);
 
-        pages.AddRange(BuildServerPages(userCountTask.Result));
+        pages.AddRange(BuildServerPages());
         pages.Add(BuildStatEmbed("Command usage", "Command", "Used", await commandService.GetCommandsAsync(isGame: false, commandUsageTask.Result), commandUsageTask.Result));
         pages.Add(BuildStatEmbed("Games played", "Game", "Played", await commandService.GetCommandsAsync(isGame: true, commandUsageTask.Result), gameUsageTask.Result));
         pages.Add(await BuildUserPageAsync(commandUsageTask.Result, forUnboxed: false, cmdUserCountTask.Result));
@@ -84,7 +83,6 @@ public class Stats(IBot bot,
             embedHandler.CreateField("Commands Used", $"{commandUsageTask.Result:N0}"),
             embedHandler.CreateField("Unique Bot Users", $"{cmdUserCountTask.Result:N0}"),
             embedHandler.CreateField("Servers", $"{bot.Client.Guilds.Count:N0}"),
-            embedHandler.CreateField("Unique Users", $"{userCountTask.Result:N0}"),
             embedHandler.CreateField("Tradelogs", $"{logCountTask.Result:N0}"),
             embedHandler.CreateField("Items Searched", $"{totalSearchedTask.Result:N0}"),
             embedHandler.CreateField("Server Members", $"{kozmaGuild!.MemberCount:N0}"),
@@ -110,25 +108,12 @@ public class Stats(IBot bot,
         pages.Add(await BuildTermOccurencePageAsync([], ["Cool", "Dusky", "Fancy", "Heavy", "Military", "Regal", "Toasty"]));
     }
 
-    private async Task<int> GetUserCountAsync()
-    {
-        foreach (var guild in bot.Client.Guilds)
-            if (!guild.HasAllMembers) await guild.DownloadUsersAsync();
-
-        return bot.Client.Guilds
-            .SelectMany(guild => guild.Users)
-            .Where(member => !member.IsBot)
-            .Select(member => member.Id)
-            .Distinct()
-            .Count();
-    }
-
-    private List<EmbedBuilder> BuildServerPages(int userCount)
+    private List<EmbedBuilder> BuildServerPages()
     {
         var pages = new List<EmbedBuilder>();
         var serverPages = bot.Client.Guilds
             .OrderByDescending(g => g.MemberCount)
-            .Select((server, index) => $"{index + 1}. {Format.Bold(server.Name)}: {server.Users.Count}")
+            .Select((server, index) => $"{index + 1}. {Format.Bold(server.Name)}: {server.MemberCount}")
             .Select((info, index) => new { info, index })
             .GroupBy(x => x.index / 25)
             .Select(group => string.Join("\n", group.Select(x => x.info)))
@@ -144,7 +129,6 @@ public class Stats(IBot bot,
                 embedHandler.CreateField(Emotes.Empty, i + 1 < serverPages.Count ? serverPages[i + 1] : Emotes.Empty),
                 embedHandler.CreateEmptyField(),
                 embedHandler.CreateField("Total", $"{bot.Client.Guilds.Count:N0}"),
-                embedHandler.CreateField("Unique Users", $"{userCount:N0}")
             };
 
             pages.Add(embed.WithFields(fields));
