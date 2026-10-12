@@ -5,7 +5,7 @@
             - dbToken=$dbToken
             - database=$database
             - botToken=$botToken
-            - energyMarket=$energyMarket
+            - energyMarketToken=$energyMarketToken
             - cogmaster=$cogmaster
         image: kozma
         restart: unless-stopped
