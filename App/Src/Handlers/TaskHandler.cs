@@ -146,7 +146,7 @@ public class TaskHandler(IBot bot,
         {
             if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.Market) is not IMessageChannel channel) return false;
 
-            var data = await apiFetcher.FetchAsync<EnergyMarketData>(DotNetEnv.Env.GetString("energyMarket"), new() { PropertyNameCaseInsensitive = true });
+            var data = await apiFetcher.FetchAsync<EnergyMarketData>(config.GetValue<string>("energyMarket")!, new() { PropertyNameCaseInsensitive = true }, DotNetEnv.Env.GetString("energyMarketToken"));
 
             if (data.Datetime < DateTime.Now.AddDays(-1))
             {
@@ -169,7 +169,8 @@ public class TaskHandler(IBot bot,
 
             var embed = embedHandler.GetBasicEmbed(data.Datetime.ToString("ddd, dd MMM yyyy"))
                 .WithDescription($"{Format.Bold($"Last trade price: {Emotes.Crown} {data.LastPrice:N0}")}\n{Format.Bold($"Recommended conversion rate: {Emotes.Crown} {rate} per {Emotes.Energy} 1")}")
-                .WithFields(fields);
+                .WithFields(fields)
+                .WithFooter(new EmbedFooterBuilder().WithText("Brought to you by sk-ah.com"));
 
             await exchangeService.UpdateExchangeAsync(rate);
             await channel.SendMessageAsync(embed: embed.Build());
@@ -234,9 +235,8 @@ public class TaskHandler(IBot bot,
         if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.General) is not IMessageChannel channel) return false;
 
         var embed = embedHandler.GetBasicEmbed("The online Auction House")
-            .WithDescription($"Want to check out what is available on the auction house, or want to know when a listing is about to end? Then check out {Format.Bold(Format.Url("this project", config.GetValue<string>("auctionHouse")))}.")
-            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField("Features", "- Current & historic Auction House listings\n- Up-to-Date Energy Market\n- Full item catalog") })
-            .WithFooter(new EmbedFooterBuilder().WithText($"Brought to you by {Emotes.Ape}"));
+            .WithDescription($"Want to check out what is available on the auction house, or want to know when a listing is about to end? Then check out {Format.Bold(Format.Url("sk-ah.com", config.GetValue<string>("auctionHouse")))}.")
+            .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField("Features", "- Current & historic Auction House listings\n- Up-to-Date Energy Market\n- Full item catalog") });
 
         await channel.SendMessageAsync(embed: embed.Build());
         logger.Log(LogLevel.Moderation, "Posted online Auction House reminder");

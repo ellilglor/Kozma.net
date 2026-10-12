@@ -4,5 +4,5 @@ namespace Kozma.net.Src.Interfaces.Helpers;
 
 public interface IApiFetcher
 {
-    Task<T> FetchAsync<T>(string url, JsonSerializerOptions options);
+    Task<T> FetchAsync<T>(string url, JsonSerializerOptions options, string? token = null);
 }
