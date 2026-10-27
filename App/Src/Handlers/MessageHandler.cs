@@ -36,7 +36,7 @@ public partial class MessageHandler(IMemoryCache cache) : IMessageHandler
 
     private async Task HandleKbpMessageAsync(SocketUserMessage message, ulong channelId)
     {
-        if (message.Author.IsWebhook && channelId == Data.Constants.ChannelIds.Announcements)
+        if (message.Author.IsWebhook && (channelId == Data.Constants.ChannelIds.Announcements || channelId == Data.Constants.ChannelIds.SpecialListings))
         {
             await message.CrosspostAsync();
             return;

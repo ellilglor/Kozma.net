@@ -7,6 +7,7 @@ public static class ChannelIds
     public const ulong Market = 866981820846047232;
     public const ulong Announcements = 833017622811377664;
     public const ulong General = 796403286147203092;
+    public const ulong SpecialListings = 807369188133306408;
     public const ulong PriceCheck = 1022505768869711963;
     public const ulong WTB = 872172994158538812;
     public const ulong WTS = 872173055386980373;
