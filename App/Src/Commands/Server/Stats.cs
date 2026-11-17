@@ -61,7 +61,7 @@ public class Stats(IBot bot,
 
         pages.AddRange(BuildServerPages());
         pages.Add(BuildStatEmbed("Command usage", "Command", "Used", await commandService.GetCommandsAsync(isGame: false, commandUsageTask.Result), commandUsageTask.Result));
-        pages.Add(BuildStatEmbed("Games played", "Game", "Played", await commandService.GetCommandsAsync(isGame: true, commandUsageTask.Result), gameUsageTask.Result));
+        pages.Add(BuildStatEmbed("Games played", "Game", "Played", await commandService.GetCommandsAsync(isGame: true, gameUsageTask.Result), gameUsageTask.Result));
         pages.Add(await BuildUserPageAsync(commandUsageTask.Result, forUnboxed: false, cmdUserCountTask.Result));
         pages.Add(await BuildUnboxPageAsync(unboxedCountTask.Result));
         pages.Add(await BuildUserPageAsync(unboxedCountTask.Result, forUnboxed: true));
