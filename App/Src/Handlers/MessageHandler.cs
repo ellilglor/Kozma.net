@@ -9,7 +9,6 @@ namespace Kozma.net.Src.Handlers;
 public partial class MessageHandler(IMemoryCache cache) : IMessageHandler
 {
     private const string _cachekey = "Kozma_Mentioned";
-    private static readonly Random _random = new();
 
     public async Task HandleMessageAsync(SocketMessage rawMessage)
     {
@@ -24,7 +23,7 @@ public partial class MessageHandler(IMemoryCache cache) : IMessageHandler
             case Data.Constants.Ids.Haven: await HandleHavenMessageAsync(message); break;
         }
 
-        if (KozmaRegex().IsMatch(message.Content) && _random.Next(4) == 0)
+        if (KozmaRegex().IsMatch(message.Content) && Random.Shared.Next(4) == 0)
         {
             try
             {

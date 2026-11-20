@@ -11,8 +11,6 @@ public record PunchReward(string Author, string Url);
 
 public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader, IBotLogger logger) : IPunchHelper
 {
-    private static readonly Random _random = new();
-
     public EmbedAuthorBuilder GetAuthor() =>
         new EmbedAuthorBuilder().WithName("Punch").WithIconUrl("https://media3.spiralknights.com/wiki-images/archive/1/1b/20200502113903!Punch-Mugshot.png");
 
@@ -55,7 +53,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
 
     private static string GetUvGrade(ItemType type)
     {
-        var gradeRoll = _random.Next(1, 10001);
+        var gradeRoll = Random.Shared.Next(1, 10001);
 
         var grades = new[]
         {
@@ -73,7 +71,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         if (type == ItemType.Weapon || type == ItemType.Bomb)
         {
             var limit = type == ItemType.Weapon ? 8 : 7;
-            var typeRoll = _random.Next(0, limit);
+            var typeRoll = Random.Shared.Next(0, limit);
 
             return typeRoll switch
             {
@@ -90,7 +88,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         else
         {
             var limit = type == ItemType.Armor || type == ItemType.Shield && crafting ? 11 : 4;
-            var typeRoll = _random.Next(0, limit);
+            var typeRoll = Random.Shared.Next(0, limit);
 
             return typeRoll switch
             {
@@ -123,7 +121,7 @@ public class PunchHelper(IPunchTracker punchTracker, IFileReader jsonFileReader,
         logger.Log(LogLevel.Special, $"{user} rolled a GM item");
 
         var rewards = await jsonFileReader.ReadAsync<IReadOnlyList<PunchReward>>(Path.Combine("Data", "Punch.json"));
-        var reward = rewards[_random.Next(rewards.Count)];
+        var reward = rewards[Random.Shared.Next(rewards.Count)];
         return ($"Congratulations! You created a GM item.\nAs a reward you get a random Spiral Knights meme.\nAuthor: {Format.Bold(reward.Author)}", reward.Url);
     }
 

@@ -27,7 +27,6 @@ public class TaskHandler(IBot bot,
 
     private static readonly Dictionary<string, Func<Task<bool>>> _tasks = [];
     private static DateTime _lastExecuted = DateTime.UtcNow;
-    private static readonly Random _random = new();
     private static bool _hasBeenWarnedForApi;
     private static bool _isRunning;
     private static readonly object _lock = new();
@@ -114,7 +113,7 @@ public class TaskHandler(IBot bot,
 
     private async Task UpdateActivityAsync()
     {
-        var random = _random.Next(0, 18);
+        var random = Random.Shared.Next(0, 18);
         var name = random switch
         {
             0 => "/help",
@@ -217,7 +216,7 @@ public class TaskHandler(IBot bot,
     {
         if (await bot.Client.GetChannelAsync(Data.Constants.ChannelIds.WTS) is not IMessageChannel channel) return false;
         var reminders = await jsonFileReader.ReadAsync<IReadOnlyList<Reminder>>(Path.Combine("Data", "Reminders.json"));
-        var reminder = reminders[_random.Next(reminders.Count)];
+        var reminder = reminders[Random.Shared.Next(reminders.Count)];
 
         var embed = embedHandler.GetBasicEmbed("Trading Guidelines")
             .WithFields(new List<EmbedFieldBuilder>() { embedHandler.CreateField(reminder.Title, reminder.Description) })

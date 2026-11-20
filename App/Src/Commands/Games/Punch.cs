@@ -13,8 +13,6 @@ namespace Kozma.net.Src.Commands.Games;
 
 public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchTracker punchTracker) : InteractionModuleBase<SocketInteractionContext>
 {
-    private static readonly Random _random = new();
-
     [SlashCommand(CommandIds.Punch, "Craft and roll on an item for Unique Variants.")]
     public async Task ExecuteAsync(
         [Summary(name: "item", description: "Select the item you want to craft.")] PunchOption choice)
@@ -58,7 +56,7 @@ public class Punch(IEmbedHandler embedHandler, IPunchHelper punchHelper, IPunchT
      * */
     private List<string> CraftItem(ulong id, PunchItem item)
     {
-        int craftRoll = _random.Next(1, 1001);
+        int craftRoll = Random.Shared.Next(1, 1001);
         var limit = craftRoll == 1 ? 3 : craftRoll <= 11 ? 2 : craftRoll <= 111 ? 1 : 0;
         var uvs = new List<string>();
 

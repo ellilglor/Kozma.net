@@ -20,8 +20,6 @@ public class Unbox(IMemoryCache cache,
     IFileReader jsonFileReader,
     IBotLogger logger) : InteractionModuleBase<SocketInteractionContext>
 {
-    private static readonly Random _random = new();
-
     [SlashCommand(CommandIds.Unbox, "Simulate opening a Prize Box or Lockbox.")]
     public async Task ExecuteAsync(
         [Summary(name: "box", description: "Select the box you want to open.")] Box box)
@@ -100,7 +98,7 @@ public class Unbox(IMemoryCache cache,
         var bonusBoxes = new List<Box>() { Box.Confection, Box.Lucky };
         var unboxed = new List<ItemData>();
         var prevOdds = 0.00;
-        var roll = _random.NextDouble() * 100;
+        var roll = Random.Shared.NextDouble() * 100;
 
         foreach (var item in items)
         {
@@ -127,11 +125,11 @@ public class Unbox(IMemoryCache cache,
     {
         switch (box)
         {
-            case Box.Confection: return _random.NextDouble() * 100 <= 1 ? new ItemData("Sprinkle Aura", 0.00, string.Empty) : null;
+            case Box.Confection: return Random.Shared.NextDouble() * 100 <= 1 ? new ItemData("Sprinkle Aura", 0.00, string.Empty) : null;
             case Box.Lucky when roll <= 32:
                 while (true)
                 {
-                    var bonusRoll = _random.NextDouble() * 32;
+                    var bonusRoll = Random.Shared.NextDouble() * 32;
                     var prevOdds = 0.00;
 
                     foreach (var item in items)

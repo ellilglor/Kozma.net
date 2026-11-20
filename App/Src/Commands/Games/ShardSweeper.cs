@@ -7,7 +7,6 @@ namespace Kozma.net.Src.Commands.Games;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional", Justification = "Array will be completely filled")]
 public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
 {
-    private static readonly Random _random = new();
     private const int _shard = -1;
     private const int _size = 9;
     private const int _shardLimit = 4;
@@ -57,7 +56,7 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
 
     private async Task SendAnimationAsync()
     {
-        var fields = _templateFields.OrderBy(f => _random.Next()).Take(3);
+        var fields = _templateFields.OrderBy(f => Random.Shared.Next()).Take(3);
 
         foreach (var field in fields)
         {
@@ -79,8 +78,8 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
 
         while (shardCount < maxShards)
         {
-            var rowIndex = _random.Next(0, _size);
-            var colIndex = _random.Next(0, _size);
+            var rowIndex = Random.Shared.Next(0, _size);
+            var colIndex = Random.Shared.Next(0, _size);
 
             if (!CanBePlaced(rowIndex, colIndex, field)) continue;
 
@@ -128,8 +127,8 @@ public class ShardSweeper() : InteractionModuleBase<SocketInteractionContext>
     {
         while (true)
         {
-            var rowIndex = _random.Next(0, _size);
-            var colIndex = _random.Next(0, _size);
+            var rowIndex = Random.Shared.Next(0, _size);
+            var colIndex = Random.Shared.Next(0, _size);
 
             if (field[rowIndex, colIndex] != 0) continue;
             return (rowIndex, colIndex);
