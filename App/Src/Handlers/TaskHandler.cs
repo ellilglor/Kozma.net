@@ -274,20 +274,19 @@ public class TaskHandler(IBot bot,
 
     private async Task<bool> ResetLogsAsync()
     {
-        var logs = new List<TradeLog>();
         var channels = updateHelper.GetChannels();
         var message = "Resetting tradelogs";
         logger.Log(LogLevel.Moderation, message);
         await logger.LogAsync(embed: embedHandler.GetLogEmbed(message, Colors.Moderation).Build());
 
-        var tasks = channels.Select(async (channelData) =>
+        var tasks = channels.Select(async Task<IReadOnlyCollection<TradeLog>> (channelData) =>
         {
-            if (await bot.Client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) return;
+            if (await bot.Client.GetChannelAsync(channelData.Value) is not IMessageChannel channel) return [];
 
-            logs.AddRange(await updateHelper.GetLogsAsync(channel, limit: int.MaxValue));
-        }).ToList();
+            return await updateHelper.GetLogsAsync(channel, limit: int.MaxValue);
+        });
 
-        await Task.WhenAll(tasks);
+        var logs = (await Task.WhenAll(tasks)).SelectMany(logs => logs).ToList();
         logger.Log(LogLevel.Moderation, "Uploading logs to database...");
 
         updateHelper.ClearFindLogsCache();

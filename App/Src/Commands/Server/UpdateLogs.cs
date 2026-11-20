@@ -19,25 +19,26 @@ public class UpdateLogs(IEmbedHandler embedHandler, IUpdateHelper updateHelper, 
     {
         var totalTime = System.Diagnostics.Stopwatch.StartNew();
         var embed = embedHandler.GetEmbed("Executing /update");
-        var data = new List<Channel>();
         var channels = updateHelper.GetChannels();
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.Build());
 
-        var tasks = channels.Select(async (channelData) =>
+        var tasks = channels.Select(async Task<Channel> (channelData) =>
         {
             var (name, id) = channelData;
-            if (Context.Guild.GetChannel(id) is not IMessageChannel channel) return;
+            if (Context.Guild.GetChannel(id) is not IMessageChannel channel) 
+                return new Channel(string.Empty, Array.Empty<TradeLog>(), string.Empty);
+
             var channelTime = System.Diagnostics.Stopwatch.StartNew();
             var logs = await updateHelper.GetLogsAsync(channel, limit: int.MaxValue);
 
             channelTime.Stop();
             var elapsed = $"{channelTime.Elapsed.TotalSeconds:F2}";
-            data.Add(new Channel(name, logs, elapsed));
 
             await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle($"Finished {name} in {elapsed} seconds.").Build());
+            return new Channel(name, logs, elapsed);
         }).ToList();
 
-        await Task.WhenAll(tasks);
+        var data = (await Task.WhenAll(tasks)).Where(c => !string.IsNullOrEmpty(c.Name)).ToList();
         await ModifyOriginalResponseAsync(msg => msg.Embed = embed.WithTitle("Uploading logs to database...").Build());
 
         updateHelper.ClearFindLogsCache();
