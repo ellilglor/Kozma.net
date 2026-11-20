@@ -8,6 +8,7 @@ using Kozma.net.Src.Interfaces;
 using Kozma.net.Src.Interfaces.Handlers;
 using Kozma.net.Src.Interfaces.Services;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.RegularExpressions;
 
 namespace Kozma.net.Src.Logging;
@@ -16,8 +17,7 @@ public partial class Logger(IBot bot,
     IMemoryCache cache,
     IEmbedHandler embedHandler,
     IRateLimitHandler rateLimitHandler,
-    IUserService userService,
-    ICommandService commandService) : IBotLogger
+    IServiceScopeFactory scopeFactory) : IBotLogger
 {
     private const string IntErrorMsg = "Value was either too large or too small for an Int32.";
 
@@ -92,8 +92,9 @@ public partial class Logger(IBot bot,
 
     private async Task SaveInteractionAsync(ulong id, string user, string command, bool isCommand)
     {
-        await userService.UpdateOrSaveUserAsync(id, user, isCommand, command);
-        await commandService.UpdateOrSaveCommandAsync(command, isCommand);
+        using var scope = scopeFactory.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<IUserService>().UpdateOrSaveUserAsync(id, user, isCommand, command);
+        await scope.ServiceProvider.GetRequiredService<ICommandService>().UpdateOrSaveCommandAsync(command, isCommand);
     }
 
     private async Task HandleErrorAsync(string command, IDiscordInteraction interaction, ExecuteResult result, string location)

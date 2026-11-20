@@ -7,6 +7,7 @@ using Kozma.net.Src.Interfaces.Helpers;
 using Kozma.net.Src.Interfaces.Services;
 using Kozma.net.Src.Models.Entities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kozma.net.Src.Handlers;
 
@@ -14,10 +15,7 @@ public class TaskHandler(IBot bot,
     IConfiguration config,
     IBotLogger logger,
     IEmbedHandler embedHandler,
-    IUpdateHelper updateHelper,
-    ITaskService taskService,
-    ITradeLogService tradeLogService,
-    IExchangeService exchangeService,
+    IServiceScopeFactory scopeFactory,
     IFileReader jsonFileReader,
     IApiFetcher apiFetcher) : ITaskHandler
 {
@@ -25,7 +23,7 @@ public class TaskHandler(IBot bot,
     private sealed record Offer(int Price, int Volume);
     private sealed record EnergyMarketData(DateTime Datetime, int LastPrice, IReadOnlyCollection<Offer> BuyOffers, IReadOnlyCollection<Offer> SellOffers);
 
-    private static readonly Dictionary<string, Func<Task<bool>>> _tasks = [];
+    private static readonly Dictionary<string, Func<IServiceProvider, Task<bool>>> _tasks = [];
     private static DateTime _lastExecuted = DateTime.UtcNow;
     private static bool _hasBeenWarnedForApi;
     private static bool _isRunning;
@@ -36,13 +34,13 @@ public class TaskHandler(IBot bot,
         _lastExecuted = DateTime.UtcNow;
 
         _tasks.Clear();
-        _tasks.Add("energyMarket", PostEnergyMarketAsync);
-        _tasks.Add("slowmodeReminder", PostSlowModeReminderAsync);
-        _tasks.Add("scamPrevention", PostScamPreventionAsync);
-        _tasks.Add("onlineAHReminder", PostAuctionHouseReminderAsync);
-        _tasks.Add("cleanBotLogs", ClearBotLogsAsync);
-        _tasks.Add("resetLogs", ResetLogsAsync);
-        _tasks.Add("newLogs", CheckForNewLogsAsync);
+        _tasks.Add("energyMarket", services => PostEnergyMarketAsync(services.GetRequiredService<IExchangeService>()));
+        _tasks.Add("slowmodeReminder", _ => PostSlowModeReminderAsync());
+        _tasks.Add("scamPrevention", _ => PostScamPreventionAsync());
+        _tasks.Add("onlineAHReminder", _ => PostAuctionHouseReminderAsync());
+        _tasks.Add("cleanBotLogs", _ => ClearBotLogsAsync());
+        _tasks.Add("resetLogs", services => ResetLogsAsync(services.GetRequiredService<IUpdateHelper>(), services.GetRequiredService<ITradeLogService>()));
+        _tasks.Add("newLogs", services => CheckForNewLogsAsync(services.GetRequiredService<IUpdateHelper>(), services.GetRequiredService<ITradeLogService>()));
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(CheckForExpiredTasksAsync); // Run like this to not block the thread
@@ -73,29 +71,32 @@ public class TaskHandler(IBot bot,
             {
                 await UpdateActivityAsync();
 
-                var tasks = (await taskService.GetTasksAsync()).ToDictionary(t => t.Name, StringComparer.Ordinal);
-
-                foreach (var (name, execute) in _tasks)
+                using (var scope = scopeFactory.CreateScope())
                 {
-                    if (!tasks.TryGetValue(name, out var task))
-                    {
-                        await taskService.CreateTaskAsync(name);
-                        continue;
-                    }
+                    var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
+                    var tasks = (await taskService.GetTasksAsync()).ToDictionary(t => t.Name, StringComparer.Ordinal);
 
-                    if (task.UpdatedAt.AddHours(task.Interval) > DateTime.Now || !task.IsActive) continue;
+                    foreach (var (name, execute) in _tasks)
+                    {
+                        if (!tasks.TryGetValue(name, out var task))
+                        {
+                            await taskService.CreateTaskAsync(name);
+                            continue;
+                        }
 
-                    try
-                    {
-                        var success = await execute();
-                        if (success) await taskService.UpdateTaskAsync(task.Name);
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogAsync($"Error while executing task {task.Name}\n{ex.Message}", pingOwner: true);
+                        if (task.UpdatedAt.AddHours(task.Interval) > DateTime.Now || !task.IsActive) continue;
+
+                        try
+                        {
+                            var success = await execute(scope.ServiceProvider);
+                            if (success) await taskService.UpdateTaskAsync(task.Name);
+                        }
+                        catch (Exception ex)
+                        {
+                            await logger.LogAsync($"Error while executing task {task.Name}\n{ex.Message}", pingOwner: true);
+                        }
                     }
                 }
-
                 _lastExecuted = DateTime.UtcNow;
 
                 await Task.Delay(TimeSpan.FromMinutes(30));
@@ -139,7 +140,7 @@ public class TaskHandler(IBot bot,
         await bot.UpdateActivityAsync(name, type: random < 10 ? ActivityType.Listening : ActivityType.Watching);
     }
 
-    private async Task<bool> PostEnergyMarketAsync()
+    private async Task<bool> PostEnergyMarketAsync(IExchangeService exchangeService)
     {
         try
         {
@@ -242,7 +243,7 @@ public class TaskHandler(IBot bot,
         return true;
     }
 
-    private async Task<bool> CheckForNewLogsAsync()
+    private async Task<bool> CheckForNewLogsAsync(IUpdateHelper updateHelper, ITradeLogService tradeLogService)
     {
         var logs = new List<TradeLog>();
         var channels = updateHelper.GetChannels();
@@ -272,7 +273,7 @@ public class TaskHandler(IBot bot,
         return true;
     }
 
-    private async Task<bool> ResetLogsAsync()
+    private async Task<bool> ResetLogsAsync(IUpdateHelper updateHelper, ITradeLogService tradeLogService)
     {
         var channels = updateHelper.GetChannels();
         var message = "Resetting tradelogs";

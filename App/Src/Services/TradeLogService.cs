@@ -10,7 +10,8 @@ namespace Kozma.net.Src.Services;
 
 public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReader) : ITradeLogService
 {
-    public bool LogsAreBeingUpdated { get; private set; }
+    private static volatile bool _logsAreBeingUpdated;
+    public bool LogsAreBeingUpdated => _logsAreBeingUpdated;
 
     public async Task UpdateOrSaveItemAsync(string item)
     {
@@ -63,21 +64,21 @@ public class TradeLogService(KozmaDbContext dbContext, IFileReader jsonFileReade
 
     public async Task UpdateLogsAsync(IReadOnlyCollection<TradeLog> logs)
     {
-        LogsAreBeingUpdated = true;
+        _logsAreBeingUpdated = true;
         await dbContext.TradeLogs.AddRangeAsync(logs);
         await dbContext.SaveChangesAsync();
-        LogsAreBeingUpdated = false;
+        _logsAreBeingUpdated = false;
     }
 
     public async Task DeleteAndUpdateLogsAsync(IReadOnlyCollection<TradeLog> logs)
     {
-        LogsAreBeingUpdated = true;
+        _logsAreBeingUpdated = true;
         dbContext.TradeLogs.RemoveRange(await dbContext.TradeLogs.ToListAsync());
         await dbContext.SaveChangesAsync();
         // save twice because of duplicate keys
         await dbContext.TradeLogs.AddRangeAsync(logs);
         await dbContext.SaveChangesAsync();
-        LogsAreBeingUpdated = false;
+        _logsAreBeingUpdated = false;
     }
 
     public async Task<bool> CheckIfLogExistsAsync(ulong id) =>
