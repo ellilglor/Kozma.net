@@ -1,4 +1,5 @@
-﻿using Kozma.net.Src.Commands.Information;
+﻿using Discord;
+using Kozma.net.Src.Commands.Information;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Interfaces.Handlers;
 using Kozma.net.Src.Interfaces.Helpers;
@@ -231,6 +232,52 @@ public class FindLogsTests : IDisposable
         await _command.AddVariantsAsync(inputList);
 
         Assert.Equal(expected, inputList);
+    }
+
+    private static Embed CreateEmbed(int descriptionLength) =>
+        new EmbedBuilder().WithTitle("Mon 01 Jan 2024").WithDescription(new string('x', descriptionLength)).Build();
+
+    [Fact]
+    public void BatchEmbeds_SplitsAfterTenEmbeds()
+    {
+        var embeds = Enumerable.Range(0, 11).Select(_ => CreateEmbed(10));
+
+        var batches = FindLogs.BatchEmbeds(embeds).ToList();
+
+        Assert.Equal([10, 1], batches.Select(b => b.Length));
+    }
+
+    [Fact]
+    public void BatchEmbeds_CountsTitlesTowardsCharLimit()
+    {
+        var embeds = new[] { CreateEmbed(2990), CreateEmbed(2990) };
+
+        var batches = FindLogs.BatchEmbeds(embeds).ToList();
+
+        Assert.Equal(2, batches.Count);
+    }
+
+    [Fact]
+    public void BatchEmbeds_EveryBatchStaysWithinDiscordLimits()
+    {
+        var embeds = new[] { 4096, 100, 1500, 4096, 4096, 3000, 2999, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 5000 - 4096 }.Select(CreateEmbed).ToList();
+
+        var batches = FindLogs.BatchEmbeds(embeds).ToList();
+
+        Assert.All(batches, b =>
+        {
+            Assert.NotEmpty(b);
+            Assert.True(b.Length <= DiscordConfig.MaxEmbedsPerMessage);
+            Assert.True(b.Sum(e => e.Length) <= 6000);
+        });
+
+        Assert.Equal(embeds, batches.SelectMany(b => b));
+    }
+
+    [Fact]
+    public void BatchEmbeds_NoEmbeds_ReturnsEmpty()
+    {
+        Assert.Empty(FindLogs.BatchEmbeds([]));
     }
 
     public void Dispose()

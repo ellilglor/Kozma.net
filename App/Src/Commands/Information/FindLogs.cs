@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.Net;
 using Discord.WebSocket;
 using Kozma.net.Src.Data.Constants;
 using Kozma.net.Src.Extensions;
@@ -88,38 +89,46 @@ public partial class FindLogs(IMemoryCache cache,
             foreach (var channel in matches)
             {
                 var count = channel.Messages.Count;
-                var charCount = 0;
-                var embeds = new List<Embed> { embedHandler.GetBasicEmbed($"I found {count:N0} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(Colors.Crown).Build() };
+                var header = embedHandler.GetBasicEmbed($"I found {count:N0} post{(count != 1 ? "s" : string.Empty)} in {channel.Channel}:").WithColor(Colors.Crown).Build();
+                var embeds = channel.Messages.Select(message => embedHandler.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
+                    .WithUrl(message.MessageUrl)
+                    .WithImageUrl(message.Image)
+                    .WithDescription(message.OriginalContent.Length > ExtendedDiscordConfig.MaxEmbedDescChars ? message.OriginalContent.Substring(0, ExtendedDiscordConfig.MaxEmbedDescChars) : message.OriginalContent)
+                    .Build());
                 matchCount += count;
 
-                foreach (var message in channel.Messages)
-                {
-                    if ((charCount + message.OriginalContent.Length > ExtendedDiscordConfig.MaxCharsAcrossEmbeds) || embeds.Count == DiscordConfig.MaxEmbedsPerMessage)
-                    {
-                        await user.SendMessageAsync(embeds: [.. embeds]);
-                        embeds.Clear();
-                        charCount = 0;
-                    }
-
-                    charCount += message.OriginalContent.Length;
-
-                    embeds.Add(embedHandler.GetBasicEmbed(message.Date.ToString("ddd, dd MMM yyyy"))
-                        .WithUrl(message.MessageUrl)
-                        .WithImageUrl(message.Image)
-                        .WithDescription(message.OriginalContent.Length > ExtendedDiscordConfig.MaxEmbedDescChars ? message.OriginalContent.Substring(0, ExtendedDiscordConfig.MaxEmbedDescChars) : message.OriginalContent)
-                        .Build());
-                }
-
-                if (embeds.Count > 0) 
-                    await user.SendMessageAsync(embeds: [.. embeds]);
+                foreach (var batch in BatchEmbeds(embeds.Prepend(header)))
+                    await user.SendMessageAsync(embeds: batch);
             }
 
             await FinishInteractionAsync(user, item, original, matchCount, months, checkVariants);
         }
-        catch
+        catch (HttpException ex) when (ex.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
         {
             await SendErrorEmbedAsync();
         }
+    }
+
+    internal static IEnumerable<Embed[]> BatchEmbeds(IEnumerable<Embed> embeds)
+    {
+        var batch = new List<Embed>();
+        var charCount = 0;
+
+        foreach (var embed in embeds)
+        {
+            if (batch.Count > 0 && (charCount + embed.Length > ExtendedDiscordConfig.MaxCharsAcrossEmbeds || batch.Count == DiscordConfig.MaxEmbedsPerMessage))
+            {
+                yield return batch.ToArray();
+                batch.Clear();
+                charCount = 0;
+            }
+
+            charCount += embed.Length;
+            batch.Add(embed);
+        }
+
+        if (batch.Count > 0)
+            yield return batch.ToArray();
     }
 
     private async Task FinishInteractionAsync(SocketUser user, string item, string original, int matchCount, int months, bool checkVariants)
@@ -148,7 +157,7 @@ public partial class FindLogs(IMemoryCache cache,
         {
             await user.SendMessageAsync(embed: embed.Build(), components: components.Build());
         }
-        catch
+        catch (HttpException ex) when (ex.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
         {
             await SendErrorEmbedAsync();
         }
