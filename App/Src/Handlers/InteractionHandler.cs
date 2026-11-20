@@ -120,10 +120,15 @@ public class InteractionHandler(IConfiguration config,
         if (interaction.GuildId == Data.Constants.Ids.Server || interaction.User.Id == Data.Constants.Ids.Owner)
             return false;
 
-        var guild = bot.Client.GetGuild(Data.Constants.Ids.Server);
-        var isBanned = await guild.GetBanAsync(interaction.User.Id) != null;
+        var cacheKey = "kozma_bans";
+        if (!cache.TryGetValue(cacheKey, out IEnumerable<ulong>? bans) || bans is null)
+        {
+            var guild = bot.Client.GetGuild(Data.Constants.Ids.Server);
+            bans = (await guild.GetBansAsync().FlattenAsync()).Select(ban => ban.User.Id).ToList();
+            cache.Set(cacheKey, bans, new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1) });
+        }
 
-        if (!isBanned)
+        if (!bans.Contains(interaction.User.Id))
             return false;
 
         var embed = embedHandler.GetBasicEmbed("You are banned from the Kozma's Backpack Discord server and are therefore prohibited from using this bot.").WithColor(Colors.Error);
