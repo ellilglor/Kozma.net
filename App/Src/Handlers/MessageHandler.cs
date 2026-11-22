@@ -62,7 +62,7 @@ public partial class MessageHandler(IMemoryCache cache) : IMessageHandler
     private static async Task HandleHavenMessageAsync(IMessage message)
     {
         if (message.Channel.Id == Data.Constants.ChannelIds.HavenListings && message.Author.IsWebhook)
-            await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(Data.Constants.RoleIds.HavenListings)} The following has been posted:\n{message.Content}");
+            await message.Channel.SendMessageAsync($"{MentionUtils.MentionRole(Data.Constants.RoleIds.HavenListings)} The following has been posted:\n{message.Content.Split('\r', '\n')[0]}");
     }
 
     [GeneratedRegex(@"\bkozma\b", RegexOptions.IgnoreCase)]
